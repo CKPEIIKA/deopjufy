@@ -26,7 +26,7 @@ deopjufy dump-block FILE --offset N --length N
 deopjufy compare LEFT RIGHT [--json]
 ```
 
-The optional read-only viewer is started with:
+The optional read-only GUI viewer is started with:
 
 ```text
 deopjufy-view [FILE ...]

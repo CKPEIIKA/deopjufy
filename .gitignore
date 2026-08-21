@@ -1,0 +1,68 @@
+# BEGIN COMMON PYTHON WORKSPACE IGNORES
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.uv-cache/
+.uv_cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ty/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
+quality.txt
+reports/quality_checks.txt
+reports/coverage.json
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+# END COMMON PYTHON WORKSPACE IGNORES
+
+# Ignore Origin project files.
+# Unknown-license real-world holdouts may exist locally under refs/ for developer-only testing,
+# but they must remain untracked.
+*.opj
+*.opju
+# Local recovery bundles may contain unpublished project data and reports.
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+.venv/
+context.md
+# Local extraction/reconnaissance summaries can contain private fixture details.
+REPORT.md
+refs/openopj/
+refs/*/
+tmp/
+docs/performance.md
+docs/benchmarks/
+
+# Ignore generated Python/build artifacts
+*.py[cod]
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/

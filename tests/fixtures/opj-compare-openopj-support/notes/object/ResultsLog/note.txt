@@ -1,0 +1,8 @@
+[3/5/2009 13:32 "/DeltaH" (2454895)]
+Data: Data1_NDH
+Model: OneSites
+Chi^2/DoF = 3008
+N	0.800	0.0346
+K	1.75E4	1.86E3
+H	-5406	340.5
+S	1.29

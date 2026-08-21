@@ -1,0 +1,143 @@
+{
+  "fixture": "synthetic-opj-multi-family.opj",
+  "list": {
+    "detected_type": "opj",
+    "origin_object_count": 9,
+    "origin_objects": [
+      {
+        "name": "Book1_A",
+        "object_kind": "worksheet",
+        "source_object_path": "Book/Book1_A",
+        "offset": 112,
+        "length": 7
+      },
+      {
+        "name": "Graph1",
+        "object_kind": "graph",
+        "source_object_path": "Graph/Graph1",
+        "offset": 241,
+        "length": 6
+      },
+      {
+        "name": "PdMSheet1",
+        "object_kind": "matrix",
+        "source_object_path": "PdM/PdMSheet1",
+        "offset": 370,
+        "length": 9
+      },
+      {
+        "name": "MSheet1",
+        "object_kind": "matrix",
+        "source_object_path": "MSheet/MSheet1",
+        "offset": 372,
+        "length": 7
+      },
+      {
+        "name": "Sheet1",
+        "object_kind": "worksheet",
+        "source_object_path": "Sheet/Sheet1",
+        "offset": 373,
+        "length": 6
+      },
+      {
+        "name": "Note1",
+        "object_kind": "note",
+        "source_object_path": "Note/Note1",
+        "offset": 499,
+        "length": 5
+      },
+      {
+        "name": "Function1",
+        "object_kind": "function",
+        "source_object_path": "Function/Function1",
+        "offset": 628,
+        "length": 9
+      },
+      {
+        "name": "ExcelA",
+        "object_kind": "excel",
+        "source_object_path": "Excel/ExcelA",
+        "offset": 757,
+        "length": 6
+      },
+      {
+        "name": "__Meta",
+        "object_kind": "meta",
+        "source_object_path": "meta/__Meta",
+        "offset": 886,
+        "length": 6
+      }
+    ],
+    "object_kind_counts": {
+      "worksheet": 2,
+      "graph": 1,
+      "matrix": 2,
+      "note": 1,
+      "function": 1,
+      "excel": 1,
+      "meta": 1
+    }
+  },
+  "extract": {
+    "required_items": [
+      {
+        "kind": "note",
+        "name": "Note1",
+        "status": "extracted",
+        "path": "notes/Note/Note1/note.txt",
+        "rows": 1,
+        "columns": 1,
+        "source_object_path": "Note/Note1",
+        "sha256": "8fd2e0eb09555b5fe94c2631174d6cb9017caca964d632c754d49770d5325b60"
+      },
+      {
+        "kind": "function",
+        "name": "Function1",
+        "status": "extracted",
+        "path": "functions/Function/Function1/function.txt",
+        "rows": 12,
+        "columns": 1,
+        "source_object_path": "Function/Function1",
+        "sha256": "94baffc9f9afba28aa173599fecbe34f03e9c5b52cb89f1580f01146228cafa0"
+      },
+      {
+        "kind": "matrix",
+        "name": "PdMSheet1",
+        "status": "partial",
+        "error": "no_extracted_table_rows",
+        "source_object_path": "PdM/PdMSheet1",
+        "rows": 0,
+        "columns": 0
+      },
+      {
+        "kind": "worksheet",
+        "name": "book_collection",
+        "status": "unsupported",
+        "error": "no_extracted_table_rows",
+        "source_object_path": "book_collection"
+      },
+      {
+        "kind": "excel",
+        "name": "excel_collection",
+        "status": "unsupported",
+        "error": "no_extracted_table_rows",
+        "source_object_path": "excel_collection"
+      },
+      {
+        "kind": "graph",
+        "name": "graph_collection",
+        "status": "unsupported",
+        "error": "no_graph_previews",
+        "source_object_path": "Graph/Graph1"
+      },
+      {
+        "kind": "origin_object_inventory",
+        "name": "origin_objects",
+        "status": "extracted",
+        "path": "metadata/origin_objects.json",
+        "source_object_path": "origin_objects",
+        "sha256": "4bb4f433b9ddbf43341f7be5d4d49f694272899b8385207a7d63e6a1cd922ef6"
+      }
+    ]
+  }
+}

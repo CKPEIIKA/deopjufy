@@ -1,0 +1,518 @@
+{
+  "command": {
+    "arguments": [
+      "--no-images",
+      "--no-strings"
+    ],
+    "name": "extract"
+  },
+  "generated_on": "2026-07-16",
+  "records": [
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 0,
+      "path": "refs/github/Ropj/inst/test.opj",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 0,
+      "path": "refs/github/Ropj/inst/tree.opj",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 1,
+      "warning_signature": [
+        "No matrix data emitted to matrix exports."
+      ]
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 0,
+      "path": "refs/openopj/support/test.opj",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": "table_scan_disabled_by_scan_profile",
+          "kind": "table_scan",
+          "status": "skipped"
+        },
+        {
+          "count": 46,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 46,
+      "path": "refs/public/zenodo/zenodo-10364693-ahrrenius-ybscsz.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 8,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "unsupported",
+      "partial_items": 8,
+      "path": "refs/public/zenodo/zenodo-10721640-figure-1b.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 13,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 13,
+      "path": "refs/public/zenodo/zenodo-10721640-figure-s3.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 10,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "unsupported",
+      "partial_items": 10,
+      "path": "refs/public/zenodo/zenodo-10721640-figure-s6.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 1,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 1,
+      "path": "refs/public/zenodo/zenodo-10721640-figure-s7.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": "table_scan_disabled_by_scan_profile",
+          "kind": "table_scan",
+          "status": "skipped"
+        },
+        {
+          "count": 24,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        },
+        {
+          "count": 1,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "unsupported"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 24,
+      "path": "refs/public/zenodo/zenodo-18450855-eucd2p2.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 47,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 47,
+      "path": "refs/public/zenodo/zenodo-19549171-small-science-paper.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 20,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 20,
+      "path": "refs/public/zenodo/zenodo-3779638-fig2.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 28,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 28,
+      "path": "refs/public/zenodo/zenodo-3779638-fig3.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": "no_matrix_objects",
+          "kind": "matrix",
+          "status": "unsupported"
+        },
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 0,
+      "path": "refs/public/zenodo/zenodo-3779638-fig4.opj",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 1,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 20,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 20,
+      "path": "refs/public/zenodo/zenodo-4708192-fig3.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 13,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 13,
+      "path": "refs/public/zenodo/zenodo-4708192-fig5.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 37,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 37,
+      "path": "refs/public/zenodo/zenodo-4708192-fig6a-d.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 9,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 9,
+      "path": "refs/public/zenodo/zenodo-4708192-fig6e-f.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 23,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 23,
+      "path": "refs/public/zenodo/zenodo-4708192-fig7d.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        },
+        {
+          "count": 60,
+          "error": "no_extracted_table_rows",
+          "kind": "worksheet",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 60,
+      "path": "refs/public/zenodo/zenodo-4708192-fig7e-7f.opju",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 0,
+      "path": "refs/ropj/src/Ropj/inst/test.opj",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 0,
+      "warning_signature": []
+    },
+    {
+      "artifact_histogram": [
+        {
+          "count": 1,
+          "error": null,
+          "kind": "table_scan",
+          "status": "partial"
+        }
+      ],
+      "code": 0,
+      "parser_status": "ok",
+      "partial_items": 0,
+      "path": "refs/ropj/src/Ropj/inst/tree.opj",
+      "status": "ok",
+      "support_class": "partial",
+      "unsupported_items": 0,
+      "warning_count": 1,
+      "warning_signature": [
+        "No matrix data emitted to matrix exports."
+      ]
+    }
+  ],
+  "schema_version": "1.0"
+}

@@ -1,0 +1,156 @@
+{
+  "boundaries": [
+    {
+      "confidence": 0.88,
+      "end_offset": 628,
+      "kind": "worksheet",
+      "length": 484,
+      "name": "Book2_A",
+      "parser_rule": "opj_data_section",
+      "source_object_path": "Book2/Book2_A",
+      "start_offset": 144
+    },
+    {
+      "confidence": 0.88,
+      "end_offset": 1112,
+      "kind": "worksheet",
+      "length": 484,
+      "name": "Book2_B",
+      "parser_rule": "opj_data_section",
+      "source_object_path": "Book2/Book2_B",
+      "start_offset": 628
+    },
+    {
+      "confidence": 0.88,
+      "end_offset": 9468,
+      "kind": "worksheet",
+      "length": 8356,
+      "name": "MBook1",
+      "parser_rule": "opj_data_section",
+      "source_object_path": "MBook/MBook1",
+      "start_offset": 1112
+    },
+    {
+      "confidence": 0.88,
+      "end_offset": 9932,
+      "kind": "worksheet",
+      "length": 464,
+      "name": "Book2_C",
+      "parser_rule": "opj_data_section",
+      "source_object_path": "Book2/Book2_C",
+      "start_offset": 9468
+    },
+    {
+      "confidence": 0.88,
+      "end_offset": 10416,
+      "kind": "worksheet",
+      "length": 484,
+      "name": "Book1_A",
+      "parser_rule": "opj_data_section",
+      "source_object_path": "Book1/Book1_A",
+      "start_offset": 9932
+    },
+    {
+      "confidence": 0.88,
+      "end_offset": 10900,
+      "kind": "worksheet",
+      "length": 484,
+      "name": "Book1_B",
+      "parser_rule": "opj_data_section",
+      "source_object_path": "Book1/Book1_B",
+      "start_offset": 10416
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 13298,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerGridStyle",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerGridStyle",
+      "start_offset": 13169
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 18515,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerInfoStorage",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 18386
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 21723,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerGridStyle",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerGridStyle",
+      "start_offset": 21594
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 25202,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerInfoStorage",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 25073
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 29494,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerGridStyle",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerGridStyle",
+      "start_offset": 29365
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 32730,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerInfoStorage",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 32601
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 36111,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerGridStyle",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerGridStyle",
+      "start_offset": 35982
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 39347,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerInfoStorage",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 39218
+    },
+    {
+      "confidence": 0.85,
+      "end_offset": 41708,
+      "kind": "function",
+      "length": 79,
+      "name": "Function",
+      "parser_rule": "opj_function_payload",
+      "source_object_path": "object/Function",
+      "start_offset": 41629
+    }
+  ],
+  "count": 15,
+  "source": "refs/github/Ropj/inst/test.opj"
+}

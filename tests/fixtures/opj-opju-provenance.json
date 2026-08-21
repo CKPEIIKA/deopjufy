@@ -1,0 +1,70 @@
+{
+  "fixtures": [
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/no-opju-evidence.opju",
+      "provenance": "synthetic",
+      "sha256": "c1692a5cd029fc77d39a2232ed7c7c6013c6152d32ae52331f8139c4a1ce8e2f",
+      "status": "committed"
+    },
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/synthetic-cpyua-binary.opju",
+      "provenance": "synthetic",
+      "sha256": "93ea5098912299aafd0e4e1d783a3f3b66d78b893fa0efe2f9d9227a1c97f8d2",
+      "status": "committed"
+    },
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/synthetic-cpyua.opju",
+      "provenance": "synthetic",
+      "sha256": "4738bac24eefaa2a1429775cabb19804d35af330929d236099df53e41fd93a24",
+      "status": "committed"
+    },
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/synthetic-opju-attachment-docx.opju",
+      "provenance": "synthetic",
+      "sha256": "561e5d945718aebe97168406978161354b45f7596220c65ef16f2849d2e159f0",
+      "status": "committed"
+    },
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/synthetic-opju-attachment-pdf.opju",
+      "provenance": "synthetic",
+      "sha256": "b7ed9c09201abc863f54c8c4fceddd6cbbea7046816e40219d96dd5b93fe9bd4",
+      "status": "committed"
+    },
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/synthetic-opju-mixed-preview.opju",
+      "provenance": "synthetic",
+      "sha256": "0b4b63affc83a71effe8db15d91925105b356fd69efc4398f091ff885038f46b",
+      "status": "committed"
+    },
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/synthetic-opju-preview-report-with-valid-image.opju",
+      "provenance": "synthetic",
+      "sha256": "df3b08aa23e27e94a7d973802692ab5a463f4b239cbcad257cc1002b3dc93e8f",
+      "status": "committed"
+    },
+    {
+      "distribution": "in_repo",
+      "license_status": "author_generated",
+      "path": "tests/fixtures/synthetic/synthetic-opj-multi-family.opj",
+      "provenance": "synthetic",
+      "sha256": "a5bf5b16b783b16992dccedfa93811a6bde21f6bb5f54e8c7d965bd5acc2ea0f",
+      "status": "committed"
+    }
+  ],
+  "generated_on": "2026-06-02",
+  "schema_version": "1.0"
+}

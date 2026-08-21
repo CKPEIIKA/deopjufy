@@ -1,0 +1,317 @@
+[
+  {
+    "length": 183,
+    "name": "F1",
+    "object_kind": "meta",
+    "offset": 144,
+    "source_object_path": "object/F1"
+  },
+  {
+    "length": 229,
+    "name": "Graph1",
+    "object_kind": "graph",
+    "offset": 327,
+    "source_object_path": "Graph/Graph1"
+  },
+  {
+    "length": 6,
+    "name": "Graph1",
+    "object_kind": "graph",
+    "offset": 334,
+    "source_object_path": "Graph/Graph1__2"
+  },
+  {
+    "length": 6,
+    "name": "__BCO2",
+    "object_kind": "meta",
+    "offset": 2607,
+    "source_object_path": "meta/__BCO2"
+  },
+  {
+    "length": 6,
+    "name": "Legend",
+    "object_kind": null,
+    "offset": 3377,
+    "source_object_path": "object/Legend"
+  },
+  {
+    "length": 129,
+    "name": "LayerInfoStorage",
+    "object_kind": "layer",
+    "offset": 5480,
+    "source_object_path": "object/LayerInfoStorage"
+  },
+  {
+    "length": 18,
+    "name": "__LayerInfoStorage",
+    "object_kind": "meta",
+    "offset": 5555,
+    "source_object_path": "meta/__LayerInfoStorage"
+  },
+  {
+    "length": 16,
+    "name": "LayerInfoStorage",
+    "object_kind": "graph",
+    "offset": 5557,
+    "source_object_path": "Layer/LayerInfoStorage"
+  },
+  {
+    "length": 27,
+    "name": "_Storage_Ebdded_pages_Data_",
+    "object_kind": null,
+    "offset": 5769,
+    "source_object_path": "object/item__Storage_Ebdded_pages_Data_"
+  },
+  {
+    "length": 11,
+    "name": "pages_Data_",
+    "object_kind": null,
+    "offset": 5785,
+    "source_object_path": "pages/pages_Data_"
+  },
+  {
+    "length": 13,
+    "name": "OriginStorage",
+    "object_kind": null,
+    "offset": 5858,
+    "source_object_path": "object/OriginStorage"
+  },
+  {
+    "length": 13,
+    "name": "OriginStorage",
+    "object_kind": null,
+    "offset": 6026,
+    "source_object_path": "object/OriginStorage__2"
+  },
+  {
+    "length": 5,
+    "name": "Notes",
+    "object_kind": "note",
+    "offset": 16995,
+    "source_object_path": "Note/Notes"
+  },
+  {
+    "length": 10,
+    "name": "DB_CTRL_ID",
+    "object_kind": null,
+    "offset": 17683,
+    "source_object_path": "DB/DB_CTRL_ID"
+  },
+  {
+    "length": 10,
+    "name": "DB_CTRL_ID",
+    "object_kind": null,
+    "offset": 17750,
+    "source_object_path": "DB/DB_CTRL_ID__2"
+  },
+  {
+    "length": 10,
+    "name": "__COMMENTS",
+    "object_kind": "meta",
+    "offset": 17808,
+    "source_object_path": "meta/__COMMENTS"
+  },
+  {
+    "length": 10,
+    "name": "_XF_VAR_IO",
+    "object_kind": null,
+    "offset": 19144,
+    "source_object_path": "object/item__XF_VAR_IO"
+  },
+  {
+    "length": 12,
+    "name": "_XF_VAR_TYPE",
+    "object_kind": null,
+    "offset": 19159,
+    "source_object_path": "object/item__XF_VAR_TYPE"
+  },
+  {
+    "length": 10,
+    "name": "_XF_VAR_IO",
+    "object_kind": null,
+    "offset": 19197,
+    "source_object_path": "object/item__XF_VAR_IO__2"
+  },
+  {
+    "length": 12,
+    "name": "_XF_VAR_TYPE",
+    "object_kind": null,
+    "offset": 19212,
+    "source_object_path": "object/item__XF_VAR_TYPE__2"
+  },
+  {
+    "length": 79,
+    "name": "Function",
+    "object_kind": "function",
+    "offset": 19760,
+    "source_object_path": "object/Function"
+  },
+  {
+    "length": 8,
+    "name": "Function",
+    "object_kind": "function",
+    "offset": 19809,
+    "source_object_path": "object/Function__2"
+  },
+  {
+    "length": 13,
+    "name": "Book4/Sheet1",
+    "object_kind": "worksheet",
+    "offset": 20409,
+    "source_object_path": "Book4/Sheet1"
+  },
+  {
+    "length": 5,
+    "name": "Book4",
+    "object_kind": "worksheet",
+    "offset": 20410,
+    "source_object_path": "Book/Book4"
+  },
+  {
+    "length": 6,
+    "name": "Sheet1",
+    "object_kind": "worksheet",
+    "offset": 20416,
+    "source_object_path": "Sheet/Sheet1"
+  },
+  {
+    "length": 15,
+    "name": "MBook1/MSheet1",
+    "object_kind": "worksheet",
+    "offset": 20629,
+    "source_object_path": "MBook1/MSheet1"
+  },
+  {
+    "length": 6,
+    "name": "MBook1",
+    "object_kind": "worksheet",
+    "offset": 20630,
+    "source_object_path": "MBook/MBook1"
+  },
+  {
+    "length": 5,
+    "name": "Book1",
+    "object_kind": "worksheet",
+    "offset": 20631,
+    "source_object_path": "Book/Book1"
+  },
+  {
+    "length": 7,
+    "name": "MSheet1",
+    "object_kind": "matrix",
+    "offset": 20637,
+    "source_object_path": "MSheet/MSheet1"
+  },
+  {
+    "length": 6,
+    "name": "Sheet1",
+    "object_kind": "worksheet",
+    "offset": 20638,
+    "source_object_path": "Sheet/Sheet1__2"
+  },
+  {
+    "length": 15,
+    "name": "MBook1/MSheet1",
+    "object_kind": "worksheet",
+    "offset": 20707,
+    "source_object_path": "MBook1/MSheet1__2"
+  },
+  {
+    "length": 6,
+    "name": "MBook1",
+    "object_kind": "worksheet",
+    "offset": 20708,
+    "source_object_path": "MBook/MBook1__2"
+  },
+  {
+    "length": 5,
+    "name": "Book1",
+    "object_kind": "worksheet",
+    "offset": 20709,
+    "source_object_path": "Book/Book1__2"
+  },
+  {
+    "length": 7,
+    "name": "MSheet1",
+    "object_kind": "matrix",
+    "offset": 20715,
+    "source_object_path": "MSheet/MSheet1__2"
+  },
+  {
+    "length": 4,
+    "name": "__XF",
+    "object_kind": "meta",
+    "offset": 20885,
+    "source_object_path": "meta/__XF"
+  },
+  {
+    "length": 4,
+    "name": "__XF",
+    "object_kind": "meta",
+    "offset": 20898,
+    "source_object_path": "meta/__XF__2"
+  },
+  {
+    "length": 4,
+    "name": "pIZ9",
+    "object_kind": null,
+    "offset": 21900,
+    "source_object_path": "object/pIZ9"
+  },
+  {
+    "length": 5,
+    "name": "JOpi2",
+    "object_kind": null,
+    "offset": 26935,
+    "source_object_path": "object/JOpi2"
+  },
+  {
+    "length": 4,
+    "name": "A181",
+    "object_kind": null,
+    "offset": 27790,
+    "source_object_path": "object/A181"
+  },
+  {
+    "length": 4,
+    "name": "A147",
+    "object_kind": null,
+    "offset": 27815,
+    "source_object_path": "object/A147"
+  },
+  {
+    "length": 4,
+    "name": "A149",
+    "object_kind": null,
+    "offset": 27823,
+    "source_object_path": "object/A149"
+  },
+  {
+    "length": 4,
+    "name": "A148",
+    "object_kind": null,
+    "offset": 27831,
+    "source_object_path": "object/A148"
+  },
+  {
+    "length": 4,
+    "name": "A151",
+    "object_kind": null,
+    "offset": 27839,
+    "source_object_path": "object/A151"
+  },
+  {
+    "length": 4,
+    "name": "A186",
+    "object_kind": null,
+    "offset": 27847,
+    "source_object_path": "object/A186"
+  },
+  {
+    "length": 4,
+    "name": "A150",
+    "object_kind": null,
+    "offset": 27855,
+    "source_object_path": "object/A150"
+  }
+]

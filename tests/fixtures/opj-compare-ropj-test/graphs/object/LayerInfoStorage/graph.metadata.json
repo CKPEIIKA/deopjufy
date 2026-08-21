@@ -1,0 +1,20 @@
+{
+  "graph_name": "LayerInfoStorage",
+  "object_kind": "layer",
+  "object_length": 129,
+  "object_offset": 18386,
+  "preview_error": "no_embedded_image_block",
+  "preview_found": false,
+  "preview_unavailable": true,
+  "source_object_path": "object/LayerInfoStorage",
+  "unsupported_graph_attributes": [
+    "axes",
+    "data_binding",
+    "legend_configuration",
+    "series_metadata",
+    "style_attributes",
+    "template_settings"
+  ],
+  "window_end": 43443,
+  "window_start": 18386
+}

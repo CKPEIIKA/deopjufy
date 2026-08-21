@@ -1,0 +1,648 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deopjufier"
+version = "0.6.0"
+description = "Unix-style extractor for OriginLab OPJ/OPJU project files"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+license = {text = "GPL-3.0-or-later"}
+keywords = [
+    "origin",
+    "opj",
+    "opju",
+    "binary-analysis",
+    "extractor",
+]
+authors = [{name = "deopjufier contributors"}]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Utilities",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.scripts]
+deopjufy = "deopjufier.cli:cli_entrypoint"
+deopjufy-view = "deopjufy_view.app:cli_entrypoint"
+
+[tool.setuptools]
+package-dir = { "" = "." }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["deopjufier", "deopjufier.*", "deopjufy_view", "deopjufy_view.*"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "pytest-xdist", "ruff>=0.16", "ty"]
+xlsx = ["openpyxl>=3.1"]
+image = ["pillow"]
+re = ["python-magic", "construct", "kaitaistruct"]
+viewer = ["wxPython>=4.2", "openpyxl>=3.1"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = ["refs", "tmp", ".venv", ".uv-cache", ".pytest_cache", ".ruff_cache", ".mypy_cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C90", "PLR", "RUF"]
+ignore = ["PLR0913", "PLR2004"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "SIM102"]
+# Optional wx classes are constructed after dependency discovery so importing the
+# core package never imports wxPython; Ruff counts nested event methods together.
+"deopjufy_view/app.py" = ["C901", "PLR0912"]
+# Ruff 0.16 split positional-argument counting from PLR0913. These exact files
+# retain existing explicit data-flow signatures until that tracked debt is refactored.
+"deopjufier/commands/simple_shared/__init__.py" = ["PLR0917"]
+"deopjufier/extract/object_tables_helpers/_coalesce.py" = ["PLR0917"]
+"deopjufier/extract/semantic_provenance/__init__.py" = ["PLR0917"]
+"deopjufier/extract/semantic_provenance/relationships.py" = ["PLR0917"]
+"tests/integration/runtime/test_smoke_opj.py" = ["PLR0917"]
+"deopjufier/commands/*.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/blocks.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+]
+"deopjufier/blocks_parse/__init__.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/blocks_signatures/__init__.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/artifact_policy.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/discovery.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/blocks_parse.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR2004",
+  "PLR1730",
+  "SIM102",
+  "SIM103",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/blocks_signatures.py" = [
+  "PLR0913",
+  "PLR2004",
+  "SIM102",
+  "SIM103",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/compare/__init__.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/discovery_scan.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR2004",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/discovery_scan/__init__.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/discovery_windows.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR1730",
+  "PLR5501",
+  "SIM102",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/discovery_windows/__init__.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR1730",
+  "PLR5501",
+  "SIM102",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/extract/*.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/extract/object_tables.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM114",
+]
+"deopjufier/commands/dispatch.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/inspect.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR0917",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/list.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR0917",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/metadata.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/parser.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/render.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/simple.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/commands/*/__init__.py" = [
+  "F401",
+  "F403",
+  "F405",
+]
+"deopjufier/extract/*/__init__.py" = [
+  "F401",
+  "F403",
+  "F405",
+]
+"deopjufier/extract/object_tables/__init__.py" = [
+  "I001",
+]
+"deopjufier/extract/object_tables_extract_tables/_core.py" = [
+  "F405",
+]
+"deopjufier/extract/object_tables_extract_tables/_public.py" = [
+  "F405",
+]
+"deopjufier/opju/*/__init__.py" = [
+  "F401",
+  "F403",
+  "F405",
+]
+"deopjufier/*/__init__.py" = [
+  "F401",
+  "F403",
+  "F405",
+]
+"deopjufier/commands/support.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR0917",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/detect/__init__.py" = [
+  "C901",
+  "PLR0912",
+]
+"deopjufier/compare.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/detect.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/opju/reports.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/opju/tables.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/opj/metadata.py" = [
+  "E501",
+]
+"deopjufier/session.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/strings.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/opj/*.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/opju/*.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"deopjufier/opju/records.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+]
+"deopjufier/inventory.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR1730",
+  "PLR2004",
+  "PLR5501",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "SIM114",
+]
+"tests/cli/contracts/**/_test_*.py" = [
+  "F405",
+]
+"tests/core/basics/opj_parse/*.py" = [
+  "F405",
+]
+"tests/core/basics/opju_records/*.py" = [
+  "F405",
+]
+"tests/real/fixtures/core/opju/*.py" = [
+  "F405",
+]
+"tools/full_extract_refs.py" = [
+  "C901",
+]
+"tools/opju_survey.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+]
+"tools/refresh_opj_parity_fixtures.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+]
+"tools/refresh_opju_parity_fixtures.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+]
+"tools/refresh_ref_extract_status_lock.py" = [
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0917",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 7
+
+[tool.ruff.lint.pylint]
+max-branches = 7
+max-statements = 40
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "timeout(seconds): per-test timeout in seconds.",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["deopjufier"]
+omit = [
+    "refs/*",
+    "tests/*",
+    ".venv/*",
+    ".pytest_cache/*",
+    ".ruff_cache/*",
+]
+parallel = true
+
+[tool.coverage.report]
+skip_empty = true
+skip_covered = false
+sort = "Cover"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.ty]
+src.exclude = ["refs/**"]

@@ -1,0 +1,85 @@
+{
+  "source": "https://zenodo.org/records/10721640",
+  "license": "CC-BY-4.0",
+  "path": "refs/public/zenodo/zenodo-10721640-figure-s3.opju",
+  "size_bytes": 124745,
+  "sha256": "97579298e90a7019e837bee62f8e8c12037ec9574379c2dcefc38f4757b9f973",
+  "table": {
+    "name": "Book1/Sheet1",
+    "rows": 579,
+    "columns": 10,
+    "source_order": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J"
+    ],
+    "display_order": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J"
+    ],
+    "designation_order": [
+      "X",
+      "Y",
+      "Y",
+      "Y",
+      "Y",
+      "Y",
+      "Y",
+      "Y",
+      "Y",
+      "Y"
+    ],
+    "long_names": [
+      "Emitted wavelength (nm)",
+      "18 micron",
+      "11 micron",
+      "9 micron",
+      "27 micron",
+      null,
+      "18 microns",
+      "11 microns",
+      "9 microns",
+      "27 microns"
+    ],
+    "formulas": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      "=max(E)",
+      null,
+      null,
+      null,
+      null
+    ],
+    "typed_rows_sha256": "a8d5a54c59781523b9a01e0f728264c42c06dad6025f94b73bb7a92a40ffc145"
+  },
+  "column_payloads": {
+    "A": ["fpc-fcm-dfcm", 451, 451, 0, "7c4199d70d98cf60c4c976b3fde363cf5c2f658921d864f2e501a278d68eb5f3"],
+    "B": ["fpc-fcm-dfcm", 451, 451, 0, "a7c1d09feb999f5a72b3072d8bef9626a9aa3dbbde3c2a384847c994cc579d02"],
+    "C": ["fpc-fcm-dfcm", 451, 451, 0, "5295354ecbb36dcd511a973f0120ef2a25c0c2b8c9a3b77526a387171ba81e4c"],
+    "D": ["fpc-fcm-dfcm", 451, 451, 0, "332eded533329fb0e8fff001524702ae5e10878e3cc3929d1195af3256927cf1"],
+    "E": ["fpc-fcm-dfcm", 451, 451, 0, "2155dd1f03d865d968dc5645438ca064e416bef2757904d392c76196f12c8ab5"],
+    "F": ["unsigned-varint-sequence", 30, 3, 27, "efc0d264f4296921d682d513a42525cb955492caf1312edb2c95dd6fda0e10f2"],
+    "G": ["segmented-fpc-fcm-dfcm", 579, 578, 1, "e5f7781e4f846e2648610a385e16a23d2ce12e14b416f458b2f94c4acbba3e3c"],
+    "H": ["fpc-fcm-dfcm", 578, 578, 0, "af5d1236976b906611537d55aefb806672ead5a64cb3713e136951fb5997ac4a"],
+    "I": ["fpc-fcm-dfcm", 578, 578, 0, "7ee3f59fb69fd7e3b675ebf4413ef11d2030672dc0c4457d79f9aaefd799e5ec"],
+    "J": ["fpc-fcm-dfcm", 578, 578, 0, "e599a082edb8c058eb4f4990186a5bc9fa63343c0f3b057b7f82dc94fc54eef8"]
+  }
+}

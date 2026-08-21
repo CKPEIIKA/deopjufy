@@ -1,0 +1,1 @@
+"""OPJU fixture contract tests."""

@@ -1,0 +1,46 @@
+{
+  "boundaries": [
+    {
+      "confidence": 0.88,
+      "end_offset": 327,
+      "kind": "meta",
+      "length": 183,
+      "name": "F1",
+      "parser_rule": "opj_data_section",
+      "source_object_path": "object/F1",
+      "start_offset": 144
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 556,
+      "kind": "graph",
+      "length": 229,
+      "name": "Graph1",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "Graph/Graph1",
+      "start_offset": 327
+    },
+    {
+      "confidence": 0.9,
+      "end_offset": 5609,
+      "kind": "layer",
+      "length": 129,
+      "name": "LayerInfoStorage",
+      "parser_rule": "opj_graph_payload",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 5480
+    },
+    {
+      "confidence": 0.85,
+      "end_offset": 19839,
+      "kind": "function",
+      "length": 79,
+      "name": "Function",
+      "parser_rule": "opj_function_payload",
+      "source_object_path": "object/Function",
+      "start_offset": 19760
+    }
+  ],
+  "count": 4,
+  "source": "refs/github/Ropj/inst/tree.opj"
+}

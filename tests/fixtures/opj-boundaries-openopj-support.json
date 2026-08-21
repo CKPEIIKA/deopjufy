@@ -1,0 +1,536 @@
+{
+  "source": "refs/openopj/support/test.opj",
+  "count": 53,
+  "boundaries": [
+    {
+      "kind": "worksheet",
+      "name": "Data1_DH",
+      "source_object_path": "Data1/Data1_DH",
+      "start_offset": 67,
+      "end_offset": 7415,
+      "length": 7348,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1_INJV",
+      "source_object_path": "Data1/Data1_INJV",
+      "start_offset": 7415,
+      "end_offset": 14763,
+      "length": 7348,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "matrix",
+      "name": "Data1_Xt",
+      "source_object_path": "Data1/Data1_Xt",
+      "start_offset": 14763,
+      "end_offset": 22111,
+      "length": 7348,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "matrix",
+      "name": "Data1_Mt",
+      "source_object_path": "Data1/Data1_Mt",
+      "start_offset": 22111,
+      "end_offset": 29459,
+      "length": 7348,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "matrix",
+      "name": "Data1_XMt",
+      "source_object_path": "Data1/Data1_XMt",
+      "start_offset": 29459,
+      "end_offset": 36807,
+      "length": 7348,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1_NDH",
+      "source_object_path": "Data1/Data1_NDH",
+      "start_offset": 36807,
+      "end_offset": 44155,
+      "length": 7348,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1RAW_time",
+      "source_object_path": "Data1RAW/Data1RAW_time",
+      "start_offset": 44155,
+      "end_offset": 51795,
+      "length": 7640,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1RAW_cp",
+      "source_object_path": "Data1RAW/Data1RAW_cp",
+      "start_offset": 51795,
+      "end_offset": 59435,
+      "length": 7640,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1BEGIN",
+      "source_object_path": "object/Data1BEGIN",
+      "start_offset": 59435,
+      "end_offset": 59975,
+      "length": 540,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1RANGE",
+      "source_object_path": "object/Data1RANGE",
+      "start_offset": 59975,
+      "end_offset": 60915,
+      "length": 940,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1Coeff_Time",
+      "source_object_path": "Data1Coeff/Data1Coeff_Time",
+      "start_offset": 60915,
+      "end_offset": 63645,
+      "length": 2730,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1Coeff_Base",
+      "source_object_path": "Data1Coeff/Data1Coeff_Base",
+      "start_offset": 63645,
+      "end_offset": 66375,
+      "length": 2730,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1Coeff_Spline",
+      "source_object_path": "Data1Coeff/Data1Coeff_Spline",
+      "start_offset": 66375,
+      "end_offset": 69105,
+      "length": 2730,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1Coeff_Coeff",
+      "source_object_path": "Data1Coeff/Data1Coeff_Coeff",
+      "start_offset": 69105,
+      "end_offset": 76985,
+      "length": 7880,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1Coeff_Net",
+      "source_object_path": "Data1Coeff/Data1Coeff_Net",
+      "start_offset": 76985,
+      "end_offset": 77425,
+      "length": 440,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1spline_Time",
+      "source_object_path": "Data1spline/Data1spline_Time",
+      "start_offset": 77425,
+      "end_offset": 82375,
+      "length": 4950,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1spline_Base",
+      "source_object_path": "Data1spline/Data1spline_Base",
+      "start_offset": 82375,
+      "end_offset": 87325,
+      "length": 4950,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "DATA1BASE",
+      "source_object_path": "object/DATA1BASE",
+      "start_offset": 87325,
+      "end_offset": 91313,
+      "length": 3988,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "function",
+      "name": "Data1_Fit",
+      "source_object_path": "Data1/Data1_Fit",
+      "start_offset": 91313,
+      "end_offset": 91753,
+      "length": 440,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "worksheet",
+      "name": "Data1_DY",
+      "source_object_path": "Data1/Data1_DY",
+      "start_offset": 91753,
+      "end_offset": 92193,
+      "length": 440,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestW_Text",
+      "source_object_path": "TestW/TestW_Text",
+      "start_offset": 92193,
+      "end_offset": 93458,
+      "length": 1265,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestW_TextNumeric",
+      "source_object_path": "TestW/TestW_TextNumeric",
+      "start_offset": 93458,
+      "end_offset": 93898,
+      "length": 440,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestW_firstRow",
+      "source_object_path": "TestW/TestW_firstRow",
+      "start_offset": 93898,
+      "end_offset": 94398,
+      "length": 500,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestM",
+      "source_object_path": "object/TestM",
+      "start_offset": 94398,
+      "end_offset": 102730,
+      "length": 8332,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestW_Float",
+      "source_object_path": "TestW/TestW_Float",
+      "start_offset": 102730,
+      "end_offset": 103050,
+      "length": 320,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestW_Long",
+      "source_object_path": "TestW/TestW_Long",
+      "start_offset": 103050,
+      "end_offset": 103370,
+      "length": 320,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_A",
+      "source_object_path": "TestE/TestE_A",
+      "start_offset": 103370,
+      "end_offset": 103509,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_B",
+      "source_object_path": "TestE/TestE_B",
+      "start_offset": 103509,
+      "end_offset": 103648,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_C",
+      "source_object_path": "TestE/TestE_C",
+      "start_offset": 103648,
+      "end_offset": 103787,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_D",
+      "source_object_path": "TestE/TestE_D",
+      "start_offset": 103787,
+      "end_offset": 103926,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_E",
+      "source_object_path": "TestE/TestE_E",
+      "start_offset": 103926,
+      "end_offset": 104065,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_F",
+      "source_object_path": "TestE/TestE_F",
+      "start_offset": 104065,
+      "end_offset": 104204,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_G",
+      "source_object_path": "TestE/TestE_G",
+      "start_offset": 104204,
+      "end_offset": 104343,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_H",
+      "source_object_path": "TestE/TestE_H",
+      "start_offset": 104343,
+      "end_offset": 104482,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_I",
+      "source_object_path": "TestE/TestE_I",
+      "start_offset": 104482,
+      "end_offset": 104621,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_J",
+      "source_object_path": "TestE/TestE_J",
+      "start_offset": 104621,
+      "end_offset": 104760,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_K",
+      "source_object_path": "TestE/TestE_K",
+      "start_offset": 104760,
+      "end_offset": 104899,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestE_L",
+      "source_object_path": "TestE/TestE_L",
+      "start_offset": 104899,
+      "end_offset": 105038,
+      "length": 139,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "meta",
+      "name": "TestW_Integer",
+      "source_object_path": "TestW/TestW_Integer",
+      "start_offset": 105038,
+      "end_offset": 105273,
+      "length": 235,
+      "confidence": 0.88,
+      "parser_rule": "opj_data_section"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 115233,
+      "end_offset": 115346,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 128980,
+      "end_offset": 129093,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 139502,
+      "end_offset": 139615,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 151515,
+      "end_offset": 151628,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 175588,
+      "end_offset": 175701,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 186907,
+      "end_offset": 187020,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 198091,
+      "end_offset": 198204,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 209237,
+      "end_offset": 209350,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "excel",
+      "name": "Excel1.XLS",
+      "source_object_path": "Excel/Excel1.XLS",
+      "start_offset": 218794,
+      "end_offset": 219027,
+      "length": 233,
+      "confidence": 0.92,
+      "parser_rule": "opj_excel_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 219918,
+      "end_offset": 220031,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 235653,
+      "end_offset": 235766,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "layer",
+      "name": "LayerInfoStorage",
+      "source_object_path": "object/LayerInfoStorage",
+      "start_offset": 264838,
+      "end_offset": 264951,
+      "length": 113,
+      "confidence": 0.9,
+      "parser_rule": "opj_graph_payload"
+    },
+    {
+      "kind": "note",
+      "name": "Results",
+      "source_object_path": "object/Results",
+      "start_offset": 275675,
+      "end_offset": 275723,
+      "length": 48,
+      "confidence": 0.72,
+      "parser_rule": "opj_note_section"
+    },
+    {
+      "kind": "note",
+      "name": "ResultsLog",
+      "source_object_path": "object/ResultsLog",
+      "start_offset": 275797,
+      "end_offset": 275965,
+      "length": 168,
+      "confidence": 0.72,
+      "parser_rule": "opj_note_section"
+    }
+  ]
+}

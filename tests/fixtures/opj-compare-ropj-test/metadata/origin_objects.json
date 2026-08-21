@@ -1,0 +1,422 @@
+[
+  {
+    "length": 484,
+    "name": "Book2_A",
+    "object_kind": "worksheet",
+    "offset": 144,
+    "source_object_path": "Book2/Book2_A"
+  },
+  {
+    "length": 7,
+    "name": "Book2_A",
+    "object_kind": "worksheet",
+    "offset": 237,
+    "source_object_path": "Book/Book2_A"
+  },
+  {
+    "length": 484,
+    "name": "Book2_B",
+    "object_kind": "worksheet",
+    "offset": 628,
+    "source_object_path": "Book2/Book2_B"
+  },
+  {
+    "length": 7,
+    "name": "Book2_B",
+    "object_kind": "worksheet",
+    "offset": 721,
+    "source_object_path": "Book/Book2_B"
+  },
+  {
+    "length": 8356,
+    "name": "MBook1",
+    "object_kind": "worksheet",
+    "offset": 1112,
+    "source_object_path": "MBook/MBook1"
+  },
+  {
+    "length": 6,
+    "name": "MBook1",
+    "object_kind": "worksheet",
+    "offset": 1205,
+    "source_object_path": "MBook/MBook1__2"
+  },
+  {
+    "length": 5,
+    "name": "Book1",
+    "object_kind": "worksheet",
+    "offset": 1206,
+    "source_object_path": "Book/Book1"
+  },
+  {
+    "length": 464,
+    "name": "Book2_C",
+    "object_kind": "worksheet",
+    "offset": 9468,
+    "source_object_path": "Book2/Book2_C"
+  },
+  {
+    "length": 7,
+    "name": "Book2_C",
+    "object_kind": "worksheet",
+    "offset": 9561,
+    "source_object_path": "Book/Book2_C"
+  },
+  {
+    "length": 484,
+    "name": "Book1_A",
+    "object_kind": "worksheet",
+    "offset": 9932,
+    "source_object_path": "Book1/Book1_A"
+  },
+  {
+    "length": 7,
+    "name": "Book1_A",
+    "object_kind": "worksheet",
+    "offset": 10025,
+    "source_object_path": "Book/Book1_A"
+  },
+  {
+    "length": 484,
+    "name": "Book1_B",
+    "object_kind": "worksheet",
+    "offset": 10416,
+    "source_object_path": "Book1/Book1_B"
+  },
+  {
+    "length": 7,
+    "name": "Book1_B",
+    "object_kind": "worksheet",
+    "offset": 10509,
+    "source_object_path": "Book/Book1_B"
+  },
+  {
+    "length": 9,
+    "name": "Book1_A@2",
+    "object_kind": "worksheet",
+    "offset": 10993,
+    "source_object_path": "Book/Book1_A_2"
+  },
+  {
+    "length": 9,
+    "name": "Book1_B@2",
+    "object_kind": "worksheet",
+    "offset": 11477,
+    "source_object_path": "Book/Book1_B_2"
+  },
+  {
+    "length": 5,
+    "name": "Book1",
+    "object_kind": "worksheet",
+    "offset": 11881,
+    "source_object_path": "Book/Book1__2"
+  },
+  {
+    "length": 9,
+    "name": "PdMSheet1",
+    "object_kind": "matrix",
+    "offset": 12287,
+    "source_object_path": "PdM/PdMSheet1"
+  },
+  {
+    "length": 7,
+    "name": "MSheet1",
+    "object_kind": "matrix",
+    "offset": 12289,
+    "source_object_path": "MSheet/MSheet1"
+  },
+  {
+    "length": 6,
+    "name": "Sheet1",
+    "object_kind": "worksheet",
+    "offset": 12290,
+    "source_object_path": "Sheet/Sheet1"
+  },
+  {
+    "length": 7,
+    "name": "__WIOTN",
+    "object_kind": "meta",
+    "offset": 12516,
+    "source_object_path": "meta/__WIOTN"
+  },
+  {
+    "length": 129,
+    "name": "LayerGridStyle",
+    "object_kind": "layer",
+    "offset": 13169,
+    "source_object_path": "object/LayerGridStyle"
+  },
+  {
+    "length": 16,
+    "name": "__LayerGridStyle",
+    "object_kind": "meta",
+    "offset": 13244,
+    "source_object_path": "meta/__LayerGridStyle"
+  },
+  {
+    "length": 14,
+    "name": "LayerGridStyle",
+    "object_kind": "graph",
+    "offset": 13246,
+    "source_object_path": "Layer/LayerGridStyle"
+  },
+  {
+    "length": 7,
+    "name": "MSheet1",
+    "object_kind": "matrix",
+    "offset": 13549,
+    "source_object_path": "MSheet/MSheet1__2"
+  },
+  {
+    "length": 6,
+    "name": "Sheet1",
+    "object_kind": "worksheet",
+    "offset": 13550,
+    "source_object_path": "Sheet/Sheet1__2"
+  },
+  {
+    "length": 4,
+    "name": "Note",
+    "object_kind": "note",
+    "offset": 13938,
+    "source_object_path": "object/Note"
+  },
+  {
+    "length": 4,
+    "name": "Note",
+    "object_kind": "note",
+    "offset": 14610,
+    "source_object_path": "object/Note__2"
+  },
+  {
+    "length": 129,
+    "name": "LayerInfoStorage",
+    "object_kind": "layer",
+    "offset": 18386,
+    "source_object_path": "object/LayerInfoStorage"
+  },
+  {
+    "length": 18,
+    "name": "__LayerInfoStorage",
+    "object_kind": "meta",
+    "offset": 18461,
+    "source_object_path": "meta/__LayerInfoStorage"
+  },
+  {
+    "length": 16,
+    "name": "LayerInfoStorage",
+    "object_kind": "graph",
+    "offset": 18463,
+    "source_object_path": "Layer/LayerInfoStorage"
+  },
+  {
+    "length": 27,
+    "name": "_Storage_Ebdded_pages_Data_",
+    "object_kind": null,
+    "offset": 18598,
+    "source_object_path": "object/item__Storage_Ebdded_pages_Data_"
+  },
+  {
+    "length": 11,
+    "name": "pages_Data_",
+    "object_kind": null,
+    "offset": 18614,
+    "source_object_path": "pages/pages_Data_"
+  },
+  {
+    "length": 5,
+    "name": "Book2",
+    "object_kind": "worksheet",
+    "offset": 19222,
+    "source_object_path": "Book/Book2"
+  },
+  {
+    "length": 13,
+    "name": "OriginStorage",
+    "object_kind": null,
+    "offset": 19447,
+    "source_object_path": "object/OriginStorage"
+  },
+  {
+    "length": 13,
+    "name": "OriginStorage",
+    "object_kind": null,
+    "offset": 19549,
+    "source_object_path": "object/OriginStorage__2"
+  },
+  {
+    "length": 8,
+    "name": "PdSheet1",
+    "object_kind": null,
+    "offset": 19780,
+    "source_object_path": "object/PdSheet1"
+  },
+  {
+    "length": 6,
+    "name": "__WIPR",
+    "object_kind": "meta",
+    "offset": 20339,
+    "source_object_path": "meta/__WIPR"
+  },
+  {
+    "length": 7,
+    "name": "__WIOTN",
+    "object_kind": "meta",
+    "offset": 20819,
+    "source_object_path": "meta/__WIOTN__2"
+  },
+  {
+    "length": 16,
+    "name": "__LayerGridStyle",
+    "object_kind": "meta",
+    "offset": 21669,
+    "source_object_path": "meta/__LayerGridStyle__2"
+  },
+  {
+    "length": 18,
+    "name": "__LayerInfoStorage",
+    "object_kind": "meta",
+    "offset": 25148,
+    "source_object_path": "meta/__LayerInfoStorage__2"
+  },
+  {
+    "length": 27,
+    "name": "_Storage_Ebdded_pages_Data_",
+    "object_kind": null,
+    "offset": 25285,
+    "source_object_path": "object/item__Storage_Ebdded_pages_Data___2"
+  },
+  {
+    "length": 11,
+    "name": "pages_Data_",
+    "object_kind": null,
+    "offset": 25301,
+    "source_object_path": "pages/pages_Data___2"
+  },
+  {
+    "length": 8,
+    "name": "PdSheet1",
+    "object_kind": null,
+    "offset": 27551,
+    "source_object_path": "object/PdSheet1__2"
+  },
+  {
+    "length": 6,
+    "name": "__WIPR",
+    "object_kind": "meta",
+    "offset": 28110,
+    "source_object_path": "meta/__WIPR__2"
+  },
+  {
+    "length": 8,
+    "name": "PdSheet2",
+    "object_kind": null,
+    "offset": 34168,
+    "source_object_path": "object/PdSheet2"
+  },
+  {
+    "length": 6,
+    "name": "Sheet2",
+    "object_kind": "worksheet",
+    "offset": 34170,
+    "source_object_path": "Sheet/Sheet2"
+  },
+  {
+    "length": 6,
+    "name": "Sheet2",
+    "object_kind": "worksheet",
+    "offset": 36378,
+    "source_object_path": "Sheet/Sheet2__2"
+  },
+  {
+    "length": 5,
+    "name": "Note1",
+    "object_kind": "note",
+    "offset": 40708,
+    "source_object_path": "Note/Note1"
+  },
+  {
+    "length": 10,
+    "name": "_XF_VAR_IO",
+    "object_kind": null,
+    "offset": 41570,
+    "source_object_path": "object/item__XF_VAR_IO"
+  },
+  {
+    "length": 12,
+    "name": "_XF_VAR_TYPE",
+    "object_kind": null,
+    "offset": 41585,
+    "source_object_path": "object/item__XF_VAR_TYPE"
+  },
+  {
+    "length": 79,
+    "name": "Function",
+    "object_kind": "function",
+    "offset": 41629,
+    "source_object_path": "object/Function"
+  },
+  {
+    "length": 10,
+    "name": "_XF_VAR_IO",
+    "object_kind": null,
+    "offset": 41643,
+    "source_object_path": "object/item__XF_VAR_IO__2"
+  },
+  {
+    "length": 12,
+    "name": "_XF_VAR_TYPE",
+    "object_kind": null,
+    "offset": 41658,
+    "source_object_path": "object/item__XF_VAR_TYPE__2"
+  },
+  {
+    "length": 8,
+    "name": "Function",
+    "object_kind": "function",
+    "offset": 41678,
+    "source_object_path": "object/Function__2"
+  },
+  {
+    "length": 13,
+    "name": "Book4/Sheet1",
+    "object_kind": "worksheet",
+    "offset": 42278,
+    "source_object_path": "Book4/Sheet1"
+  },
+  {
+    "length": 5,
+    "name": "Book4",
+    "object_kind": "worksheet",
+    "offset": 42279,
+    "source_object_path": "Book/Book4"
+  },
+  {
+    "length": 15,
+    "name": "MBook1/MSheet1",
+    "object_kind": "worksheet",
+    "offset": 42504,
+    "source_object_path": "MBook1/MSheet1"
+  },
+  {
+    "length": 15,
+    "name": "MBook1/MSheet1",
+    "object_kind": "worksheet",
+    "offset": 42582,
+    "source_object_path": "MBook1/MSheet1__2"
+  },
+  {
+    "length": 4,
+    "name": "__XF",
+    "object_kind": "meta",
+    "offset": 42760,
+    "source_object_path": "meta/__XF"
+  },
+  {
+    "length": 4,
+    "name": "__XF",
+    "object_kind": "meta",
+    "offset": 42775,
+    "source_object_path": "meta/__XF__2"
+  }
+]

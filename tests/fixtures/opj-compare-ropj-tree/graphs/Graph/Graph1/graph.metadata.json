@@ -1,0 +1,20 @@
+{
+  "graph_name": "Graph1",
+  "object_kind": "graph",
+  "object_length": 229,
+  "object_offset": 327,
+  "preview_error": "no_embedded_image_block",
+  "preview_found": false,
+  "preview_unavailable": true,
+  "source_object_path": "Graph/Graph1",
+  "unsupported_graph_attributes": [
+    "axes",
+    "data_binding",
+    "legend_configuration",
+    "series_metadata",
+    "style_attributes",
+    "template_settings"
+  ],
+  "window_end": 5480,
+  "window_start": 327
+}

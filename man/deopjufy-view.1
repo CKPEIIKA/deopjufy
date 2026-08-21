@@ -1,0 +1,126 @@
+.TH DEOPJUFY-VIEW 1 "2026-08-21" "deopjufy 0.6.0" "User Commands"
+.SH NAME
+deopjufy-view \- browse recovered OPJ and OPJU content through the deopjufy CLI
+.SH SYNOPSIS
+.B deopjufy-view
+.RI [ FILE ...]
+.SH DESCRIPTION
+.B deopjufy-view
+is an optional read-only wxPython client for
+.BR deopjufy (1).
+It does not import parser internals. Project discovery invokes
+.BR "deopjufy list --json" ;
+activating an object invokes
+.BR "deopjufy get --json" .
+Whole-project export invokes
+.BR "deopjufy extract" .
+.PP
+Several OPJ or OPJU projects may be opened in one process. Catalogs are loaded
+with a bounded worker pool. Retrieved objects are cached in memory by document
+digest and item ID for the lifetime of the process.
+.PP
+The viewer is a recovery browser, not an Origin replacement. It cannot edit
+projects, execute scripts, render graph definitions, reconstruct undecoded graph
+styling, or broaden the parser's partial format coverage.
+.SH DISCLAIMER
+This software is vibe-coded, use it carefully for one-off tasks.
+.SH INTERFACE
+The window contains a compact action bar, a path-derived Project Explorer on the
+left, a tabbed document area on the right, and a status bar. There is no permanent
+diagnostics or property panel.
+.PP
+Catalog hierarchy follows exact
+.B source_object_path
+components. The viewer does not invent type buckets that are absent from parser
+evidence. Native icons distinguish projects, workbooks, worksheets, graphs,
+notes, functions, media, and recovery evidence.
+.PP
+Recovery-only, heuristic, raw, parser-boundary, and unknown leaves are hidden by
+default. Use
+.B View -> Show unknown/recovery evidence
+to expose them. Expand, collapse, and single-child-group unwrapping commands are
+available from the View menu.
+.SH VIEWS
+.SS Tables
+Worksheets sharing one exact workbook path open as one document with explicit
+sheet controls. Tables use a virtual grid, so scrolling does not start new CLI
+processes. Recovered long names, units, comments, formulas, types, and X/Y roles
+appear as frozen metadata rows when available.
+.PP
+The grid provides numeric alignment, clipped cell boundaries, row labels,
+keyboard navigation, selection, copying, and rendered-text column sizing.
+.SS Images and graph previews
+Recovered images and parser-linked stored graph previews use a fit-to-window
+image view. The viewer displays a plot only when the named catalog page has an
+exact stored-preview link. It does not synthesize a plot from a partial graph
+definition.
+.SS Notes and structured metadata
+Notes use read-only text views. Graph metadata and other structured retrieval
+payloads use formatted text. Properties are displayed as labeled fields rather
+than a raw JSON dump. Parser warnings are available from
+.BR "View -> Diagnostics" .
+.SH EXPORT
+.SS Current item
+.B Export
+can save the complete retrieval response, the recovered primary artifact,
+CSV/TSV/JSONL/XLSX tables, exact images or stored previews, and selected grid
+cells as CSV or TSV. The tree context menu exposes the same applicable actions.
+.SS Complete project
+.B Export All
+invokes the canonical extraction command. It offers readable CSV, readable XLSX,
+or complete recovery with an exact byte map. A new project-named directory is
+created below the selected destination. The viewer never requests
+.B --force
+and therefore does not overwrite an existing export.
+.SH KEYBOARD
+.TS
+tab(|);
+l lw(42n).
+Key|Action
+Ctrl+O|Open one or more projects
+Ctrl+F|Search the project tree
+Enter or Space|Open the selected tree item
+Shift+F10|Open the tree context menu
+Ctrl+S|Export the current item
+Ctrl+Shift+S|Export all from the active project
+Ctrl+C|Copy selected cells
+Ctrl+W|Close the current workbook or item tab
+Ctrl+Tab|Select the next document or workbook
+Ctrl+PageUp/PageDown|Select the previous or next sheet
+F6|Switch between project tree and document
+Ctrl+Shift+E|Expand all project branches
+Ctrl+Shift+C|Collapse all project branches
+Alt+Enter|Show properties
++, -, or 0|Zoom in, zoom out, or fit preview
+F1|Show the complete keyboard reference
+.TE
+.SH DEPENDENCIES
+Install the optional viewer dependencies with:
+.EX
+uv sync --extra viewer
+.EE
+.PP
+The viewer requires wxPython. XLSX export uses openpyxl. Neither dependency is
+imported by the base CLI path.
+.SH STATE AND FILES
+The viewer creates no application configuration, persistent cache, recent-file
+list, window-state file, or project database. It makes no hidden network calls.
+Process-local caches disappear on exit. Temporary lazy-retrieval files use a
+cleaned system temporary directory.
+.PP
+The only persistent output is a path explicitly selected by the user. This
+stateless behavior is compatible with the XDG base-directory convention because
+no state directory is required.
+.SH EXIT STATUS
+.TP
+.B 0
+Normal exit.
+.TP
+.B 5
+wxPython is unavailable.
+.SH SEE ALSO
+.BR deopjufy (1),
+.BR deopjufy-manifest (5),
+.BR deopjufy-formats (7)
+.SH LICENSE
+GPL-3.0-or-later. Origin and OriginPro are trademarks of OriginLab Corporation.

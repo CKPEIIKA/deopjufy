@@ -1,0 +1,266 @@
+.TH DEOPJUFY-MANIFEST 5 "2026-08-21" "deopjufy 0.6.0" "File Formats"
+.SH NAME
+deopjufy-manifest \- extraction manifest, catalog, retrieval, and byte-map formats
+.SH DESCRIPTION
+Every directory extraction performed by
+.BR deopjufy (1)
+writes a deterministic
+.I manifest.json
+record. The manifest describes what was found, extracted, skipped, preserved as
+raw bytes, left partial, rejected as unsupported, or failed.
+.PP
+The manifest is evidence metadata, not a whole-project compatibility grade.
+Confidence describes parser evidence, not scientific accuracy. Exact byte
+verification does not imply that every enclosing structure or semantic role is
+known.
+.SH TOP-LEVEL OBJECT
+The JSON object contains these required members:
+.TP
+.B input
+The requested path, exact byte size, SHA-256 digest, and detected type
+.RB ( opj
+or
+.BR opju ).
+.TP
+.B tool
+The tool name, version, and backend. The native implementation reports
+.BR backend=native-parser .
+.TP
+.B status
+One of
+.BR ok ,
+.BR partial ,
+or
+.BR unsupported .
+.TP
+.B items
+An ordered array of artifact records.
+.TP
+.B warnings
+An ordered array of non-fatal parser and extraction warnings.
+.SH ITEM OBJECTS
+Every item has a
+.BR kind ,
+.BR name ,
+.BR status ,
+and numeric
+.B confidence
+between 0 and 1. Missing optional fields are omitted rather than serialized as
+JSON null.
+.SS Status and evidence
+.TP
+.B status
+One of
+.BR extracted ,
+.BR skipped ,
+.BR partial ,
+.BR unsupported ,
+or
+.BR error .
+.TP
+.B discovery_type, discovery_method
+The evidence source, such as a parser window, parser-backed hint, object scan,
+carved signature, or unknown gap.
+.TP
+.B heuristic
+False for parser-backed evidence and true when carving, proximity, token scans,
+or inferred boundaries contribute to the item.
+.TP
+.B extraction_method
+The materialization rule. When omitted, it defaults to the discovery method.
+.TP
+.B completeness
+Usually
+.B complete
+or
+.BR partial .
+Heuristic extracts and non-extracted items default to partial.
+.TP
+.B verification
+One of
+.BR unverified ,
+.BR synthetic ,
+.BR external-parity ,
+or
+.BR exact .
+Exact means the emitted bytes or values satisfy the bounded rule represented by
+that item.
+.SS Identity and output
+.TP
+.B object_kind, content_class
+Conservative object and content classifications.
+.TP
+.B path
+The artifact path relative to the extraction root.
+.TP
+.B source_object_path
+The best supported logical source path.
+.TP
+.B signature
+A validated embedded format such as PNG, JPEG, GIF, SVG, or PDF.
+.TP
+.B rows, columns
+Recovered tabular dimensions.
+.TP
+.B error
+An explicit reason for partial, unsupported, skipped, or failed materialization.
+.SS Source provenance
+.TP
+.B offset, length
+The primary source span or carving origin.
+.TP
+.B range_start, range_end
+An explicit half-open source range.
+.TP
+.B source_ranges
+All source byte ranges used to derive the item.
+.TP
+.B decoded_length, declared_length, compression
+Compression and decoded-size evidence for framed OPJU payloads.
+.TP
+.B family_marker, marker_offset, header_offset, stream_offset, framing_rule
+Low-level framing evidence retained for decoded OPJU regions.
+.TP
+.B source_map_path
+A sidecar mapping each recovered output byte to its source-byte offset.
+.SS Semantic fields
+.TP
+.B structural_name
+The retained wire or parser label.
+.TP
+.B semantic_alias
+A conservative public role name supported by stated evidence. It never replaces
+the structural name.
+.TP
+.B semantic_confidence
+One of
+.BR wire_exact ,
+.BR corpus_high ,
+.BR corpus_medium ,
+or
+.BR hypothesis .
+This rates the alias separately from byte verification.
+.TP
+.B preview_status
+.B present
+or
+.BR absent ,
+independent from graph-definition support and artifact-write status.
+.TP
+.B embedded_payload
+Whether named attachment content is physically embedded. An external workbook
+reference uses false.
+.SH EXTRACTION PROFILES
+.TP
+.B --human
+Keep human-facing primary artifacts and omit low-level machine recovery output.
+This is the default profile.
+.TP
+.B --human-only
+Skip unknown-region raw and text output.
+.TP
+.B --human-artifacts-only
+Skip unknown-region output and machine-oriented provenance sidecars.
+.TP
+.B --extended
+Include decoded-payload indexes, source maps, raw and carved-text regions,
+analysis fields, and other machine-oriented provenance.
+.TP
+.B --map
+Include extended output plus a complete reconstructable byte map.
+.TP
+.B --parser-only
+Restrict discovery and collection to parser-backed candidates. This option is
+independent of the output profile.
+.SH OUTPUT LAYOUT
+Applicable artifacts use stable sanitized paths below the selected output root:
+.EX
+manifest.json
+tables/
+matrices/
+notes/
+images/
+attachments/
+functions/
+analyses/
+metadata/
+provenance/
+raw/
+byte-map/
+.EE
+.PP
+Not every directory is created. Original logical names remain in the manifest
+when filesystem names require sanitization.
+.SH SEMANTIC PROVENANCE
+OPJU runs emit a canonical semantic index when qualifying evidence exists. The
+index can describe exact descriptor-owned worksheet symbols, aliases, metadata,
+formulas, report-cell paths, calculation fields and UIDs, uniquely resolved
+range references, report-grid state, persistent graph source slots, and explicit
+unresolved or ambiguous relationships.
+.PP
+Semantic links resolve only from bounded parser evidence. Long-name similarity
+does not create ownership. Missing equations and unresolved graph or dataset
+owners remain explicit.
+.PP
+Exactly resolved MSer-backed report-reference tables expose readable values and
+retain an offset sidecar. A table is promoted only when every integer resolves
+uniquely within one complete source string set.
+.SH BYTE MAP
+.B extract --map
+writes
+.IR byte-map/index.json .
+Its ordered, non-overlapping segments partition the complete interval from zero
+through the exact input size. Concatenating segment files reconstructs the input,
+and both source and reconstructed SHA-256 values are recorded.
+.PP
+Segment classes describe evidence boundaries such as parser-bounded, carved,
+heuristic, or unknown. A complete byte map proves preservation of every byte,
+not semantic decoding of every byte.
+.SH CATALOG FORMAT
+.B list --json
+uses schema version 1. The top level contains
+.BR schema_version ,
+.BR document ,
+.BR tool ,
+command and parser status, warnings, evidence fields, and
+.BR items .
+.PP
+Each catalog item adds an opaque
+.B item:v1:
+ID, a list of
+.BR retrieval_formats ,
+and an optional
+.B parent_id
+when exact source paths prove one immediate parent. IDs are deterministic for
+unchanged input bytes but are document-bound and must not be parsed.
+.SH RETRIEVAL FORMAT
+.B get FILE ITEM_ID --json
+rebuilds the exhaustive catalog, validates the ID, and materializes only the
+selected object through the canonical extractor path. Schema version 1 contains
+.BR document ,
+.BR tool ,
+.BR item ,
+.BR status ,
+.BR artifacts ,
+and
+.BR warnings .
+.PP
+Inline primary content uses
+.B content_encoding
+equal to
+.BR json ,
+.BR text ,
+or
+.BR base64 .
+Tabular file output supports CSV, TSV, JSONL, and optional XLSX. Image formats are
+advertised only for validated recovered media or an exact parser-linked page
+preview. Unsupported materializers return an explicit partial response.
+.SH DETERMINISM
+Manifest items are sorted by path, kind, and name. Output paths remain relative.
+Unknown fields are additive; missing optional fields are omitted. Parser-backed
+and heuristic evidence remain distinguishable. No command silently replaces an
+unsupported parser result with guessed content.
+.SH SEE ALSO
+.BR deopjufy (1),
+.BR deopjufy-view (1),
+.BR deopjufy-formats (7)

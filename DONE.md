@@ -5,6 +5,13 @@ intentionally excluded from the publication tree.
 
 ## 2026-08-21
 
+- Replaced the long mixed-audience README with a compact manpage-style front
+  page while retaining the top-level disclaimer. Added packaged manuals for the
+  CLI, optional viewer, manifest/catalog contracts, and OPJ/OPJU support terms;
+  detailed Markdown remains limited to developer and format-research contracts.
+  Groff renders all pages without warnings, isolated wheel and source builds
+  contain every manual in its correct section, and the full suite passes
+  (`784 passed, 1 skipped`).
 - Removed the complete local `refs/` namespace from version control, including
   stale Git pointers and the redundant vendored Ropj archive/source tree. Local
   public or private reference material remains ignored and available only to

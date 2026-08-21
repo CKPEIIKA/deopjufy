@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -50,3 +51,20 @@ def test_python_directory_file_cap_keeps_modules_manageable() -> None:
         if count > PYTHON_FILE_LIMIT:
             oversized.append((str(directory.relative_to(PROJECT_ROOT)), count))
     assert not oversized, f"directories exceed {PYTHON_FILE_LIMIT} python files: {oversized}"
+
+
+def test_unix_manuals_are_present_and_packaged() -> None:
+    expected = {
+        "share/man/man1": ["man/deopjufy.1", "man/deopjufy-view.1"],
+        "share/man/man5": ["man/deopjufy-manifest.5"],
+        "share/man/man7": ["man/deopjufy-formats.7"],
+    }
+    project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert project["tool"]["setuptools"]["data-files"] == expected
+    for relative_paths in expected.values():
+        for relative_path in relative_paths:
+            text = (PROJECT_ROOT / relative_path).read_text(encoding="utf-8")
+            assert text.startswith(".TH ")
+            assert "\n.SH NAME\n" in text
+            assert "\n.SH SYNOPSIS\n" in text or relative_path.endswith((".5", ".7"))

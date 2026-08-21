@@ -1,0 +1,338 @@
+.TH DEOPJUFY 1 "2026-08-21" "deopjufy 0.6.0" "User Commands"
+.SH NAME
+deopjufy \- inspect and extract content from Origin OPJ and OPJU projects
+.SH SYNOPSIS
+.B deopjufy
+.RB [ \-\-version ]
+.I COMMAND
+.RI [ OPTIONS ]
+.PP
+.B deopjufy inspect
+.I FILE
+.RB [ \-\-json ]
+.PP
+.B deopjufy list
+.I FILE
+.RB [ \-\-json ]
+.RB [ \-\-exhaustive ]
+.RB [ \-\-include\-raw\-gaps ]
+.PP
+.B deopjufy get
+.I FILE ITEM_ID
+.RB [ \-\-format " FORMAT" ]
+.RB [ \-o " OUTPUT" ]
+.PP
+.B deopjufy extract
+.I FILE
+.B \-o
+.I OUTDIR
+.RI [ OPTIONS ]
+.PP
+.B deopjufy strings
+.I FILE
+.RI [ OPTIONS ]
+.PP
+.B deopjufy images
+.I FILE
+.RB [ \-o " OUTDIR" ]
+.PP
+.B deopjufy table-scan
+.I FILE
+.RI [ OPTIONS ]
+.PP
+.B deopjufy walk
+.I FILE
+.RB [ \-\-json ]
+.PP
+.B deopjufy dump-block
+.I FILE
+.B \-\-offset
+.I N
+.B \-\-length
+.I N
+.PP
+.B deopjufy compare
+.I LEFT RIGHT
+.RB [ \-\-json ]
+.RB [ \-\-compare\-bytes ]
+.SH DESCRIPTION
+.B deopjufy
+is a deterministic, native-only Unix utility for recovering inspectable content
+from Origin project files. It does not require Origin, Wine, R, an external
+parser, a viewer, a remote service, or network access during extraction.
+.PP
+OPJ and OPJU support is intentionally partial and corpus-scoped. Parser-backed,
+heuristic, partial, unsupported, and exactly verified results remain distinct in
+machine output. An artifact being written is not proof that every related source
+object or every byte-level semantic field was decoded.
+.PP
+Single-stream command output is written to standard output. Diagnostics and
+warnings are written to standard error. Multi-file extraction writes only below
+an explicitly selected output directory and records the result in
+.IR manifest.json .
+.SH DISCLAIMER
+This software is vibe-coded, use it carefully for one-off tasks.
+.SH COMMANDS
+.SS inspect
+Report detected type, input size and digest, parser status, support class,
+coverage scope, and warnings.
+.TP
+.B \-\-json
+Emit the stable machine-readable representation instead of human output.
+.SS list
+List discoverable catalog items, their source evidence, and supported retrieval
+formats. JSON catalog schema version 1 supplies deterministic opaque item IDs
+bound to the exact input digest.
+.TP
+.B \-\-json
+Emit the versioned catalog JSON.
+.TP
+.B \-\-exhaustive
+Disable the normal OPJU heuristic-kind cap.
+.TP
+.B \-\-include\-raw\-gaps
+Include uncovered source ranges as
+.B raw_gap
+items.
+.SS get
+Materialize one item identified by an ID from
+.BR "list --json" .
+IDs must not be parsed or reused after the input bytes change.
+.TP
+.BI \-\-format " FORMAT"
+Select
+.BR json ,
+.BR jsonl ,
+.BR csv ,
+.BR tsv ,
+.BR xlsx ,
+.BR bmp ,
+.BR gif ,
+.BR jpeg ,
+.BR jpg ,
+.BR png ,
+or
+.BR svg .
+The catalog item's
+.B retrieval_formats
+field is authoritative.
+.TP
+.BI \-o " OUTPUT"
+Write the primary artifact to this file. Without this option, JSON retrieval is
+written to standard output.
+.TP
+.B \-\-json
+Emit the complete schema-version-1 retrieval envelope.
+.TP
+.B \-\-force
+Permit replacement of an existing output file.
+.SS extract
+Recover recognized content into a new directory and write
+.IR manifest.json .
+Possible outputs include tables, matrices, notes, functions, report records,
+images, attachments, graph metadata or stored previews, semantic provenance,
+raw regions, and an exact reconstructable byte map. Availability depends on
+input evidence.
+.TP
+.BI \-o " OUTDIR"
+Select the extraction directory.
+.TP
+.BI \-\-format " FORMAT"
+Write tabular artifacts as
+.BR csv ,
+.BR tsv ,
+.BR json ,
+or optional
+.BR xlsx .
+.TP
+.BI \-\-manifest " PATH"
+Select a manifest path.
+.TP
+.BI \-\-raw\-dir " PATH"
+Select the raw-region directory.
+.TP
+.BI \-\-raw\-min\-bytes " N"
+Set the minimum raw-region size; the default is 1024.
+.TP
+.BI \-\-text\-dir " PATH"
+Select the carved-text directory.
+.TP
+.BI \-\-text\-min\-bytes " N"
+Set the minimum carved-text source size; the default is 1024.
+.TP
+.BI \-\-text\-min\-length " N"
+Set the minimum text run length; the default is 4.
+.TP
+.BR \-\-no\-images ,
+.BR \-\-no\-strings ,
+.BR \-\-no\-tables ,
+.B \-\-no\-objects
+Disable the corresponding extraction family.
+.TP
+.B \-\-parser\-only
+Disable heuristic object discovery and collection.
+.TP
+.BR \-\-human ,
+.BR \-\-human\-only ,
+.BR \-\-human\-artifacts\-only ,
+.BR \-\-extended ,
+.B \-\-map
+Select one extraction profile. See
+.BR deopjufy-manifest (5).
+.TP
+.BI \-\-strings\-min\-length " N"
+Set the printable-string threshold; the default is 4.
+.TP
+.BI \-\-table\-min\-rows " N"
+Set the heuristic table row threshold; the default is 1 for extraction.
+.TP
+.BI \-\-table\-min\-columns " N"
+Set the heuristic table column threshold; the default is 2.
+.TP
+.B \-\-fail\-on\-partial
+Return status 4 when a required result remains partial.
+.TP
+.B \-\-force
+Permit replacement of existing extraction targets.
+.SS strings
+Print visible text strings from the input.
+.TP
+.BI \-\-encoding " ENCODING"
+Select
+.BR ascii ,
+.BR utf16 ,
+.BR latin1 ,
+or
+.BR utf-8 .
+The default is ASCII.
+.TP
+.BI \-\-min\-length " N"
+Set the minimum run length; the default is 4.
+.TP
+.B \-\-decoded
+Scan parser-decoded OPJU LZ4 payloads instead of raw file bytes. This mode is
+OPJU-only.
+.SS images
+Carve validated embedded image signatures into an output directory.
+.TP
+.BI \-o " OUTDIR"
+Select the image directory.
+.TP
+.B \-\-json
+Emit a machine-readable extraction report.
+.TP
+.B \-\-force
+Permit replacement of existing files.
+.SS table-scan
+Heuristically scan for numeric tables. This command is separate from
+parser-owned worksheet extraction and must not be treated as confirmed project
+structure.
+.TP
+.BI \-\-min\-rows " N"
+Set the minimum row count; the default is 5.
+.TP
+.BI \-\-min\-columns " N"
+Set the minimum column count; the default is 2.
+.TP
+.BI \-\-format " FORMAT"
+Select
+.BR csv ,
+.BR tsv ,
+or
+.BR json .
+.TP
+.B \-\-json
+Emit the command report as JSON.
+.SS walk
+Report parser-known records and exact or qualified source ranges.
+.TP
+.B \-\-json
+Emit machine-readable output.
+.SS dump-block
+Copy exactly the requested input range to standard output.
+.TP
+.BI \-\-offset " N"
+Set the zero-based input offset.
+.TP
+.BI \-\-length " N"
+Set the byte count.
+.SS compare
+Compare two extraction directories or manifest files.
+.TP
+.B \-\-json
+Emit machine-readable differences.
+.TP
+.B \-\-compare\-bytes
+Also compare extracted artifact bytes.
+.SH COMMON OPTIONS
+.TP
+.B \-h, \-\-help
+Show command help and exit.
+.TP
+.B \-\-version
+Show the installed version and exit.
+.TP
+.B \-\-verbose
+Enable detailed diagnostics for commands that support verbosity.
+.TP
+.B \-\-quiet
+Suppress non-error diagnostics for commands that support quiet mode.
+.SH OUTPUT CONTRACT
+Extraction paths are sanitized, relative to the selected output root, and never
+escape it. Existing user data is not overwritten without
+.BR \-\-force .
+.PP
+Every directory extraction writes a manifest, including partial runs. Unknown
+bytes can be preserved by machine profiles. Complete byte reconstruction proves
+source-byte coverage, not semantic understanding. See
+.BR deopjufy-manifest (5)
+and
+.BR deopjufy-formats (7).
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+General failure.
+.TP
+.B 2
+Invalid command usage.
+.TP
+.B 3
+Unsupported input or required feature.
+.TP
+.B 4
+Partial extraction with
+.BR \-\-fail\-on\-partial .
+.TP
+.B 5
+Requested optional dependency unavailable.
+.TP
+.B 6
+Corrupted or truncated input.
+.SH EXAMPLES
+.EX
+deopjufy inspect project.opju
+deopjufy list project.opju --json
+deopjufy get project.opju ITEM_ID --format csv -o sheet.csv
+deopjufy extract project.opju -o output/
+deopjufy extract project.opju -o complete/ --map
+deopjufy dump-block project.opju --offset 4096 --length 1024 > block.bin
+.EE
+.SH FILES
+.TP
+.I manifest.json
+Machine-readable extraction record.
+.TP
+.I tables/, matrices/, notes/, images/, metadata/, provenance/, raw/, byte-map/
+Conventional extraction subdirectories, emitted only when applicable.
+.PP
+The CLI creates no persistent application cache, recent-file list, project
+database, or hidden network state.
+.SH SEE ALSO
+.BR deopjufy-view (1),
+.BR deopjufy-manifest (5),
+.BR deopjufy-formats (7)
+.SH LICENSE
+GPL-3.0-or-later. Origin and OriginPro are trademarks of OriginLab Corporation.

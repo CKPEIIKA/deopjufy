@@ -41,6 +41,11 @@ package-dir = { "" = "." }
 where = ["."]
 include = ["deopjufier", "deopjufier.*", "deopjufy_view", "deopjufy_view.*"]
 
+[tool.setuptools.data-files]
+"share/man/man1" = ["man/deopjufy.1", "man/deopjufy-view.1"]
+"share/man/man5" = ["man/deopjufy-manifest.5"]
+"share/man/man7" = ["man/deopjufy-formats.7"]
+
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "pytest-xdist", "ruff>=0.16", "ty"]
 xlsx = ["openpyxl>=3.1"]

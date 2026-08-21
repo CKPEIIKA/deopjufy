@@ -1,0 +1,142 @@
+.TH DEOPJUFY-FORMATS 7 "2026-08-21" "deopjufy 0.6.0" "Miscellaneous Information"
+.SH NAME
+deopjufy-formats \- OPJ and OPJU parser coverage, evidence terms, and limitations
+.SH DESCRIPTION
+.B deopjufy
+provides partial native recovery for Origin OPJ and OPJU project files. Support
+claims apply only to confirmed layouts exercised by legal synthetic fixtures or
+samples tied to public records. They are not promises of complete Origin
+compatibility.
+.PP
+There is one native parser path. No runtime backend switching, Origin runtime,
+Origin Viewer, Wine, R, liborigin, remote service, telemetry, or hidden network
+fallback is used.
+.SH EVIDENCE TERMS
+.TP
+.B parser_status=ok
+A parser path ran and produced evidence. This is not a whole-file grade.
+.TP
+.B support_class=parser
+Parser-backed evidence exists.
+.TP
+.B support_class=partial
+At least one relevant gap remains.
+.TP
+.B status=extracted
+An artifact was written.
+.TP
+.B heuristic=true
+The item depends on scanning, carving, proximity, tokens, or inferred bounds.
+.TP
+.B verification=exact
+The emitted bytes or values satisfy one bounded parser contract. It does not
+imply complete project parity.
+.SH SUPPORT MATRIX
+.TS
+tab(|) box;
+l l l.
+Family|OPJ|OPJU
+Detection and inspection|partial|partial
+Versioned catalog and lazy get|partial|partial
+Project tree|partial|partial
+Worksheets and metadata|partial|partial
+Matrices|partial|partial
+Notes and functions|partial|partial
+Analysis equations and bounded fields|partial|partial
+Semantic provenance relationships|unsupported|partial
+Report-reference tables and state|unsupported|partial
+Persistent graph source bindings|partial|partial
+Graph metadata and stored previews|partial|partial
+Embedded images and attachments|partial|partial
+Unknown-region preservation|partial|partial
+Scripts|unsupported|unsupported
+Whole-project parity|unsupported|unsupported
+.TE
+.PP
+In this table, partial means at least one bounded native rule exists. It does not
+mean every version, value, field, relationship, or object in that family is
+decoded.
+.SH OPJ
+Confirmed legacy layouts can expose typed datasets, workbook and sheet ownership,
+worksheet metadata, matrix shape, notes, functions, project-tree records,
+attachments, and selected graph structure.
+.PP
+Coverage remains incomplete for version variants, masks, scripts, uncommon
+attachment records, graph styling, stored-preview ownership, and complete
+unknown-byte classification.
+.SH OPJU
+Confirmed layouts can expose selected framed or compressed regions,
+OriginStorage records, media, attachments, reports, descriptor-owned worksheets,
+typed column payloads, bounded metadata, decoded strings, numeric runs, and raw
+source regions.
+.PP
+Supported relationships include bounded descriptor columns, selected
+post-payload calculation references, recovered functions, report-cell paths,
+recognized report-grid state fields, uniquely resolvable MSer report-reference
+tables, exact analysis-report XML, and persistent graph-layer source slots.
+Dataset and graph owners remain candidates unless exact evidence resolves one.
+.PP
+OPJU discovery is still partly scan-anchored. The parser does not implement the
+complete container grammar, object graph, or every worksheet, matrix, function,
+graph, report, and metadata encoding.
+.SH SEMANTIC ALIASES
+Structural wire labels remain present when a conservative role alias is emitted.
+Version 0.6 exposes qualified aliases for confirmed project page and folder
+directory entries, exact MSer string property sets, calculation-reference arrays
+and members, persistent data-plot style prototype source bindings, and fully
+resolved analysis-report placeholder-reference tables.
+.PP
+Semantic confidence is separate from byte verification. These aliases do not
+promote unresolved folder membership, child-window types, recalculation states,
+graph ownership, neutral flags, sentinel business types, or affine-tail
+hypotheses.
+.SH GRAPHS AND PREVIEWS
+Graph definitions and stored previews have independent status. A preview may be
+present while graph-definition parsing remains partial. A parser-bounded absence
+is recorded as an exact absence and does not make the graph unsupported.
+.PP
+The optional viewer displays only recovered images or an exact parser-linked
+stored preview. It does not render a graph definition or infer missing styling.
+.SH HUMAN AND MACHINE RECOVERY
+The default human profile favors content-bearing primary artifacts. Machine
+profiles retain parser indexes, source maps, decoded payload evidence, and raw
+unknown regions. The map profile additionally partitions every source byte into
+a reconstructable byte map.
+.PP
+Preserving every byte and classifying every byte semantically are different
+goals. Unknown regions remain explicit even when exact reconstruction succeeds.
+.SH NON-CLAIMS
+The project does not claim:
+.IP \[bu] 2
+full OPJ or OPJU support;
+.IP \[bu]
+whole-project or whole-application parity;
+.IP \[bu]
+complete version coverage;
+.IP \[bu]
+Origin graph rendering or project editing;
+.IP \[bu]
+script execution;
+.IP \[bu]
+that one parser-backed item proves every related object was found;
+.IP \[bu]
+that heuristic output is confirmed structure.
+.SH CACHE AND SIDE EFFECTS
+Parser and scan caches are bounded and process-local. They key file-derived work
+by resolved path, size, modification time, and relevant options. Cache entries
+do not persist after process exit and must not suppress warnings or alter output
+order.
+.PP
+Inputs are expected to remain unchanged for one command. The CLI writes only to
+explicit output paths, creates no application state directory, and performs no
+network access during parsing or extraction.
+.SH FIXTURE POLICY
+Tracked Origin fixtures must be small, deterministic, author-generated,
+redistributable, and registered. Real-world public samples are downloaded by an
+explicit development command, verified by checksum, and remain untracked.
+Unknown-license, confidential, and private projects must not enter source,
+documentation, tests, manifests, screenshots, or history.
+.SH SEE ALSO
+.BR deopjufy (1),
+.BR deopjufy-view (1),
+.BR deopjufy-manifest (5)

@@ -1,5 +1,17 @@
 # deopjufy documentation
 
+## User manuals
+
+The installed command and format documentation lives in Unix man pages:
+
+- [`deopjufy(1)`](../man/deopjufy.1)
+- [`deopjufy-view(1)`](../man/deopjufy-view.1)
+- [`deopjufy-manifest(5)`](../man/deopjufy-manifest.5)
+- [`deopjufy-formats(7)`](../man/deopjufy-formats.7)
+
+From a checkout, render one with `man ./man/deopjufy.1`. The documents below
+are developer contracts and detailed reverse-engineering notes.
+
 ## User and compatibility contracts
 
 - [Compatibility status](compatibility.md)
@@ -19,6 +31,6 @@
 
 - [Coverage scope](coverage.md)
 
-Installation, command examples, exit codes, and the short support statement live
-in the root [README](../README.md). This directory contains stable contracts, not
-local reconnaissance logs or machine-specific evidence snapshots.
+The root [README](../README.md) is intentionally a short front page. This
+directory contains stable developer contracts, not local reconnaissance logs or
+machine-specific evidence snapshots.

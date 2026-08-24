@@ -42,7 +42,6 @@ Thumbs.db
 *.tar
 *.tar.gz
 *.tgz
-.venv/
 context.md
 # Local extraction/reconnaissance summaries can contain private fixture details.
 REPORT.md
@@ -52,17 +51,4 @@ tmp/
 docs/performance.md
 docs/benchmarks/
 
-# Ignore generated Python/build artifacts
-*.py[cod]
-*.pyc
-__pycache__/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
 .tox/
-.coverage
-coverage.xml
-htmlcov/
-build/
-dist/
-*.egg-info/

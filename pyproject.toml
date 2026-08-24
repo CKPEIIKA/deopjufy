@@ -60,7 +60,7 @@ exclude = ["refs", "tmp", ".venv", ".uv-cache", ".pytest_cache", ".ruff_cache", 
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "C90", "PLR", "RUF"]
-ignore = ["PLR0913", "PLR2004"]
+ignore = ["PLR0913"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "SIM102"]

@@ -22,9 +22,9 @@ run_check() {
   echo
 }
 
-run_check "Ruff" uv run ruff check .
-run_check "Ruff format" uv run ruff format --check .
-run_check "Ty" uv run ty check deopjufier --exclude refs/
+run_check "Ruff" uv run --locked ruff check .
+run_check "Ruff format" uv run --locked ruff format --check .
+run_check "Ty" uv run --locked ty check deopjufier --exclude refs/
 run_check "Pytest + coverage" env DEOPJUFIER_TEST_TIMEOUT_SECONDS="${DEOPJUFIER_TEST_TIMEOUT_SECONDS:-45}" PYTEST_WORKERS="${PYTEST_WORKERS:-2}" PYTEST_DIST="${PYTEST_DIST:-worksteal}" bash scripts/test.sh --cov=deopjufier --cov-branch --cov-report=term-missing --cov-fail-under="${COV_FAIL_UNDER:-100}" --cov-omit=refs/'*'
 
 exit "$STATUS"

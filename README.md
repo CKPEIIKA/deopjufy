@@ -1,4 +1,4 @@
-# deopjufy
+# DEOPJUFY(1)
 
 `deopjufy` is a native-only Unix command-line utility for inspecting and
 extracting data from Origin project files.

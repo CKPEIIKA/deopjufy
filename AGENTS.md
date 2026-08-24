@@ -22,6 +22,8 @@ Keep documentation aligned with actual behavior.
 8. Add a dependency only when it removes real complexity.
 9. Keep changes minimal, focused, reviewable, and reversible.
 10. Preserve user data and backward compatibility unless an intentional breaking change is documented.
+11. Keep replies, comments, and commit messages concise, factual, and free of praise or filler.
+12. Do not reformat, annotate, or refactor unrelated code while making a focused change.
 
 ## Common architecture rules
 
@@ -31,6 +33,8 @@ Keep documentation aligned with actual behavior.
 4. Split modules when responsibilities diverge, not merely to satisfy a size metric.
 5. Add an abstraction only after real uses establish a shared contract.
 6. Keep project-specific boundaries and invariants in the project contract below.
+7. Encapsulate low-level I/O, subprocesses, and protocols behind narrow boundary modules.
+8. Do not bypass a layer or widen a private API without a documented reason and intentional design decision.
 
 ## Common Unix-style rules
 
@@ -49,6 +53,10 @@ Keep documentation aligned with actual behavior.
 4. Keep control flow readable and functions focused.
 5. Use boring Python; avoid clever metaprogramming.
 6. Use pathlib for paths and context managers for owned resources.
+7. Prefer early returns and `continue` when they reduce nesting without obscuring the normal path.
+8. Extract repeated or domain-significant literals into named constants or enums; keep obvious one-off values inline.
+9. Use enums or typed values for multi-state modes; keep booleans for genuine binary options.
+10. Comment non-obvious rationale, invariants, and trade-offs; do not narrate evident syntax.
 
 ## Common security and data rules
 
@@ -56,6 +64,18 @@ Keep documentation aligned with actual behavior.
 2. Read secrets from environment or settings, never source code.
 3. Validate external input at boundaries.
 4. Tests must not require private infrastructure or network access unless explicitly marked as integration tests.
+5. Resolve user-controlled paths under an explicit allowed root, reject escapes, and account for symlinks before reading or writing.
+6. Create temporary files with private, unpredictable names and replace durable outputs atomically when practical.
+7. Pass subprocess arguments as a sequence without a shell; use a shell only when its syntax is the required interface and inputs are controlled.
+8. Treat deserialization, archive extraction, and executable lookup as trust boundaries.
+
+## Common reliability and resource rules
+
+1. Put finite, documented timeouts on network, subprocess, lock, and external-service waits.
+2. Bound input sizes, concurrency, queues, retries, and retained in-memory data where they can be influenced externally.
+3. Propagate cancellation and interrupts promptly; clean up owned processes, files, locks, and connections on every exit path.
+4. Retry only transient, idempotent operations with a bounded attempt count and backoff.
+5. Test timeout, cancellation, partial-failure, and cleanup behavior for each boundary the project actually owns.
 
 ## Common quality gate
 
@@ -81,6 +101,7 @@ Every exception must be narrow, documented beside its configuration, and removed
 3. Keep fixtures small, deterministic, and legal to redistribute.
 4. Mark slow, network, hardware, benchmark, and integration tests.
 5. Do not weaken assertions merely to make tests pass.
+6. For reproducible bugs, add and observe a focused failing test before the fix, then run it and the common gate after the fix.
 
 ## Common documentation rules
 
@@ -94,7 +115,10 @@ Every exception must be narrow, documented beside its configuration, and removed
 1. Keep the active backlog in root `TODO.md` and completed work in root `DONE.md`.
 2. `TODO.md` contains unfinished, concrete, and verifiable work; move meaningful completions to `DONE.md`.
 3. `DONE.md` records outcomes and validation evidence, newest first.
-4. A project contract may declare an operational path exception when tooling depends on it. `regression_vibe` retains `WIP/TODO.md` and `WIP/done.md` as that explicit exception.## Common definition of done
+4. A project contract may declare an operational path exception when tooling depends on it. `regression_vibe` retains `WIP/TODO.md` and `WIP/done.md` as that explicit exception.
+5. Keep commit subjects concise, imperative, and without a period; explain context and rationale in the body for non-trivial changes.
+
+## Common definition of done
 
 A change is done when behavior is implemented, relevant tests and documentation are updated, mandatory quality checks pass, and no known contract mismatch is hidden.
 

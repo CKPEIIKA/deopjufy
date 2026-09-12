@@ -47,7 +47,7 @@ include = ["deopjufier", "deopjufier.*", "deopjufy_view", "deopjufy_view.*"]
 "share/man/man7" = ["man/deopjufy-formats.7"]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "pytest-xdist", "ruff>=0.16", "ty"]
+dev = ["pytest", "pytest-cov", "pytest-xdist", "ruff>=0.16.7", "ty"]
 xlsx = ["openpyxl>=3.1"]
 image = ["pillow"]
 re = ["python-magic", "construct", "kaitaistruct"]

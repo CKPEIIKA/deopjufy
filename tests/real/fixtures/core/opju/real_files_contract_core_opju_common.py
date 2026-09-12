@@ -27,12 +27,9 @@ from tests.real.fixtures.core.real_files_contract_core import (
     _assert_unsupported_collection,
     _public_opju_graph_gap_sample,
     _public_opju_jpg_attachment_sample,
-    _public_opju_pdf_attachment_sample,
     _public_opju_report_sample,
     _public_opju_worksheet_gap_sample,
     _run_extract_manifest,
-    _synthetic_opju_docx_attachment_fixture,
-    _synthetic_opju_pdf_attachment_fixture,
 )
 from tests.test_core_unit_coverage_utils import _repo_root
 

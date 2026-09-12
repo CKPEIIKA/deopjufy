@@ -219,7 +219,6 @@ def cmd_extract(args):
     if raw_output_dir is not None:
         raw_gap_payload = _scan_gaps_once(
             session=session,
-            mode="raw",
             min_size=args.raw_min_bytes,
             image_blocks=_get_image_blocks(),
             objects=shared_objects,
@@ -234,7 +233,6 @@ def cmd_extract(args):
         else:
             text_gap_payload = _scan_gaps_once(
                 session=session,
-                mode="text",
                 min_size=args.text_min_bytes,
                 image_blocks=_get_image_blocks(),
                 objects=shared_objects,
@@ -575,7 +573,6 @@ def cmd_extract(args):
         if raw_gap_payload is None:
             raw_ranges, raw_classes = _scan_gaps_once(
                 session=session,
-                mode="raw",
                 min_size=args.raw_min_bytes,
                 image_blocks=_get_image_blocks(),
                 objects=shared_objects,
@@ -613,7 +610,6 @@ def cmd_extract(args):
         if text_gap_payload is None:
             text_ranges, text_classes = _scan_gaps_once(
                 session=session,
-                mode="text",
                 min_size=args.text_min_bytes,
                 image_blocks=_get_image_blocks(),
                 objects=shared_objects,

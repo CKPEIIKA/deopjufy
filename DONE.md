@@ -3,6 +3,14 @@
 Outcomes are recorded newest first. Detailed historical fixture reconnaissance is
 intentionally excluded from the publication tree.
 
+## 2026-09-12
+
+- Cleared the static audit backlog: named the twelve format/UI constants flagged
+  by Ruff, made cache-key-only parameters explicit, removed the inert OPJ payload
+  flag and unreachable recovery branch, removed unused fixture imports, and
+  clarified the test signal callback. Ruff, formatting, Ty, Vulture, and the
+  full suite pass (`784 passed, 1 skipped`).
+
 ## 2026-08-21
 
 - Replaced the long mixed-audience README with a compact manpage-style front

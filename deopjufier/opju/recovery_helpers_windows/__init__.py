@@ -91,11 +91,6 @@ def _is_overlap_binding_candidate_name(name: str) -> bool:
 
     return True
 
-    # Workbook roots such as `book1` or `book11_a` do not satisfy token
-    # tokenized worksheet hints in their raw form, but they are still valid
-    # strict-overlap candidates when a family table has explicit window overlap.
-    return normalized.startswith("book") and len(normalized) > 4 and normalized[4].isdigit()
-
 
 def _filter_overlap_candidate_worksheet_windows(
     worksheet_windows: Iterable[tuple[str, int, int]],

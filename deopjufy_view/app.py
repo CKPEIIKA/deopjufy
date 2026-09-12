@@ -32,6 +32,9 @@ from deopjufy_view.project_tree import (
     sibling_sheets,
 )
 
+_MIN_WORKBOOK_SHEETS = 2
+_TARGET_COMPONENT_COUNT = 2
+
 
 @dataclass
 class TabState:
@@ -824,7 +827,7 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             if leaf is None:
                 return None
             sheets = sibling_sheets(self.catalog_leaves.get(target[0], ()), leaf)
-            if len(sheets) < 2:
+            if len(sheets) < _MIN_WORKBOOK_SHEETS:
                 return None
             key = target[0], leaf.folders
             existing = self.workbooks.get(key)
@@ -953,7 +956,7 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             leaf = self.target_leaves.get(target)
             if (
                 leaf is not None
-                and len(sibling_sheets(self.catalog_leaves.get(target[0], ()), leaf)) >= 2
+                and len(sibling_sheets(self.catalog_leaves.get(target[0], ()), leaf)) >= _MIN_WORKBOOK_SHEETS
                 and self._defer_until_documents_visible(self._activate_target, target, label)
             ):
                 return
@@ -1742,7 +1745,7 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
         def _is_target(self, value: object) -> TypeGuard[tuple[Path, str]]:
             return (
                 isinstance(value, tuple)
-                and len(value) == 2
+                and len(value) == _TARGET_COMPONENT_COUNT
                 and isinstance(value[0], Path)
                 and isinstance(value[1], str)
             )

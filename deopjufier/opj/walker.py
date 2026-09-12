@@ -171,9 +171,7 @@ def _read_i16_rect(payload: bytes, offset: int) -> tuple[int, int, int, int] | N
     return struct.unpack_from("<hhhh", payload, offset)
 
 
-def _read_or_skip_object(
-    cursor: OpjStream, *, size: int, tolerate: bool, allow_zero_payload: bool = False
-) -> bytes | None:
+def _read_or_skip_object(cursor: OpjStream, *, size: int, tolerate: bool) -> bytes | None:
     if size == 0:
         return b""
 
@@ -209,7 +207,7 @@ def _walk_curve_list(
         if curve_data_size is None:
             return count
         curve_data_offset = cursor.offset
-        curve_data = _read_or_skip_object(cursor, size=curve_data_size, tolerate=tolerate, allow_zero_payload=True)
+        curve_data = _read_or_skip_object(cursor, size=curve_data_size, tolerate=tolerate)
         if curve_data is None:
             return count
 
@@ -543,7 +541,6 @@ def _walk_data_sets(cursor: OpjStream, *, tolerate: bool) -> list[OpjWalkElement
             cursor,
             size=data_size,
             tolerate=tolerate,
-            allow_zero_payload=True,
         )
         if data_payload is None:
             return elements
@@ -552,7 +549,7 @@ def _walk_data_sets(cursor: OpjStream, *, tolerate: bool) -> list[OpjWalkElement
         if mask_size is None:
             return elements
         mask_offset = cursor.offset
-        if _read_or_skip_object(cursor, size=mask_size, tolerate=tolerate, allow_zero_payload=True) is None:
+        if _read_or_skip_object(cursor, size=mask_size, tolerate=tolerate) is None:
             return elements
 
         parsed = _parse_opj_data_header(header_payload)
@@ -727,7 +724,6 @@ def _walk_notes(cursor: OpjStream, *, tolerate: bool) -> list[OpjWalkElement]:
             cursor,
             size=note_label_size,
             tolerate=tolerate,
-            allow_zero_payload=True,
         )
         if note_label is None:
             return elements
@@ -740,7 +736,6 @@ def _walk_notes(cursor: OpjStream, *, tolerate: bool) -> list[OpjWalkElement]:
             cursor,
             size=note_contents_size,
             tolerate=tolerate,
-            allow_zero_payload=True,
         )
         if note_contents is None:
             return elements

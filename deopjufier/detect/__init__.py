@@ -15,6 +15,15 @@ XML_ISLAND_MIN_LENGTH = 64
 CONTAINER_TEXT_MAX_LENGTH = 16 * 1024
 CONTAINER_ZLIB_SCAN_BYTES = 32 * 1024
 ZLIB_HEADER_LENGTH = 2
+ZLIB_COMPRESSION_METHOD_DEFLATE = 8
+SQLITE_PAGE_SIZE_SENTINEL = 1
+SQLITE_PAGE_SIZE_MIN = 512
+SQLITE_PAGE_SIZE_MAX = 65536
+ASCII_ALPHANUMERIC = (
+    frozenset(range(ord("A"), ord("Z") + 1))
+    | frozenset(range(ord("a"), ord("z") + 1))
+    | frozenset(range(ord("0"), ord("9") + 1))
+)
 
 _XML_DECLARATION_PATTERN = re.compile(rb"<\?xml[^>]*\?>", re.IGNORECASE)
 _XML_TAG_PATTERN = re.compile(rb"<([A-Za-z_][A-Za-z0-9_.:-]*)(?:\s[^>]*)?>", re.IGNORECASE)
@@ -93,11 +102,11 @@ def _sqlite_like_length(data: bytes, offset: int) -> int:
     if offset + 100 > len(data):
         return 0
     page_size = int.from_bytes(data[offset + 16 : offset + 18], "big")
-    if page_size == 1:
-        page_size = 65536
-    if page_size < 512:
+    if page_size == SQLITE_PAGE_SIZE_SENTINEL:
+        page_size = SQLITE_PAGE_SIZE_MAX
+    if page_size < SQLITE_PAGE_SIZE_MIN:
         return 0
-    if page_size > 65536:
+    if page_size > SQLITE_PAGE_SIZE_MAX:
         return 0
     if not _is_power_of_two(page_size):
         return 0
@@ -113,7 +122,7 @@ def _is_valid_zlib_header(data: bytes, offset: int) -> bool:
         return False
     cmf = data[offset]
     flg = data[offset + 1]
-    return (cmf & 0x0F) == 8 and ((cmf << 8 | flg) % 31) == 0
+    return (cmf & 0x0F) == ZLIB_COMPRESSION_METHOD_DEFLATE and ((cmf << 8 | flg) % 31) == 0
 
 
 def _zlib_like_length(data: bytes, offset: int) -> int | None:
@@ -142,7 +151,7 @@ def _contains_non_overlap(probe: ContainerProbe, existing: list[ContainerProbe])
 def _looks_like_text(region: bytes) -> bool:
     if len(region) < TEXT_ISLAND_MIN_LENGTH:
         return False
-    alpha_num = sum(1 for b in region if (65 <= b <= 90) or (97 <= b <= 122) or (48 <= b <= 57))
+    alpha_num = sum(1 for b in region if b in ASCII_ALPHANUMERIC)
     spaces = region.count(32) + region.count(9) + region.count(10) + region.count(13)
     return alpha_num >= len(region) * 0.28 and spaces >= 1
 
@@ -284,7 +293,7 @@ def probe_container_regions(data: bytes) -> list[ContainerProbe]:
 
 
 @lru_cache(maxsize=512)
-def _detect_file_cached(path: str, size: int, mtime_ns: int) -> DetectedFile:
+def _detect_file_cached(path: str, _size: int, _mtime_ns: int) -> DetectedFile:
     """Detect file kind from extension and bounded magic bytes.
 
     Extension checks are accepted, but magic signatures override when they confirm

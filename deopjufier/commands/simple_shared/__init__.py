@@ -125,7 +125,6 @@ def _classify_extract_outcome(*, step_enabled: bool, hard_failure: bool) -> str:
 def _scan_gaps_once(
     *,
     session: ExtractionSession,
-    mode: str,
     min_size: int,
     image_blocks: list | None,
     objects: list[OriginObject] | None,

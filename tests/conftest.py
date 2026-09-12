@@ -30,7 +30,7 @@ def _read_timeout_marker(test_item: pytest.Function) -> int:
     return _DEFAULT_TEST_TIMEOUT_SECONDS
 
 
-def _raise_timeout(signum: int, frame: object) -> None:
+def _raise_timeout(_signum: int, _frame: object) -> None:
     raise TimeoutError("test execution exceeded timeout")
 
 

@@ -38,7 +38,7 @@ def open_mmap(path: Path) -> Iterator[mmap.mmap | None]:
 
 
 @lru_cache(maxsize=64)
-def _read_cached_bytes(path: str, size: int, mtime_ns: int) -> bytes:
+def _read_cached_bytes(path: str, _size: int, _mtime_ns: int) -> bytes:
     return Path(path).read_bytes()
 
 
@@ -49,7 +49,7 @@ def read_cached_bytes(path: Path) -> bytes:
 
 
 @lru_cache(maxsize=512)
-def _sha256_file_cached(path: str, size: int, mtime_ns: int) -> str:
+def _sha256_file_cached(path: str, _size: int, _mtime_ns: int) -> str:
     h = hashlib.sha256()
     for chunk in iter_file_chunks(Path(path)):
         h.update(chunk)

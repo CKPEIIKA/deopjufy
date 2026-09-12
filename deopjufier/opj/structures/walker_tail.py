@@ -280,7 +280,6 @@ def _walk_attachments(cursor: OpjStream, *, tolerate: bool) -> list[OpjWalkEleme
                     cursor,
                     size=att_size,
                     tolerate=tolerate,
-                    allow_zero_payload=True,
                 )
                 is None
             ):

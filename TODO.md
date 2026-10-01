@@ -1,6 +1,6 @@
 # deopjufier TODO
 
-Last audited: 2026-08-21.
+Last audited: 2026-10-01.
 
 This file contains unfinished, concrete work only. Completed outcomes belong in
 `DONE.md`, newest first.
@@ -114,6 +114,60 @@ wire grammars or high-corpus relationships. Recalculation mode/state,
 page-to-folder membership, child-window type codes, image ownership beyond exact
 containment, neutral flags, 128-bit sentinels, and affine-tail hypotheses remain
 unfinished until the differential-fixture acceptance rules above are met.
+
+## U07 — remove the duplicate object discovery scan
+
+`extract` calls `session.objects()` with two policy keys, and each call runs a
+full `_token_offsets_from_buffer` scan (about 17 s each on the public
+`zenodo-18450855-eucd2p2.opju`, 38 s total extract). This also makes the
+real-file smoke test for that file exceed its 90 s timeout under parallel load.
+
+Steps:
+
+1. Profile `deopjufy extract FILE -o out/` with `python -m cProfile` and confirm
+   two `discover_origin_objects` calls.
+2. Run the raw token scan once per session and apply the per-policy limits to
+   its result.
+3. Byte-compare manifests and artifacts before and after on every public
+   fixture.
+
+Acceptance: identical outputs; extract time for that file roughly halves.
+
+## U08 — viewer item latency
+
+Each first open of an item in `deopjufy-view` runs `deopjufy get`, which
+rebuilds the exhaustive catalog to resolve the ID (about 2.5 s on a 7.5 MB
+OPJU; `opju_column_descriptors` and `parse_opju_records` dominate). Options
+need a decision because the contract forbids hidden caches and background
+services: make catalog construction cheaper (shares work with U07), or add an
+explicit, documented catalog/state input to `get`.
+
+Acceptance: chosen design documented; first-open latency measured before and
+after on a public OPJU.
+
+## U09 — split the viewer frame
+
+`deopjufy_view/app.py` defines about 1,500 lines of `ViewerFrame` inside the
+`_frame_type()` factory so `wx` is imported lazily. Nothing in it can be
+imported or unit-tested without wx.
+
+Steps: move state transitions and export/selection decisions into plain
+functions or dataclasses in `deopjufy_view/` modules, leave only widget wiring
+in the frame, and test the extracted logic without wx.
+
+Acceptance: viewer behavior unchanged; extracted logic covered by tests in
+`tests/view/` that do not import wx.
+
+## U10 — CLI and test hygiene
+
+- `--verbose` only affects `extract`; on every other command it is accepted and
+  ignored. Implement it or remove it from those commands.
+- The same test function is defined in several `tests/**/_test_*.py` modules and
+  re-exported through star imports (for example
+  `test_detect_reports_foreign_magic_behind_origin_extension` exists three
+  times); keep one definition per test.
+- `io.read_cached_bytes` (`lru_cache(maxsize=64)`, whole files) and the detection
+  cache are process-global hidden caches; bound them to the session or remove.
 
 ## Working rules
 

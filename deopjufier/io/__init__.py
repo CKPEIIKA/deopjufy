@@ -30,11 +30,14 @@ def open_mmap(path: Path) -> Iterator[mmap.mmap | None]:
         return
 
     with path.open("rb") as fh:
+        # Guard only the mapping call: errors raised by the caller's block must propagate.
         try:
-            with mmap.mmap(fh.fileno(), length=0, access=mmap.ACCESS_READ) as mapped:
-                yield mapped
+            mapped = mmap.mmap(fh.fileno(), length=0, access=mmap.ACCESS_READ)
         except (OSError, ValueError):
             yield None
+            return
+        with mapped:
+            yield mapped
 
 
 @lru_cache(maxsize=64)

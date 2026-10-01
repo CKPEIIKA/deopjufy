@@ -9,6 +9,10 @@ intentionally excluded from the publication tree.
   into a directory derived from the input path, outside any selected output
   directory. A missing `-o` is now a usage error (exit 2) and writes nothing.
   Regression: `test_multi_file_commands_require_explicit_output_dir`.
+- `io.open_mmap` no longer swallows `OSError`/`ValueError` raised inside the
+  caller's block. It re-yielded after the exception, so any I/O error during
+  extraction surfaced as `RuntimeError: generator didn't stop after throw()`.
+  Regression: `tests/core/misc/test_io_open_mmap.py`.
 
 ## 2026-09-12
 

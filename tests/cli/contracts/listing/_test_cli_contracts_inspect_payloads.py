@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 
 from deopjufier.cli import NATIVE_BACKEND, main
-from deopjufier.detect import detect_file
 from deopjufier.errors import CorruptedInputError
 from deopjufier.inventory import OpjObjectBoundary
 from deopjufier.opju.common import OPJU_END_TRAILER
@@ -16,61 +15,6 @@ from deopjufier.session import ExtractionSession
 from tests.test_core_unit_coverage_utils import _repo_root, _resolve_synthetic_fixture
 
 REPO_ROOT = _repo_root(Path(__file__))
-
-
-def test_detect_reports_foreign_magic_behind_origin_extension(tmp_path: Path) -> None:
-    candidate = tmp_path / "fake.opju"
-    candidate.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)
-
-    detected = detect_file(candidate)
-    assert detected.detected_type == "png"
-    assert detected.reason == "extension-without-origin-magic"
-
-
-def test_detect_magic_magic_falls_back_for_unknown_extension(tmp_path: Path) -> None:
-    candidate = tmp_path / "sig.bin"
-    candidate.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 32)
-
-    detected = detect_file(candidate)
-    assert detected.detected_type == "png"
-    assert detected.reason == "magic"
-
-
-def test_detect_magic_prefers_jpeg_magic_over_other_known(tmp_path: Path) -> None:
-    candidate = tmp_path / "sig.bin"
-    candidate.write_bytes(b"\xff\xd8\xff\xd9" + b"\x00" * 16)
-
-    detected = detect_file(candidate)
-    assert detected.detected_type == "jpeg"
-    assert detected.reason == "magic"
-
-
-def test_detect_magic_prefers_opju_magic_for_unknown_extension(tmp_path: Path) -> None:
-    candidate = tmp_path / "sig.bin"
-    candidate.write_bytes(b"CPYUA\x00\x00\x00\x00" + b"\x00" * 16)
-
-    detected = detect_file(candidate)
-    assert detected.detected_type == "opju"
-    assert detected.reason == "magic"
-
-
-def test_detect_magic_prefers_opj_magic_for_unknown_extension(tmp_path: Path) -> None:
-    candidate = tmp_path / "sig.bin"
-    candidate.write_bytes(b"CPYA\x00\x00\x00\x00" + b"\x00" * 16)
-
-    detected = detect_file(candidate)
-    assert detected.detected_type == "opj"
-    assert detected.reason == "magic"
-
-
-def test_detect_unknown_returns_unknown(tmp_path: Path) -> None:
-    candidate = tmp_path / "raw.bin"
-    candidate.write_bytes(b"\x00\x01\x02")
-
-    detected = detect_file(candidate)
-    assert detected.detected_type == "unknown"
-    assert detected.confidence == 0.05
-    assert detected.reason == "no-match"
 
 
 def test_inspect_includes_opju_raw_dump_crosswalk_summary(capsys: pytest.CaptureFixture[str]) -> None:

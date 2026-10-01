@@ -163,12 +163,7 @@ def cached_extract(tmp_path_factory: pytest.TempPathFactory):
             ]
             if raw_dir is not None:
                 args.extend(["--raw-dir", str(raw_dir)])
-            if (
-                "--extended" not in extra_args
-                and "--human" not in extra_args
-                and "--human-only" not in extra_args
-                and "--human-artifacts-only" not in extra_args
-            ):
+            if "--extended" not in extra_args and "--human" not in extra_args:
                 args.append("--extended")
             if raw_min_bytes is not None:
                 args.extend(["--raw-min-bytes", str(raw_min_bytes)])

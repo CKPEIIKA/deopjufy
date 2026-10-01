@@ -14,40 +14,6 @@ from .render import _json_flag_argument_parser
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    class _HumanProfileAction(Action):
-        def __call__(
-            self,
-            parser: argparse.ArgumentParser,
-            namespace: argparse.Namespace,
-            values: str | Sequence[object] | None,
-            option_string: str | None = None,
-        ) -> None:
-            namespace.human = True
-
-    class _HumanOnlyProfileAction(Action):
-        def __call__(
-            self,
-            parser: argparse.ArgumentParser,
-            namespace: argparse.Namespace,
-            values: str | Sequence[object] | None,
-            option_string: str | None = None,
-        ) -> None:
-            namespace.human_only = True
-            namespace.human = False
-            namespace.human_artifacts_only = False
-
-    class _HumanArtifactsOnlyProfileAction(Action):
-        def __call__(
-            self,
-            parser: argparse.ArgumentParser,
-            namespace: argparse.Namespace,
-            values: str | Sequence[object] | None,
-            option_string: str | None = None,
-        ) -> None:
-            namespace.human_artifacts_only = True
-            namespace.human = False
-            namespace.human_only = False
-
     class _MachineProfileAction(Action):
         def __call__(
             self,
@@ -69,16 +35,6 @@ def _build_parser() -> argparse.ArgumentParser:
         ) -> None:
             super().__call__(parser, namespace, values, option_string)
             namespace.map = True
-
-    class _ParserOnlyAction(Action):
-        def __call__(
-            self,
-            parser: argparse.ArgumentParser,
-            namespace: argparse.Namespace,
-            values: str | Sequence[object] | None,
-            option_string: str | None = None,
-        ) -> None:
-            namespace.parser_only = True
 
     parser = argparse.ArgumentParser(
         prog="deopjufy",
@@ -141,53 +97,29 @@ def _build_parser() -> argparse.ArgumentParser:
     extract_p.add_argument("--no-strings", action="store_true")
     extract_p.add_argument("--no-tables", action="store_true")
     extract_p.add_argument("--no-objects", action="store_true")
-    extract_p.set_defaults(
-        human=True,
-        parser_only=False,
-        human_only=False,
-        human_artifacts_only=False,
-        extended=False,
-        map=False,
-    )
+    extract_p.set_defaults(human=True, extended=False, map=False)
     extract_profile = extract_p.add_mutually_exclusive_group()
     extract_profile.add_argument(
         "--human",
-        action=_HumanProfileAction,
-        nargs=0,
-        help="extract human-facing artifacts only; skip machine-oriented provenance",
-    )
-    extract_p.add_argument(
-        "--parser-only",
-        action=_ParserOnlyAction,
-        nargs=0,
-        help="limit object discovery and collection to parser-backed candidates",
-    )
-    extract_profile.add_argument(
-        "--human-only",
-        action=_HumanOnlyProfileAction,
-        nargs=0,
-        help="extract human-facing artifacts only; skip unknown-region raw/text output",
-    )
-    extract_profile.add_argument(
-        "--human-artifacts-only",
-        action=_HumanArtifactsOnlyProfileAction,
-        nargs=0,
-        help=(
-            "extract human-facing artifacts only; skip unknown-region raw/text output and "
-            "skip machine-oriented provenance sidecars"
-        ),
+        action="store_true",
+        help="default profile: write trusted human-facing artifacts; omitted ones are listed as skipped",
     )
     extract_profile.add_argument(
         "--extended",
         action=_MachineProfileAction,
         nargs=0,
-        help="include machine-oriented outputs such as raw/text carving and provenance sidecars",
+        help="also write machine outputs: raw and text regions, decoded payload indexes, provenance sidecars",
     )
     extract_profile.add_argument(
         "--map",
         action=_MapProfileAction,
         nargs=0,
-        help="include machine outputs plus an exact reconstructable whole-file byte map",
+        help="--extended plus an exact reconstructable whole-file byte map",
+    )
+    extract_p.add_argument(
+        "--parser-only",
+        action="store_true",
+        help="limit object discovery and collection to parser-backed candidates",
     )
     extract_p.add_argument("--strings-min-length", type=int, default=4)
     extract_p.add_argument("--table-min-rows", type=int, default=1)

@@ -103,8 +103,6 @@ def test_extract_parser_only_can_be_combined_with_extended_profile() -> None:
     assert args.parser_only
     assert args.extended
     assert not args.human
-    assert not args.human_only
-    assert not args.human_artifacts_only
 
 
 def test_extract_parser_only_can_be_combined_with_map_profile() -> None:
@@ -115,8 +113,6 @@ def test_extract_parser_only_can_be_combined_with_map_profile() -> None:
     assert args.parser_only
     assert args.extended
     assert not args.human
-    assert not args.human_only
-    assert not args.human_artifacts_only
 
 
 def test_extract_parser_only_extended_enables_machine_output(tmp_path: Path) -> None:
@@ -342,8 +338,6 @@ def test_extract_default_profile_is_human_flagged() -> None:
     assert args.command == "extract"
     assert args.human
     assert not args.extended
-    assert not args.human_only
-    assert not args.human_artifacts_only
 
 
 @pytest.mark.parametrize("extended_arg", ["--extended", "--map"])
@@ -354,8 +348,6 @@ def test_extract_extended_option_is_accepted(extended_arg: str) -> None:
     assert args.command == "extract"
     assert args.extended
     assert not args.human
-    assert not args.human_only
-    assert not args.human_artifacts_only
 
 
 def test_extract_default_profile_stays_human_only(tmp_path: Path) -> None:
@@ -508,7 +500,7 @@ def test_extract_real_default_with_raw_text_dirs_ignored(
     )
 
 
-@pytest.mark.parametrize("human_profile", ["--human", "--human-only", "--human-artifacts-only"])
+@pytest.mark.parametrize("human_profile", ["--human"])
 def test_extract_human_profiles_ignore_raw_text_dirs(
     tmp_path: Path,
     human_profile: str,
@@ -612,6 +604,16 @@ def test_extract_real_fixture_extended_profile_adds_machine_artifacts(
     )
 
 
+@pytest.mark.parametrize("removed_flag", ["--human-only", "--human-artifacts-only"])
+def test_extract_removed_human_profile_aliases_are_rejected(removed_flag: str) -> None:
+    parser = _build_parser()
+
+    with pytest.raises(SystemExit) as exc_info:
+        parser.parse_args(["extract", "sample.opju", removed_flag])
+
+    assert exc_info.value.code == 2
+
+
 def test_extract_human_and_extended_are_mutually_exclusive() -> None:
     parser = _build_parser()
 
@@ -626,35 +628,7 @@ def test_extract_human_and_extended_are_mutually_exclusive() -> None:
     assert exc_info.value.code == 2
 
 
-def test_extract_human_only_and_extended_are_mutually_exclusive() -> None:
-    parser = _build_parser()
-
-    with pytest.raises(SystemExit) as exc_info:
-        parser.parse_args(["extract", "sample.opju", "--human-only", "--extended"])
-
-    assert exc_info.value.code == 2
-
-    with pytest.raises(SystemExit) as exc_info:
-        parser.parse_args(["extract", "sample.opju", "--human-only", "--map"])
-
-    assert exc_info.value.code == 2
-
-
-def test_extract_human_artifacts_only_and_extended_are_mutually_exclusive() -> None:
-    parser = _build_parser()
-
-    with pytest.raises(SystemExit) as exc_info:
-        parser.parse_args(["extract", "sample.opju", "--human-artifacts-only", "--extended"])
-
-    assert exc_info.value.code == 2
-
-    with pytest.raises(SystemExit) as exc_info:
-        parser.parse_args(["extract", "sample.opju", "--human-artifacts-only", "--map"])
-
-    assert exc_info.value.code == 2
-
-
-@pytest.mark.parametrize("human_profile", ["--human", "--human-only", "--human-artifacts-only"])
+@pytest.mark.parametrize("human_profile", ["--human"])
 @pytest.mark.parametrize("machine_profile", ["--extended", "--map"])
 def test_parser_only_human_and_machine_profiles_are_mutually_incompatible(
     human_profile: str,
@@ -666,17 +640,15 @@ def test_parser_only_human_and_machine_profiles_are_mutually_incompatible(
     assert exc_info.value.code == 2
 
 
-@pytest.mark.parametrize("human_profile", ["--human", "--human-only", "--human-artifacts-only"])
+@pytest.mark.parametrize("human_profile", ["--human"])
 def test_parser_only_can_be_combined_with_human_profile(human_profile: str) -> None:
     parser = _build_parser()
     args = parser.parse_args(["extract", "sample.opju", "--parser-only", human_profile])
 
     assert args.command == "extract"
     assert args.parser_only
-    assert args.human is (human_profile == "--human")
+    assert args.human
     assert not args.extended
-    assert args.human_only is (human_profile == "--human-only")
-    assert args.human_artifacts_only is (human_profile == "--human-artifacts-only")
 
 
 def test_extract_without_file_data_inputs_does_not_load_full_bytes(

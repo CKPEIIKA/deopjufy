@@ -5,6 +5,11 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Removed the `extract` flags `--human-only` and `--human-artifacts-only`
+  (breaking). Both behaved exactly like the default `--human` profile while
+  the manual described different behavior. The profile group is now
+  `--human | --extended | --map` with distinct help text, and `--parser-only`
+  is a plain switch.
 - `deopjufy ... | head` no longer prints `Exception ignored ... BrokenPipeError`
   and exits 120: the entry point flushes stdout itself and treats a closed
   reader as success. `python -m deopjufier` uses the same entry point.

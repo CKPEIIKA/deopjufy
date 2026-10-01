@@ -166,7 +166,7 @@ def test_real_project_human_only_omits_non_artifact_partial_signals(
             str(project),
             "-o",
             str(output),
-            "--human-only",
+            "--human",
             "--no-images",
             "--no-strings",
             "--no-tables",
@@ -417,7 +417,7 @@ def test_real_project_human_artifacts_only_skips_machine_provenance_outputs(
             str(project),
             "-o",
             str(output),
-            "--human-artifacts-only",
+            "--human",
             "--no-images",
             "--no-strings",
             "--raw-dir",
@@ -447,7 +447,7 @@ def test_real_project_human_artifacts_only_skips_machine_provenance_outputs(
     assert not (output / "metadata").exists()
     assert not (output / "origin_storage_reports").exists()
     assert any(item.get("kind") == "worksheet" for item in items), (
-        "Expected human-facing parser outputs to remain with --human-artifacts-only"
+        "Expected human-facing parser outputs to remain with --human"
     )
     assert any(item.get("status") in {"partial", "unsupported", "extracted"} for item in items)
 

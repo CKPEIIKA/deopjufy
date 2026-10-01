@@ -66,7 +66,7 @@ def cmd_extract(args):
         size_bytes=session.size_bytes,
         sha256=session.sha256,
     )
-    human_profile = args.human or args.human_only or args.human_artifacts_only or not args.extended
+    human_profile = not args.extended
     partial = False
     shared_data: bytes | None = None
 

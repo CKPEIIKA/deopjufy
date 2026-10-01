@@ -155,72 +155,6 @@ def test_extract_default_profile_matches_explicit_human_profile(tmp_path: Path) 
     )
 
 
-@pytest.mark.parametrize(
-    "human_flag",
-    ["--human-only", "--human-artifacts-only"],
-)
-def test_extract_human_alias_profiles_match_explicit_human_profile(
-    human_flag: str,
-    tmp_path: Path,
-) -> None:
-    sample = _resolve_repo_fixture(Path(__file__), "refs/github/Ropj/inst/test.opj")
-    if not sample.exists():
-        pytest.skip("Public OPJ fixture missing.")
-
-    alias_outdir = tmp_path / f"alias_{human_flag.removeprefix('--').replace('-', '_')}"
-    base_outdir = tmp_path / "base"
-
-    alias_code = main(
-        [
-            "extract",
-            str(sample),
-            "-o",
-            str(alias_outdir),
-            human_flag,
-            "--no-images",
-            "--no-tables",
-        ]
-    )
-    base_code = main(
-        [
-            "extract",
-            str(sample),
-            "-o",
-            str(base_outdir),
-            "--human",
-            "--no-images",
-            "--no-tables",
-        ]
-    )
-    assert alias_code in {0, 4}
-    assert base_code in {0, 4}
-
-    base_payload = json.loads((base_outdir / "manifest.json").read_text(encoding="utf-8"))
-    alias_payload = json.loads((alias_outdir / "manifest.json").read_text(encoding="utf-8"))
-
-    assert base_payload["status"] in {"ok", "partial"}
-    assert alias_payload["status"] in {"ok", "partial"}
-    assert base_payload["status"] == alias_payload["status"]
-
-    def _item_key(item: dict[str, object]) -> tuple[object, ...]:
-        return (
-            item.get("kind"),
-            item.get("name"),
-            item.get("status"),
-            item.get("error"),
-            item.get("path"),
-            item.get("source_object_path"),
-            item.get("discovery_type"),
-            item.get("heuristic"),
-            item.get("rows"),
-            item.get("columns"),
-        )
-
-    assert sorted(_item_key(item) for item in base_payload["items"]) == sorted(
-        _item_key(item) for item in alias_payload["items"]
-    )
-
-
 def test_extract_default_profile_skips_machine_provenance_artifacts(tmp_path: Path) -> None:
     sample = _resolve_repo_fixture(Path(__file__), Path("refs/github/Ropj/inst/test.opj"))
     if not sample.exists():
@@ -494,7 +428,7 @@ def test_extract_human_only_skips_raw_and_text_artifacts(tmp_path: Path) -> None
             str(sample),
             "-o",
             str(outdir),
-            "--human-only",
+            "--human",
             "--no-objects",
             "--no-tables",
             "--raw-dir",
@@ -517,7 +451,7 @@ def test_extract_human_only_skips_raw_and_text_artifacts(tmp_path: Path) -> None
 
 @pytest.mark.parametrize(
     "human_flag",
-    ["--human-only", "--human-artifacts-only", "--human"],
+    ["--human"],
 )
 def test_extract_human_profile_skips_machine_provenance_artifacts(
     human_flag: str,

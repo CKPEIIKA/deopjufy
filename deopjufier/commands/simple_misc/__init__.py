@@ -182,10 +182,11 @@ def cmd_dump_block(args):
     _ensure_file(args.file)
     if args.offset < 0 or args.length < 0:
         raise ValueError("offset and length must be non-negative")
+    size = args.file.stat().st_size
+    if args.offset + args.length > size:
+        raise ValueError(f"range {args.offset}+{args.length} exceeds file size {size}")
 
     block = dump_range(args.file, args.offset, args.length)
-    if not block and args.length > 0:
-        raise CorruptedInputError("offset/length outside file range")
 
     if not args.quiet:
         sys.stdout.buffer.write(block)

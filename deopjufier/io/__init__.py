@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import mmap
+import os
 import re
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
@@ -139,5 +140,7 @@ def dump_range(path: Path, offset: int, length: int) -> bytes:
         raise ValueError("offset and length must be non-negative")
 
     with path.open("rb") as fh:
+        # Never ask read() for more than the file holds; a huge length would allocate it.
+        available = max(0, fh.seek(0, os.SEEK_END) - offset)
         fh.seek(offset)
-        return fh.read(length)
+        return fh.read(min(length, available))

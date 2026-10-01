@@ -273,7 +273,8 @@ Report parser-known records and exact or qualified source ranges.
 .B \-\-json
 Emit machine-readable output.
 .SS dump-block
-Copy exactly the requested input range to standard output.
+Copy exactly the requested input range to standard output. A negative value or
+a range that extends past the end of the file is a usage error (status 2).
 .TP
 .BI \-\-offset " N"
 Set the zero-based input offset.

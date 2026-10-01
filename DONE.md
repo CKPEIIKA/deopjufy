@@ -5,6 +5,9 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- `dump-block` rejects a range that does not fit in the file as a usage error
+  (exit 2) instead of exit 6 for a large offset and a `MemoryError` traceback
+  for a large length; `io.dump_range` never reads past the file size.
 - Truncated input is reported instead of passing as complete. A strict OPJ walk
   whose declared size overruns the file yields `input-truncated` and exit 6 from
   `inspect`, `list`, and `extract` (output is still written, extract status

@@ -256,15 +256,34 @@ def test_dump_block_zero_length_emits_empty_payload(tmp_path: Path, capsys: pyte
     assert captured.out == ""
 
 
-def test_dump_block_out_of_range_is_corrupted_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+@pytest.mark.parametrize(
+    ("offset", "length"),
+    [("999", "4"), ("4", "10"), ("0", "999999999999")],
+)
+def test_dump_block_range_beyond_file_is_usage_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], offset: str, length: str
+) -> None:
     sample = tmp_path / "sample.bin"
     sample.write_bytes(b"ABCDEF")
 
-    code = main(["dump-block", str(sample), "--offset", "999", "--length", "4"])
+    code = main(["dump-block", str(sample), "--offset", offset, "--length", length])
     captured = capsys.readouterr()
 
-    assert code == 6
-    assert "offset/length outside file range" in captured.err
+    assert code == 2
+    assert captured.out == ""
+    assert "exceeds file size 6" in captured.err
+
+
+def test_dump_block_range_ending_at_file_end_is_emitted(
+    tmp_path: Path, capsysbinary: pytest.CaptureFixture[bytes]
+) -> None:
+    sample = tmp_path / "sample.bin"
+    sample.write_bytes(b"ABCDEF")
+
+    code = main(["dump-block", str(sample), "--offset", "4", "--length", "2"])
+
+    assert code == 0
+    assert capsysbinary.readouterr().out == b"EF"
 
 
 def test_strings_ascii_respects_min_length(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:

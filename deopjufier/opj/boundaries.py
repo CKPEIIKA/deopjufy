@@ -59,23 +59,25 @@ def _iter_opj_name_candidates(name: str) -> list[str]:
     if not name:
         return []
 
-    values = {_normalize_opj_lookup_name(name)}
+    # Ordered most specific first; callers take the first candidate that resolves,
+    # so a set here made the chosen path depend on PYTHONHASHSEED.
+    values = [_normalize_opj_lookup_name(name)]
     if "@" in name:
-        values.add(_normalize_opj_lookup_name(name.split("@", 1)[0]))
+        values.append(_normalize_opj_lookup_name(name.split("@", 1)[0]))
     if "_" in name:
         head = name.split("_", 1)[0]
-        values.add(_normalize_opj_lookup_name(head))
+        values.append(_normalize_opj_lookup_name(head))
 
     if name.startswith(("MBook", "MSheet", "PdM")):
         candidate = _normalize_opj_lookup_name(name)
         if candidate.startswith("pdm") and len(candidate) > 3:
             stripped = candidate[3:]
             if stripped:
-                values.add(f"m{stripped}")
+                values.append(f"m{stripped}")
             if stripped.startswith("sheet"):
-                values.add(stripped)
+                values.append(stripped)
 
-    return [value for value in values if value]
+    return [value for value in dict.fromkeys(values) if value]
 
 
 def _extract_matrix_aliases(name: str) -> set[str]:

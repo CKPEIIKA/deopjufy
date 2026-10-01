@@ -478,13 +478,3 @@ def compare_manifests(
 
     result["match"] = not mismatched_signatures and not byte_mismatches
     return result
-
-
-def compare_results_as_text(result: dict[str, Any]) -> str:
-    lines = [
-        f"left={result['left']['path']} status={result['left']['status']}",
-        f"right={result['right']['path']} status={result['right']['status']}",
-        f"match={result['match']}",
-    ]
-    lines.append("missing_signatures={}".format(len(result.get("mismatches", {}).get("manifest_signatures", []))))
-    return "\n".join(lines)

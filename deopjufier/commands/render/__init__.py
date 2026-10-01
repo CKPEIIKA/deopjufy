@@ -7,8 +7,6 @@ import sys
 from collections.abc import Mapping
 from typing import cast
 
-from deopjufier.compare import compare_results_as_text
-
 
 def _json_flag_argument_parser(command_parser) -> None:
     command_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON output")
@@ -72,59 +70,122 @@ def _print_table_rows(
         )
 
 
+_HINT_VALUE_WIDTH = 72
+# Format hints already summarized in the header lines.
+_HEADER_HINT_KEYS = frozenset(
+    {"magic_offset", "magic_type", "opj_build", "opj_file_version", "opj_magic", "opj_origin_version"}
+)
+
+
+def _count_phrase(counts: object) -> str:
+    """Render ``{kind: count}`` as ``kind count, ...`` ordered by count, then name."""
+    if not isinstance(counts, dict) or not counts:
+        return "none"
+    ordered = sorted(cast(dict[str, int], counts).items(), key=lambda pair: (-int(pair[1]), str(pair[0])))
+    return ", ".join(f"{kind} {count:,}" for kind, count in ordered)
+
+
+def _hint_text(value: object) -> str:
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if isinstance(value, list):
+        entries = cast(list[object], value)
+        names = [str(cast(dict[str, object], entry).get("name")) for entry in entries if isinstance(entry, dict)]
+        if names and len(names) == len(entries) and "None" not in names:
+            return f"{len(names)}: {', '.join(names)}"
+        return f"{len(entries)} entries"
+    text = " ".join(str(value).split())
+    return text if len(text) <= _HINT_VALUE_WIDTH else text[: _HINT_VALUE_WIDTH - 3] + "..."
+
+
+def _origin_line(hints: Mapping[str, object]) -> str | None:
+    parts = []
+    if hints.get("opj_origin_version") is not None:
+        parts.append(f"version {hints['opj_origin_version']}")
+    if hints.get("opj_build") is not None:
+        parts.append(f"build {hints['opj_build']}")
+    if hints.get("opj_file_version") is not None:
+        parts.append(f"file format {hints['opj_file_version']}")
+    return ", ".join(parts) or None
+
+
+def _type_line(payload: Mapping[str, object], hints: Mapping[str, object]) -> str:
+    detected = str(payload.get("detected_type", "unknown"))
+    magic = hints.get("opj_magic") or (hints.get("magic_type") if hints.get("magic_verified") else None)
+    evidence = f"{magic} magic" if magic else str(payload.get("reason", "no signature"))
+    confidence = payload.get("confidence")
+    if isinstance(confidence, (int, float)):
+        evidence += f", confidence {confidence:.2f}"
+    return f"{detected} ({evidence})"
+
+
+def _support_line(payload: Mapping[str, object]) -> str:
+    return (
+        f"{payload.get('support_class', 'unknown')} "
+        f"(parser {payload.get('parser_status', 'unknown')}, command {payload.get('status', 'unknown')})"
+    )
+
+
+def _print_warnings(warnings: object) -> None:
+    if isinstance(warnings, list) and warnings:
+        print("\nWarnings")
+        for warning in warnings:
+            print(f"  - {warning}")
+
+
 def _print_inspect_summary(payload: Mapping[str, object], *, as_json: bool) -> None:
     if as_json:
         print(json.dumps(payload, indent=2, sort_keys=True))
         return
 
-    _print_key_values(
-        [
-            ("Path", payload.get("path", "")),
-            ("Detected Type", payload.get("detected_type", "")),
-            ("Detected Confidence", payload.get("confidence", "")),
-            ("Support Class", payload.get("support_class", "")),
-            ("Parser Status", payload.get("parser_status", "")),
-            ("Command Status", payload.get("status", "")),
-            ("Reason", payload.get("reason", "")),
-            ("Size bytes", payload.get("size_bytes", "")),
-            ("SHA256", payload.get("sha256", "")),
-        ],
-        indent=0,
-    )
+    hints_raw = payload.get("format_hints", {})
+    hints = cast(dict[str, object], hints_raw) if isinstance(hints_raw, dict) else {}
+    size = payload.get("size_bytes")
+    header: list[tuple[str, object]] = [
+        ("Path", payload.get("path", "")),
+        ("Type", _type_line(payload, hints)),
+    ]
+    origin = _origin_line(hints)
+    if origin:
+        header.append(("Origin", origin))
+    header += [
+        ("Size", f"{size:,} bytes" if isinstance(size, int) else "unknown"),
+        ("SHA-256", payload.get("sha256") or "unknown"),
+        ("Support", _support_line(payload)),
+    ]
+    if payload.get("coverage_scope"):
+        header.append(("Coverage", f"{payload['coverage_scope']}, {payload.get('verification', 'unverified')}"))
+    _print_key_values(header)
 
     counts_raw = payload.get("counts", {})
     counts = cast(dict[str, object], counts_raw) if isinstance(counts_raw, dict) else {}
     if counts:
-        print("\nCounts")
-        for key, value in sorted(counts.items()):
-            if isinstance(value, dict):
-                print(f"{key}:")
-                for nested_key, nested_value in sorted(value.items()):
-                    if isinstance(nested_value, dict):
-                        nested_items = ", ".join(
-                            f"{nested_item}:{nested_count}"
-                            for nested_item, nested_count in sorted(nested_value.items(), key=lambda item: item[0])
-                        )
-                        print(f"  {nested_key}: {{{nested_items}}}")
-                    else:
-                        print(f"  {nested_key}: {nested_value}")
-            else:
-                print(f"{key}: {value}")
-
-    format_hints = payload.get("format_hints", {})
-    if isinstance(format_hints, dict) and format_hints:
-        format_hints_map = cast(dict[str, object], format_hints)
-        print("\nFormat Hints")
+        evidence = cast(dict[str, object], counts.get("parser_evidence_counts") or {})
+        heuristic = cast(dict[str, object], evidence.get("heuristic") or {})
+        objects = counts.get("origin_objects", 0)
+        object_line = f"{objects:,}" if isinstance(objects, int) else str(objects)
+        if heuristic:
+            object_line += f": {heuristic.get('false', 0):,} parser-backed, {heuristic.get('true', 0):,} heuristic"
+        images = counts.get("images", 0)
+        print("\nContents")
         _print_key_values(
-            [(key, value) for key, value in sorted(format_hints_map.items())],
+            [
+                ("Items", f"{counts.get('items', 0):,} listed"),
+                ("Objects", object_line),
+                ("Kinds", _count_phrase(counts.get("origin_object_kinds"))),
+                ("Images", f"{images:,} ({_count_phrase(counts.get('embedded_signatures'))})" if images else "none"),
+            ],
             indent=2,
         )
 
-    warnings = payload.get("warnings", [])
-    if isinstance(warnings, list) and warnings:
-        print("\nWarnings")
-        for warning in warnings:
-            print(f"- {warning}")
+    details: list[tuple[str, object]] = [
+        (key, _hint_text(value)) for key, value in sorted(hints.items()) if key not in _HEADER_HINT_KEYS
+    ]
+    if details:
+        print("\nFormat details")
+        _print_key_values(details, indent=2)
+
+    _print_warnings(payload.get("warnings", []))
 
 
 def _print_list_summary(payload: Mapping[str, object], *, as_json: bool) -> None:
@@ -133,38 +194,29 @@ def _print_list_summary(payload: Mapping[str, object], *, as_json: bool) -> None
         return
 
     items = cast(list[dict[str, object]], payload.get("items", []))
+    heuristic = sum(1 for item in items if item.get("heuristic"))
+    signatures_raw = payload.get("embedded_signatures", {})
+    signatures = cast(dict[str, object], signatures_raw) if isinstance(signatures_raw, dict) else {}
+    image_total = signatures.get("total_blocks") or 0
     _print_key_values(
         [
-            ("File", payload.get("file", "")),
-            ("Detected Type", payload.get("detected_type", "")),
-            ("Support Class", payload.get("support_class", "")),
-            ("Parser Status", payload.get("parser_status", "")),
-            ("Command Status", payload.get("status", "")),
-            ("Item Count", len(items)),
+            ("Path", payload.get("file", "")),
+            ("Type", payload.get("detected_type", "unknown")),
+            ("Support", _support_line(payload)),
+            ("Items", f"{len(items):,}: {len(items) - heuristic:,} parser-backed, {heuristic:,} heuristic"),
+            (
+                "Images",
+                f"{image_total:,} ({_count_phrase(signatures.get('counts_by_kind'))})" if image_total else "none",
+            ),
         ]
     )
 
-    signatures = payload.get("embedded_signatures", {})
-    if isinstance(signatures, dict):
-        signatures_map = cast(dict[str, object], signatures)
-        total_blocks = signatures_map.get("total_blocks")
-        counts_by_kind = signatures_map.get("counts_by_kind")
-        if total_blocks is not None:
-            print(f"Embedded signatures: {total_blocks}")
-        if isinstance(counts_by_kind, dict):
-            for kind, count in sorted(counts_by_kind.items()):
-                print(f"  {kind}: {count}")
-
     if not items:
         print("\nNo discoverable items.")
-        warnings = payload.get("warnings")
-        if isinstance(warnings, list) and warnings:
-            print("Warnings:")
-            for warning in warnings:
-                print(f"- {warning}")
+        _print_warnings(payload.get("warnings"))
         return
 
-    print("\nItems")
+    print("\nCatalog")
     rows: list[tuple[object, ...]] = [
         (
             item.get("offset", ""),
@@ -182,62 +234,82 @@ def _print_list_summary(payload: Mapping[str, object], *, as_json: bool) -> None
         max_widths={4: 40, 5: 40},
     )
 
-    warnings = payload.get("warnings")
-    if isinstance(warnings, list) and warnings:
-        print("\nWarnings")
-        for warning in warnings:
-            print(f"- {warning}")
+    _print_warnings(payload.get("warnings"))
+
+
+_COMPARE_ROWS_SHOWN = 20
+
+
+def _signature_row(mismatch: Mapping[str, object]) -> tuple[object, ...]:
+    signature = mismatch.get("signature")
+    fields = cast(dict[str, object], signature) if isinstance(signature, dict) else {}
+    delta = mismatch.get("delta", 0)
+    side = "left" if isinstance(delta, int) and delta > 0 else "right"
+    extra = abs(delta) if isinstance(delta, int) else delta
+    return (
+        side,
+        f"+{extra}",
+        fields.get("status") or "-",
+        fields.get("kind") or "-",
+        fields.get("name") or "-",
+        fields.get("path") or "-",
+    )
+
+
+def _file_row(mismatch: Mapping[str, object]) -> tuple[object, ...]:
+    identity = mismatch.get("identity")
+    fields = cast(dict[str, object], identity) if isinstance(identity, dict) else {}
+    return (mismatch.get("status", "unknown"), fields.get("kind") or "-", fields.get("path") or "-")
+
+
+def _print_limited_table(title: str, headers: list[str], rows: list[tuple[object, ...]]) -> None:
+    shown = rows[:_COMPARE_ROWS_SHOWN]
+    print(f"\n{title} ({len(rows):,})")
+    _print_table_rows(headers, shown, max_widths={4: 32, 5: 48} if len(headers) > 4 else {2: 60})
+    if len(rows) > len(shown):
+        print(f"... {len(rows) - len(shown):,} more; use --json for the complete list")
 
 
 def _print_compare_summary(payload: dict[str, object]) -> None:
     if not payload:
-        print("Match: false")
+        print("Result  no comparison")
         return
     summary = cast(dict[str, object], payload.get("summary", {}))
     mismatches = cast(dict[str, object], payload.get("mismatches", {}))
-
-    print(compare_results_as_text(payload))
-
-    if summary:
-        _print_key_values(
-            [
-                ("Left items", summary.get("left_items", 0)),
-                ("Right items", summary.get("right_items", 0)),
-                ("Left-only items", summary.get("left_only_items", 0)),
-                ("Right-only items", summary.get("right_only_items", 0)),
-                ("Manifest signature mismatches", summary.get("signature_mismatches", 0)),
-                ("File mismatches", summary.get("file_mismatches", 0)),
-            ],
-            indent=0,
+    left = cast(dict[str, object], payload.get("left", {}))
+    right = cast(dict[str, object], payload.get("right", {}))
+    signature_rows = [
+        _signature_row(cast(dict[str, object], entry))
+        for entry in cast(list[object], mismatches.get("manifest_signatures") or [])
+        if isinstance(entry, dict)
+    ]
+    file_rows = [
+        _file_row(cast(dict[str, object], entry))
+        for entry in cast(list[object], mismatches.get("files") or [])
+        if isinstance(entry, dict)
+    ]
+    if payload.get("match"):
+        result = "match"
+    else:
+        result = (
+            f"different: {summary.get('signature_mismatches', 0):,} item signature(s), "
+            f"{summary.get('file_mismatches', 0):,} file mismatch(es)"
         )
-
-    manifest_mismatches = mismatches.get("manifest_signatures")
-    if isinstance(manifest_mismatches, list) and manifest_mismatches:
-        print("\nManifest signature mismatches")
-        for mismatch in manifest_mismatches:
-            if isinstance(mismatch, dict):
-                mismatch_map = cast(dict[str, object], mismatch)
-                signature = mismatch_map.get("signature")
-                left_count = mismatch_map.get("left_count", "n/a")
-                right_count = mismatch_map.get("right_count", "n/a")
-                delta = mismatch_map.get("delta", "n/a")
-            else:
-                signature = None
-                left_count = "n/a"
-                right_count = "n/a"
-                delta = "n/a"
-            print(f"- signature={signature} left={left_count} right={right_count} delta={delta}")
-
-    file_mismatches = mismatches.get("files")
-    if isinstance(file_mismatches, list) and file_mismatches:
-        shown = file_mismatches[:10]
-        print(f"\nFile mismatches ({len(file_mismatches)} total, showing {len(shown)})")
-        for mismatch in shown:
-            if isinstance(mismatch, dict):
-                mismatch_map = cast(dict[str, object], mismatch)
-                status = mismatch_map.get("status", "unknown")
-                identity = mismatch_map.get("identity", {})
-                if isinstance(identity, dict):
-                    print(f"- status={status} identity={identity}")
-                else:
-                    print(f"- status={status}")
+    _print_key_values(
+        [
+            ("Left", f"{left.get('path', '')}  ({left.get('status', 'unknown')}, {left.get('item_count', 0):,} items)"),
+            (
+                "Right",
+                f"{right.get('path', '')}  ({right.get('status', 'unknown')}, {right.get('item_count', 0):,} items)",
+            ),
+            ("Result", result),
+        ]
+    )
+    if signature_rows:
+        _print_limited_table(
+            "Items present on one side only",
+            ["Side", "Extra", "Status", "Kind", "Name", "Path"],
+            signature_rows,
+        )
+    if file_rows:
+        _print_limited_table("File mismatches", ["Status", "Kind", "Path"], file_rows)

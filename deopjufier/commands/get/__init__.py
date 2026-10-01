@@ -494,14 +494,36 @@ def _render(payload: dict[str, object], *, as_json: bool, error: bool = False, q
         return
     stream = sys.stderr if error else sys.stdout
     item = cast(dict[str, object], payload.get("item", {}))
-    print(f"Item: {item.get('name', item.get('id', ''))}", file=stream)
-    print(f"Kind: {_semantic_kind(item)}", file=stream)
-    print(f"Status: {payload.get('status', '')}", file=stream)
+    rows: list[tuple[str, object]] = [
+        ("Item", item.get("name", item.get("id", ""))),
+        ("Kind", _semantic_kind(item)),
+        ("Status", payload.get("status", "")),
+    ]
+    content = _content_summary(payload)
+    if content:
+        rows.append(("Content", content))
     if payload.get("output") is not None:
-        print(f"Output: {payload['output']}", file=stream)
-    error_value = payload.get("error")
-    if error_value is not None:
-        print(f"Error: {error_value}", file=stream)
+        rows.append(("Output", payload["output"]))
+    if payload.get("error") is not None:
+        rows.append(("Error", payload["error"]))
+    width = max(len(label) for label, _ in rows)
+    for label, value in rows:
+        print(f"{label:<{width}}  {value}", file=stream)
+
+
+def _content_summary(payload: dict[str, object]) -> str | None:
+    """Describe the retrieved content in one line for human output."""
+    content = payload.get("content")
+    table = cast(dict[str, object], content) if isinstance(content, dict) else {}
+    rows, headers = table.get("rows"), table.get("headers")
+    if isinstance(rows, list):
+        columns = len(headers) if isinstance(headers, list) else 0
+        return f"{len(rows):,} rows x {columns:,} columns (use --format csv to print the table)"
+    if isinstance(content, str) and payload.get("content_encoding") == "base64":
+        return f"{len(content) * 3 // 4:,} bytes of binary data (use --format or --json to retrieve)"
+    if isinstance(content, str):
+        return f"{len(content):,} characters of text (use --json to retrieve)"
+    return None
 
 
 def _failure_payload(file_path: Path, item_id: str, error: str) -> dict[str, object]:

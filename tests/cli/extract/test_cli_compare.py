@@ -96,7 +96,8 @@ def test_compare_default_output_is_human_readable(tmp_path, capsys: pytest.Captu
 
     assert code == 0
     assert captured.err == ""
-    assert captured.out.startswith("left=")
+    assert captured.out.startswith("Left ")
+    assert "{'" not in captured.out
 
 
 def test_compare_command_reports_missing_and_byte_differences(tmp_path, capsys: pytest.CaptureFixture[str]) -> None:

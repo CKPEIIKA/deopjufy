@@ -254,7 +254,7 @@ def test_table_scan_no_rows_outputs_message_to_stderr(tmp_path: Path, capsys: py
     assert "# no numeric table rows detected" in captured.err
 
 
-def test_compare_default_output_is_human_readable(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_compare_human_output_reports_match_and_summary(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     left = tmp_path / "left"
     right = tmp_path / "right"
     left.mkdir()
@@ -302,7 +302,8 @@ def test_compare_default_output_is_human_readable(tmp_path: Path, capsys: pytest
 
     assert code == 0
     assert captured.err == ""
-    assert captured.out.startswith("left=")
+    assert captured.out.startswith("Left ")
+    assert "\nResult  match\n" in captured.out
 
 
 def test_dump_block_negative_range_reports_usage_on_stderr(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -425,7 +426,7 @@ def test_list_table_is_compact_and_shows_evidence(capsys: pytest.CaptureFixture[
 
     main(["list", str(sample)])
     lines = capsys.readouterr().out.splitlines()
-    table = lines[lines.index("Items") + 1 :]
+    table = lines[lines.index("Catalog") + 1 :]
     header, rule, rows = table[0], table[1], [line for line in table[2:] if line and not line.startswith("Warn")]
 
     assert header.split() == ["Offset", "Length", "Kind", "Evidence", "Name", "Object"]
@@ -468,6 +469,14 @@ def test_internal_type_error_is_not_reported_as_usage(monkeypatch: pytest.Monkey
         main(["inspect", "whatever.opj"])
 
 
+@pytest.mark.parametrize("command", ["inspect", "list", "strings", "walk", "table-scan"])
+def test_verbose_is_offered_only_where_it_has_an_effect(command: str, capsys: pytest.CaptureFixture[str]) -> None:
+    code = main([command, "sample.opj", "--verbose"])
+
+    assert code == 2
+    assert "unrecognized arguments: --verbose" in capsys.readouterr().err
+
+
 def test_strings_json_lists_text_with_byte_offsets(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.bin"
     sample.write_bytes(b"\x00\x00alpha\x00bravo")
@@ -496,9 +505,47 @@ def test_strings_json_without_byte_offsets_uses_null(tmp_path: Path, capsys: pyt
     assert payload["strings"] == [{"offset": None, "text": "alpha"}, {"offset": None, "text": "bravo"}]
 
 
-@pytest.mark.parametrize("command", ["inspect", "list", "strings", "walk", "table-scan"])
-def test_verbose_is_offered_only_where_it_has_an_effect(command: str, capsys: pytest.CaptureFixture[str]) -> None:
-    code = main([command, "sample.opj", "--verbose"])
+def test_inspect_human_output_summarizes_without_raw_structures(capsys: pytest.CaptureFixture[str]) -> None:
+    from deopjufier.commands.render import _print_inspect_summary
 
-    assert code == 2
-    assert "unrecognized arguments: --verbose" in capsys.readouterr().err
+    payload = {
+        "path": "p.opj",
+        "detected_type": "opj",
+        "confidence": 0.99,
+        "reason": "extension",
+        "size_bytes": 30007,
+        "sha256": "ab" * 32,
+        "support_class": "partial",
+        "parser_status": "ok",
+        "status": "ok",
+        "coverage_scope": "recovered",
+        "verification": "unverified",
+        "counts": {
+            "items": 3,
+            "images": 0,
+            "origin_objects": 3,
+            "origin_object_kinds": {"note": 1, "worksheet": 2},
+            "parser_evidence_counts": {"heuristic": {"false": 1, "true": 2}},
+        },
+        "format_hints": {
+            "opj_magic": "CPYA",
+            "opj_build": 196,
+            "opj_origin_version": 9.2,
+            "magic_verified": True,
+            "opj_note_sections": [{"name": "Note1", "text": "a\nb"}],
+        },
+        "warnings": ["cut"],
+    }
+
+    _print_inspect_summary(payload, as_json=False)
+    out = capsys.readouterr().out
+
+    assert "Type      opj (CPYA magic, confidence 0.99)\n" in out
+    assert "Origin    version 9.2, build 196\n" in out
+    assert "Size      30,007 bytes\n" in out
+    assert "  Objects  3: 1 parser-backed, 2 heuristic\n" in out
+    assert "  Kinds    worksheet 2, note 1\n" in out
+    assert "opj_note_sections  1: Note1\n" in out
+    assert "magic_verified     yes\n" in out
+    assert "{'name'" not in out
+    assert out.endswith("\nWarnings\n  - cut\n")

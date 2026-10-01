@@ -29,6 +29,7 @@ _HUMAN_ARTIFACT_KINDS = frozenset(
 )
 _TABULAR_KINDS = frozenset({"excel", "matrix", "report_table", "worksheet"})
 _MEDIA_KINDS = frozenset({"graph", "graph_preview", "image", "parser_backed_graph_preview"})
+_MATERIALIZED_STATUSES = frozenset({"extracted", "partial"})
 
 
 def _is_origin_storage_markup(target: Path) -> bool:
@@ -40,38 +41,43 @@ def _is_origin_storage_markup(target: Path) -> bool:
     return prefix.lower().startswith("<originstorage")
 
 
-def _is_semantic_human_item(manifest: Manifest, item: ManifestItem, target: Path) -> bool:
+def _semantic_omission(manifest: Manifest, item: ManifestItem, target: Path) -> str | None:
+    """Return why a materialized artifact is not a trusted human-facing result."""
     if item.kind in _TABULAR_KINDS:
         if item.content_class in {"corrupt_text", "empty", "internal_references"}:
-            return False
+            return f"{item.content_class.replace('_', ' ')} content"
         if item.kind == "matrix" and item.name.startswith("origin_storage_family_"):
-            return False
+            return "unowned storage family"
         if manifest.input.detected_type == "opju":
-            if item.kind == "report_table":
-                return (
-                    item.extraction_method == "opju_report_table_reference_resolution" and item.verification == "exact"
-                )
-            return item.extraction_method == "opju_descriptor_table" and item.verification == "exact"
-    if item.kind == "function" and not any((item.function_formula, item.function_range, item.function_total_points)):
-        return item.extraction_method == "origin_storage_byte_run_decode" and item.verification == "exact"
-    if item.kind == "note" and _is_origin_storage_markup(target):
-        return False
-    return True
-
-
-def _artifact_target(manifest: Manifest, out_dir: Path, item: ManifestItem) -> Path | None:
-    if item.status != "extracted" or item.kind not in _HUMAN_ARTIFACT_KINDS or not item.path:
+            expected_method = (
+                "opju_report_table_reference_resolution" if item.kind == "report_table" else "opju_descriptor_table"
+            )
+            if item.extraction_method != expected_method or item.verification != "exact":
+                return "unverified recovery"
         return None
+    if item.kind == "function" and not any((item.function_formula, item.function_range, item.function_total_points)):
+        if item.extraction_method != "origin_storage_byte_run_decode" or item.verification != "exact":
+            return "functions without a decoded formula"
+        return None
+    if item.kind == "note" and _is_origin_storage_markup(target):
+        return "raw OriginStorage markup"
+    return None
+
+
+def _omission_reason(manifest: Manifest, out_dir: Path, item: ManifestItem) -> str | None:
+    """Return why a human-kind item is omitted, or None when its file is retained."""
+    if item.status == "partial":
+        return "partial artifacts"
+    if not item.path:
+        return "items without an artifact file"
     target = out_dir / item.path
     try:
         target.resolve(strict=False).relative_to(out_dir.resolve(strict=False))
     except ValueError:
-        return None
+        return "paths outside the output directory"
     if not target.is_file() or target.stat().st_size == 0:
-        return None
-    if not _is_semantic_human_item(manifest, item, target):
-        return None
-    return target
+        return "empty artifact files"
+    return _semantic_omission(manifest, item, target)
 
 
 def _content_group(item: ManifestItem) -> str:
@@ -122,43 +128,13 @@ def _is_ambiguous_opju_table(manifest: Manifest, item: ManifestItem) -> bool:
     )
 
 
-def retain_human_artifacts(manifest: Manifest, out_dir: Path) -> None:
-    """Keep non-empty primary artifacts and remove machine-profile files made by this run."""
-    candidates: list[tuple[int, ManifestItem, Path]] = []
-    for index, item in enumerate(manifest.items):
-        target = _artifact_target(manifest, out_dir, item)
-        if target is not None:
-            candidates.append((index, item, target))
+def _omit(item: ManifestItem, reason: str) -> None:
+    item.status = "skipped"
+    item.path = None
+    item.error = f"human profile omits {reason}"
 
-    retained_by_index: dict[int, ManifestItem] = {}
-    retained_paths: set[Path] = set()
-    retained_by_path: dict[Path, ManifestItem] = {}
-    retained_by_content: dict[tuple[str, str], ManifestItem] = {}
-    for index, item, target in sorted(candidates, key=lambda candidate: (_human_priority(candidate[1]), candidate[0])):
-        resolved_target = target.resolve(strict=False)
-        previous = retained_by_path.get(resolved_target)
-        if previous is not None:
-            _record_duplicate(previous, item)
-            continue
 
-        content_key = (_content_group(item), _content_digest(target))
-        previous = retained_by_content.get(content_key)
-        if previous is not None:
-            _record_duplicate(previous, item)
-            continue
-
-        retained_by_index[index] = item
-        retained_paths.add(resolved_target)
-        retained_by_path[resolved_target] = item
-        retained_by_content[content_key] = item
-
-    for index, item in tuple(retained_by_index.items()):
-        if not _is_ambiguous_opju_table(manifest, item):
-            continue
-        retained_by_index.pop(index)
-        if item.path:
-            retained_paths.discard((out_dir / item.path).resolve(strict=False))
-
+def _remove_unretained_files(manifest: Manifest, out_dir: Path, retained_paths: set[Path]) -> None:
     for item in manifest.items:
         if not item.path:
             continue
@@ -179,4 +155,62 @@ def retain_human_artifacts(manifest: Manifest, out_dir: Path) -> None:
         with suppress(OSError):
             directory.rmdir()
 
-    manifest.items[:] = [retained_by_index[index] for index in sorted(retained_by_index)]
+
+def retain_human_artifacts(manifest: Manifest, out_dir: Path) -> None:
+    """Keep trusted primary artifacts and record every other human-kind item as skipped.
+
+    Machine-only kinds are dropped, content duplicates become aliases of the
+    retained item, and untrusted human-kind items stay in the manifest with
+    ``status=skipped`` and a reason so the projection never hides a recovery.
+    """
+    candidates: list[tuple[int, ManifestItem, Path]] = []
+    omitted: dict[int, tuple[ManifestItem, str]] = {}
+    preserved: dict[int, ManifestItem] = {}
+    for index, item in enumerate(manifest.items):
+        if item.kind not in _HUMAN_ARTIFACT_KINDS:
+            continue
+        if item.status not in _MATERIALIZED_STATUSES:
+            # Never-materialized results (skipped, unsupported, error) keep their own reason.
+            preserved[index] = item
+            continue
+        reason = _omission_reason(manifest, out_dir, item)
+        if reason is not None:
+            omitted[index] = (item, reason)
+        elif item.path:
+            candidates.append((index, item, out_dir / item.path))
+
+    retained_by_index: dict[int, ManifestItem] = {}
+    retained_by_path: dict[Path, ManifestItem] = {}
+    retained_by_content: dict[tuple[str, str], ManifestItem] = {}
+    for index, item, target in sorted(candidates, key=lambda candidate: (_human_priority(candidate[1]), candidate[0])):
+        resolved_target = target.resolve(strict=False)
+        previous = retained_by_path.get(resolved_target) or retained_by_content.get(
+            (_content_group(item), _content_digest(target))
+        )
+        if previous is not None:
+            _record_duplicate(previous, item)
+            continue
+        retained_by_index[index] = item
+        retained_by_path[resolved_target] = item
+        retained_by_content[(_content_group(item), _content_digest(target))] = item
+
+    for index, item in tuple(retained_by_index.items()):
+        if _is_ambiguous_opju_table(manifest, item):
+            del retained_by_index[index]
+            omitted[index] = (item, "ambiguous table ownership")
+
+    retained_paths = {(out_dir / item.path).resolve(strict=False) for item in retained_by_index.values() if item.path}
+    _remove_unretained_files(manifest, out_dir, retained_paths)
+
+    for item, reason in omitted.values():
+        _omit(item, reason)
+    for item in preserved.values():
+        # Collection markers point at family directories that cleanup may have removed.
+        if item.path and not (out_dir / item.path).exists():
+            item.path = None
+    kept = retained_by_index | preserved | {index: item for index, (item, _reason) in omitted.items()}
+    manifest.items[:] = [kept[index] for index in sorted(kept)]
+    if omitted:
+        manifest.add_warning(
+            f"{len(omitted)} recovered items were omitted by the human profile; use --extended to keep them."
+        )

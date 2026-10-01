@@ -127,6 +127,10 @@ calculation records. Their underlying report JSON can include an `equation` fiel
 absence of that field means it was not recoverable, not that the source had none.
 When the human profile collapses byte-identical artifacts, alternate logical names
 are preserved in `overlapping_objects` on the retained item.
+Human-facing items that the human profile does not write (partial, unverified,
+empty, or ambiguous ownership) remain in `items` with `status=skipped`, no
+`path`, and an `error` reason starting with `human profile omits`; a warning
+reports their count and points to `--extended`.
 
 `analysis_records` is the machine-profile JSON index at
 `analyses/origin_storage_analysis_records.json`. Each record has ordered exact

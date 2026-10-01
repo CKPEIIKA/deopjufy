@@ -5,6 +5,13 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- The default human extraction profile no longer drops recovered items
+  without a trace. Human-facing items it does not write (partial, unverified,
+  empty, or ambiguous ownership) stay in the manifest as `status=skipped`
+  with no path and a `human profile omits ...` reason, plus one count
+  warning pointing to `--extended`. Never-materialized items keep their own
+  status and reason. Before, `tree.opj` reported four partial worksheets as
+  if they did not exist. Regressions in `tests/core/misc/test_human_artifacts.py`.
 - `extract` and `images` now require `-o/--out`. Previously they wrote silently
   into a directory derived from the input path, outside any selected output
   directory. A missing `-o` is now a usage error (exit 2) and writes nothing.

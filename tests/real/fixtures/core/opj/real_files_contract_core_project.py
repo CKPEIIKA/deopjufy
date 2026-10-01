@@ -185,8 +185,9 @@ def test_real_project_human_only_omits_non_artifact_partial_signals(
     assert not text_dir.exists()
     items = payload.get("items", [])
     assert all(item.get("kind") not in {"raw_dump", "text_region"} for item in items)
-    assert all(item.get("status") == "extracted" for item in items)
-    assert all(item.get("path") and (output / str(item["path"])).stat().st_size > 0 for item in items)
+    extracted = [item for item in items if item.get("status") == "extracted"]
+    assert all(item.get("path") and (output / str(item["path"])).stat().st_size > 0 for item in extracted)
+    assert all("path" not in item for item in items if item.get("status") != "extracted")
 
 
 def test_real_project_default_profile_is_human_only(
@@ -222,8 +223,9 @@ def test_real_project_default_profile_is_human_only(
     assert all(item.get("kind") not in {"raw_dump", "text_region"} for item in items), (
         "Expected default profile to skip machine provenance outputs"
     )
-    assert all(item.get("status") == "extracted" for item in items)
-    assert all(item.get("path") and (output / str(item["path"])).stat().st_size > 0 for item in items)
+    extracted = [item for item in items if item.get("status") == "extracted"]
+    assert all(item.get("path") and (output / str(item["path"])).stat().st_size > 0 for item in extracted)
+    assert all("path" not in item for item in items if item.get("status") != "extracted")
 
 
 def _item_signature(item: dict[str, object]) -> tuple[object, ...]:

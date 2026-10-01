@@ -154,7 +154,15 @@ reference uses false.
 .TP
 .B --human
 Keep human-facing primary artifacts and omit low-level machine recovery output.
-This is the default profile.
+This is the default profile. Human-facing items that are partial, unverified,
+empty, or of ambiguous ownership are not written; they stay in the manifest with
+.B status
+.BR skipped ,
+no
+.BR path ,
+and an
+.B error
+reason beginning with "human profile omits", and a warning gives their count.
 .TP
 .B --human-only
 Skip unknown-region raw and text output.

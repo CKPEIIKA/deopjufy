@@ -134,6 +134,7 @@ def test_extract_warning_only_absence_stays_ok_status(tmp_path: Path) -> None:
     assert payload["warnings"] == [
         "No matrix data emitted to matrix exports.",
         "No excel data emitted to excel exports.",
+        "5 recovered items were omitted by the human profile; use --extended to keep them.",
     ]
 
     # Warnings represent explicit unsupported families; they should remain informative
@@ -162,7 +163,7 @@ def test_extract_does_not_warn_worksheet_when_no_worksheet_objects(tmp_path: Pat
 
     assert code == 0
     assert "No worksheet data emitted to book exports." not in payload["warnings"]
-    assert all(item.get("kind") != "worksheet" for item in payload["items"])
+    assert all(item.get("kind") != "worksheet" or item["status"] != "extracted" for item in payload["items"])
 
 
 def test_extract_writes_origin_object_inventory(tmp_path: Path) -> None:

@@ -92,7 +92,7 @@ def test_human_projection_filters_machine_content_and_deduplicates(tmp_path: Pat
 
     retain_human_artifacts(manifest, output)
 
-    retained = {(item.kind, item.name) for item in manifest.items}
+    retained = {(item.kind, item.name) for item in manifest.items if item.status == "extracted"}
     assert retained == {
         ("worksheet", "Data"),
         ("function", "Formula"),
@@ -106,6 +106,15 @@ def test_human_projection_filters_machine_content_and_deduplicates(tmp_path: Pat
     assert graph_item.overlapping_objects == ["embedded"]
     assert not (output / "books/data-copy.csv").exists()
     assert not (output / "images/raw.png").exists()
+
+    skipped = {item.name: item for item in manifest.items if item.status == "skipped"}
+    assert set(skipped) == {"Blank", "References", "Corrupt", "origin_storage_family_01", "Raw", "RawNote"}
+    assert all(item.path is None and item.error for item in skipped.values())
+    assert skipped["Blank"].error == "human profile omits empty content"
+    assert skipped["RawNote"].error == "human profile omits raw OriginStorage markup"
+    assert manifest.warnings[-1] == (
+        "6 recovered items were omitted by the human profile; use --extended to keep them."
+    )
 
 
 def test_human_projection_drops_ambiguous_opju_table_broadcast(tmp_path: Path) -> None:
@@ -123,7 +132,9 @@ def test_human_projection_drops_ambiguous_opju_table_broadcast(tmp_path: Path) -
 
     retain_human_artifacts(manifest, output)
 
-    assert manifest.items == []
+    assert [(item.name, item.status, item.path) for item in manifest.items] == [("Sheet0", "skipped", None)]
+    assert manifest.items[0].error == "human profile omits ambiguous table ownership"
+    assert manifest.items[0].overlapping_objects == ["Sheet1", "Sheet2", "Sheet3"]
     assert not (output / "books").exists()
 
 
@@ -146,5 +157,43 @@ def test_human_projection_removes_manifest_owned_partial_artifacts(tmp_path: Pat
 
     retain_human_artifacts(manifest, output)
 
-    assert manifest.items == []
+    assert [(item.name, item.status, item.path) for item in manifest.items] == [("PartialFunction", "skipped", None)]
+    assert manifest.items[0].error == "human profile omits partial artifacts"
     assert not (output / "functions").exists()
+
+
+def test_human_projection_records_unverified_opju_tables(tmp_path: Path) -> None:
+    sample = tmp_path / "sample.opju"
+    sample.write_bytes(b"CPYUA")
+    output = tmp_path / "out"
+    output.mkdir()
+    manifest = _make_manifest(sample)
+    manifest.input.detected_type = "opju"
+    _write(output, "books/guessed.csv", b"A,B\n1,2\n")
+    item = _item("worksheet", "Guessed", "books/guessed.csv", content_class="data")
+    item.verification = None
+    manifest.add_item(item)
+
+    retain_human_artifacts(manifest, output)
+
+    assert [(item.name, item.status, item.path) for item in manifest.items] == [("Guessed", "skipped", None)]
+    assert manifest.items[0].error == "human profile omits unverified recovery"
+    assert not (output / "books").exists()
+
+
+def test_human_projection_preserves_never_materialized_items(tmp_path: Path) -> None:
+    sample = tmp_path / "sample.opju"
+    sample.write_bytes(b"CPYUA")
+    output = tmp_path / "out"
+    output.mkdir()
+    manifest = _make_manifest(sample)
+    manifest.add_item(
+        ManifestItem(kind="graph_preview", name="Graph1", status="skipped", confidence=0.5, error="no stored preview")
+    )
+
+    retain_human_artifacts(manifest, output)
+
+    assert [(item.name, item.status, item.error) for item in manifest.items] == [
+        ("Graph1", "skipped", "no stored preview")
+    ]
+    assert manifest.warnings == []

@@ -583,11 +583,13 @@ def test_extract_human_profile_keeps_only_non_empty_primary_artifacts(tmp_path: 
     }
     assert payload["items"]
     assert all(item.get("kind") in allowed_kinds for item in payload["items"])
-    assert all(item.get("status") == "extracted" for item in payload["items"])
-    assert all(item.get("path") and (outdir / str(item["path"])).stat().st_size > 0 for item in payload["items"])
+    extracted = [item for item in payload["items"] if item["status"] == "extracted"]
+    assert extracted
+    assert all(item.get("path") and (outdir / str(item["path"])).stat().st_size > 0 for item in extracted)
+    assert all("path" not in item for item in payload["items"] if item["status"] != "extracted")
 
     emitted_files = {path.relative_to(outdir).as_posix() for path in outdir.rglob("*") if path.is_file()}
-    manifest_files = {str(item["path"]) for item in payload["items"]}
+    manifest_files = {str(item["path"]) for item in extracted}
     assert emitted_files == manifest_files | {"manifest.json"}
     assert not any(path.endswith(".metadata.json") for path in emitted_files)
     assert "strings/strings.txt" not in emitted_files

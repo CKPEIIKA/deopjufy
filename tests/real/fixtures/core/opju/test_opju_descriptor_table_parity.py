@@ -150,6 +150,8 @@ def test_figure_s3_human_profile_keeps_exact_table_and_semantic_provenance(tmp_p
 
     assert code == 0
     manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    assert all("path" not in item for item in manifest["items"] if item["status"] != "extracted")
+    manifest["items"] = [item for item in manifest["items"] if item["status"] == "extracted"]
     assert [item["kind"] for item in manifest["items"]] == [
         "worksheet",
         "semantic_provenance",

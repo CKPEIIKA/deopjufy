@@ -44,7 +44,8 @@ def test_extract_human_profile_omits_unowned_graph_preview_placeholder(tmp_path:
     payload = json.loads(manifest.read_text(encoding="utf-8"))
 
     assert code == 0
-    assert all(item.get("kind") not in {"graph", "graph_preview"} for item in payload["items"])
+    graph_items = [item for item in payload["items"] if item.get("kind") in {"graph", "graph_preview"}]
+    assert all(item["status"] != "extracted" and "path" not in item for item in graph_items)
     assert not (outdir / "graphs").exists()
 
 
@@ -215,6 +216,8 @@ def test_extract_map_recovers_exact_analysis_leaf_fields_from_partial_region(tmp
     )
     assert human_code == 0
     human_manifest = json.loads((human_outdir / "manifest.json").read_text(encoding="utf-8"))
+    assert all("path" not in item for item in human_manifest["items"] if item["status"] != "extracted")
+    human_manifest["items"] = [item for item in human_manifest["items"] if item["status"] == "extracted"]
     assert [item["kind"] for item in human_manifest["items"]] == [
         "analysis_summary",
         "semantic_provenance",

@@ -12,6 +12,9 @@ _MEDIA_KINDS = frozenset({"bmp", "gif", "graph", "image", "jpeg", "layer", "png"
 _TEXT_KINDS = frozenset({"function", "note", "opju_report", "origin_storage_report"})
 _RECOVERY_ONLY_KINDS = frozenset({"meta", "opju_note_payload", "opju_raw_payload"})
 _RECOVERY_ONLY_DISCOVERY_TYPES = frozenset({"opj_boundary", "unknown_gap"})
+# OPJ parser-backed objects also carry discovery_type "opj_boundary"; these kinds are
+# project content, not region evidence, and stay visible.
+_BOUNDARY_CONTENT_KINDS = frozenset({"excel", "matrix", "note", "worksheet"})
 
 
 @dataclass(frozen=True)
@@ -80,7 +83,7 @@ def _hidden_by_default(item: dict[str, Any], kind: str) -> bool:
         or kind in {"raw_dump", "unknown"}
         or kind.startswith("unknown_")
         or kind in _RECOVERY_ONLY_KINDS
-        or item.get("discovery_type") in _RECOVERY_ONLY_DISCOVERY_TYPES
+        or (item.get("discovery_type") in _RECOVERY_ONLY_DISCOVERY_TYPES and kind not in _BOUNDARY_CONTENT_KINDS)
     )
 
 

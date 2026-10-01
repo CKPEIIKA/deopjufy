@@ -102,3 +102,31 @@ def test_sibling_sheets_build_one_naturally_ordered_workbook_tab_set() -> None:
     siblings = sibling_sheets(leaves, selected)
 
     assert [leaf.item_id for leaf in siblings] == ["sheet-2-2", "sheet-2-10"]
+
+
+def test_parser_backed_opj_tables_and_notes_are_visible_by_default() -> None:
+    def item(item_id: str, object_kind: str) -> dict[str, object]:
+        return {
+            "id": item_id,
+            "kind": "origin_object",
+            "object_kind": object_kind,
+            "name": item_id,
+            "source_object_path": f"test/{item_id}",
+            "discovery_type": "opj_boundary",
+            "heuristic": False,
+        }
+
+    payload = {
+        "items": [
+            item("Book2", "worksheet"),
+            item("MBook1", "matrix"),
+            item("Book1", "excel"),
+            item("Note1", "note"),
+            item("Folder1", "project_folder"),
+            item("Header", "meta"),
+        ]
+    }
+
+    visible = {leaf.item_id for leaf in catalog_leaves(payload)}
+
+    assert visible == {"Book2", "MBook1", "Book1", "Note1"}

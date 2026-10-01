@@ -136,7 +136,8 @@ def _omit(item: ManifestItem, reason: str) -> None:
 
 def _remove_unretained_files(manifest: Manifest, out_dir: Path, retained_paths: set[Path]) -> None:
     for item in manifest.items:
-        if not item.path:
+        # Only files written by this run are candidates; skipped items may name pre-existing files.
+        if not item.path or item.status not in _MATERIALIZED_STATUSES:
             continue
         target = out_dir / item.path
         resolved_target = target.resolve(strict=False)

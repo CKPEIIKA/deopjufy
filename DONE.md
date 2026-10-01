@@ -5,6 +5,16 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Rerunning `extract` into an existing output without `--force` destroyed
+  the earlier result: writers skipped existing files, the human projection
+  then deleted every manifest path it did not retain (355 of 369 files on a
+  local real project), and the manifest was rewritten, all with exit 0. `extract` and
+  `images` now refuse a non-empty OUTDIR or an existing `--manifest` file
+  without `--force` (exit 1, nothing written), and the human projection only
+  deletes files written by the current run. Regressions:
+  `test_rerun_into_non_empty_output_requires_force`,
+  `test_extract_refuses_existing_manifest_path_without_force`,
+  `test_human_projection_keeps_files_it_did_not_write`.
 - The default human extraction profile no longer drops recovered items
   without a trace. Human-facing items it does not write (partial, unverified,
   empty, or ambiguous ownership) stay in the manifest as `status=skipped`

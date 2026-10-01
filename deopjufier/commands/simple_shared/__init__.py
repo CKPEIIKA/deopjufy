@@ -24,6 +24,7 @@ from deopjufier.commands.support import (
     _build_session,
     _coerce_counts_by_artifact,
     _ensure_file,
+    _ensure_output_available,
     _is_recon_heuristic_item,
     _limit_extract_objects,
     _log,

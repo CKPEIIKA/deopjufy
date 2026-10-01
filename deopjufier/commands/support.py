@@ -194,6 +194,16 @@ def _ensure_file(path: Path) -> None:
         raise FileNotFoundError(f"Input file not found: {path}")
 
 
+def _ensure_output_available(outdir: Path, *, force: bool, manifest_path: Path | None = None) -> None:
+    """Refuse to write into existing output unless --force was given."""
+    if force:
+        return
+    if outdir.exists() and (not outdir.is_dir() or any(outdir.iterdir())):
+        raise FileExistsError(f"output directory is not empty: {outdir} (pass --force to overwrite)")
+    if manifest_path is not None and manifest_path.exists():
+        raise FileExistsError(f"manifest already exists: {manifest_path} (pass --force to overwrite)")
+
+
 def _build_session(path: Path) -> ExtractionSession:
     _ensure_file(path)
     return ExtractionSession.from_path(path)

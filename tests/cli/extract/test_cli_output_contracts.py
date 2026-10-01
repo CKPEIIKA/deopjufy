@@ -311,3 +311,47 @@ def test_dump_block_negative_range_reports_usage_on_stderr(tmp_path: Path, capsy
     assert code == 2
     assert captured.out == ""
     assert "usage:" in captured.err.lower()
+
+
+def _snapshot(root: Path) -> dict[str, bytes]:
+    return {path.relative_to(root).as_posix(): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+
+
+@pytest.mark.parametrize("command", ["extract", "images"])
+def test_rerun_into_non_empty_output_requires_force(
+    command: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    sample = (
+        Path(__file__).resolve().parents[2] / "fixtures/synthetic/synthetic-opju-preview-report-with-valid-image.opju"
+    )
+    outdir = tmp_path / "out"
+    assert main([command, str(sample), "-o", str(outdir)]) == 0
+    before = _snapshot(outdir)
+    assert before
+    capsys.readouterr()
+
+    code = main([command, str(sample), "-o", str(outdir)])
+
+    captured = capsys.readouterr()
+    assert code == 1
+    assert captured.out == ""
+    assert "--force" in captured.err
+    assert _snapshot(outdir) == before
+    assert main([command, str(sample), "-o", str(outdir), "--force"]) == 0
+
+
+def test_extract_refuses_existing_manifest_path_without_force(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    sample = (
+        Path(__file__).resolve().parents[2] / "fixtures/synthetic/synthetic-opju-preview-report-with-valid-image.opju"
+    )
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text("keep", encoding="utf-8")
+
+    code = main(["extract", str(sample), "-o", str(tmp_path / "out"), "--manifest", str(manifest_path)])
+
+    assert code == 1
+    assert "--force" in capsys.readouterr().err
+    assert manifest_path.read_text(encoding="utf-8") == "keep"
+    assert not (tmp_path / "out").exists()

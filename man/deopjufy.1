@@ -194,7 +194,13 @@ Set the heuristic table column threshold; the default is 2.
 Return status 4 when a required result remains partial.
 .TP
 .B \-\-force
-Permit replacement of existing extraction targets.
+Permit writing into a non-empty
+.I OUTDIR
+and replacing existing files. Without it, a non-empty
+.I OUTDIR
+or an existing
+.B \-\-manifest
+file is refused with status 1 before anything is written.
 .SS strings
 Print visible text strings from the input.
 .TP
@@ -223,7 +229,11 @@ Select the image directory. Required.
 Emit a machine-readable extraction report.
 .TP
 .B \-\-force
-Permit replacement of existing files.
+Permit writing into a non-empty
+.IR OUTDIR ;
+without it, a non-empty
+.I OUTDIR
+is refused with status 1.
 .SS table-scan
 Heuristically scan for numeric tables. This command is separate from
 parser-owned worksheet extraction and must not be treated as confirmed project

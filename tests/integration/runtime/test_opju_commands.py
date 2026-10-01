@@ -57,12 +57,14 @@ def test_extended_extract_exports_decoded_opju_regions_and_honors_force(
         "--no-tables",
     ]
 
-    first_code = main([*args, "--force"])
+    first_code = main(args)
     first = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
-    second_code = main(args)
+    refused_code = main(args)
+    second_code = main([*args, "--force"])
     second = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
 
     assert first_code in {0, 4}
+    assert refused_code == 1
     assert second_code in {0, 4}
     first_regions = [item for item in first["items"] if item["kind"] == "opju_decoded_region"]
     second_regions = [item for item in second["items"] if item["kind"] == "opju_decoded_region"]
@@ -73,9 +75,7 @@ def test_extended_extract_exports_decoded_opju_regions_and_honors_force(
     assert (out_dir / first_regions[0]["path"]).is_file()
     assert not any(item["kind"] == "opju_decoded_strings" for item in first["items"])
     assert not any(item["kind"] == "opju_numeric_run_inventory" for item in first["items"])
-    assert len(second_regions) == 1
-    assert second_regions[0]["status"] == "skipped"
-    assert second_regions[0]["error"] == "target_exists"
+    assert second_regions == first_regions
 
 
 def test_extended_extract_exports_decoded_string_and_numeric_inventories(tmp_path: Path) -> None:

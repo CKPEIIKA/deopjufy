@@ -197,3 +197,27 @@ def test_human_projection_preserves_never_materialized_items(tmp_path: Path) -> 
         ("Graph1", "skipped", "no stored preview")
     ]
     assert manifest.warnings == []
+
+
+def test_human_projection_keeps_files_it_did_not_write(tmp_path: Path) -> None:
+    sample = tmp_path / "sample.opju"
+    sample.write_bytes(b"CPYUA")
+    output = tmp_path / "out"
+    output.mkdir()
+    manifest = _make_manifest(sample)
+    _write(output, "books/previous.csv", b"A,B\n1,2\n")
+    manifest.add_item(
+        ManifestItem(
+            kind="worksheet",
+            name="Previous",
+            status="skipped",
+            confidence=0.9,
+            path="books/previous.csv",
+            error="target exists",
+        )
+    )
+
+    retain_human_artifacts(manifest, output)
+
+    assert (output / "books/previous.csv").read_bytes() == b"A,B\n1,2\n"
+    assert manifest.items[0].path == "books/previous.csv"

@@ -76,17 +76,8 @@ def test_extract_force_keeps_unsupported_collection_markers_with_existing_output
             "--no-images",
         ]
     )
-    assert second_code in {0, 4}
-    second_payload = json.loads(manifest.read_text(encoding="utf-8"))
-
-    assert any(
-        item.get("kind") == "matrix"
-        and item.get("name") == "matrix_collection"
-        and item.get("status") == "unsupported"
-        and item.get("error") == "no_matrix_objects"
-        for item in second_payload["items"]
-    )
-    assert any(item.get("status") == "skipped" for item in second_payload["items"])
+    assert second_code == 1
+    assert json.loads(manifest.read_text(encoding="utf-8")) == first_payload
 
     third_code = main(
         [

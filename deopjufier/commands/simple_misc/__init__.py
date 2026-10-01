@@ -38,6 +38,7 @@ def cmd_images(args):
         raise UnsupportedFileError("input is not a recognized Origin file (expected .opj or .opju)")
 
     outdir: Path = args.outdir
+    _ensure_output_available(outdir, force=args.force)
     outdir.mkdir(parents=True, exist_ok=True)
 
     manifest = make_manifest(

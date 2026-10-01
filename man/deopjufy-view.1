@@ -22,7 +22,12 @@ on
 .B PATH
 is never used.
 .PP
-Several OPJ or OPJU projects may be opened in one process. Catalogs are loaded
+Several OPJ or OPJU projects may be opened in one process, from the command
+line, with File -> Open, or by dropping
+.I .opj
+and
+.I .opju
+files onto the window; other dropped files are ignored with a status message. Catalogs are loaded
 with a bounded worker pool. Retrieved objects are cached in memory by document
 digest and item ID for the lifetime of the process.
 .PP

@@ -5,6 +5,17 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- `get` for an OPJU descriptor-table worksheet no longer runs whole-file object
+  discovery (the target record comes from the catalog item). Opening such a
+  sheet in the viewer on a 7.5 MB project fell from about 6.6 s to 2.4 s on the
+  same loaded machine; `get --json` output was compared byte for byte against
+  the previous commit on sampled descriptor worksheets of every reference OPJU.
+  Regression: `test_get_descriptor_worksheet_skips_object_discovery`.
+- Viewer: `.opj`/`.opju` files dropped onto the window open like File -> Open
+  (other files are reported, not opened); the loading screens drop the
+  duplicate progress bar and CLI jargon; Properties names each section once,
+  shows lists as plain text, and stretches the value column; status texts use
+  proper plurals.
 - Viewer polish (checked with Xvfb screenshots on public `test.opj` and
   `zenodo-4708192-fig5.opju`): OPJU graph pages with stored previews were
   hidden, so that project opened empty; they now appear under a "Pages" group

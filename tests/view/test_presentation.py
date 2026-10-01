@@ -9,6 +9,7 @@ from deopjufy_view.presentation import (
     export_summary,
     property_rows,
     recovered_image,
+    split_dropped_paths,
     status_detail,
     unreadable_item_summary,
 )
@@ -78,9 +79,9 @@ def test_export_summary_separates_extracted_from_omitted_items() -> None:
     }
 
     assert export_summary(manifest, Path("/tmp/out")) == (
-        "Exported 2 item(s) to /tmp/out; 1 not extracted (see manifest.json)"
+        "Exported 2 items to /tmp/out; 1 not extracted (see manifest.json)"
     )
-    assert export_summary({"items": [{"status": "extracted"}]}, Path("out")) == "Exported 1 item(s) to out"
+    assert export_summary({"items": [{"status": "extracted"}]}, Path("out")) == "Exported 1 item to out"
 
 
 def test_unreadable_item_summary_explains_missing_content() -> None:
@@ -111,3 +112,23 @@ def test_status_detail_describes_tables_images_and_text() -> None:
     assert image_detail == f"PNG · 200 {times} 150 px · +/- zoom, 0 fit"
     assert status_detail({"status": "ok", "content": "a\nb\n"}) == "2 lines"
     assert status_detail({"status": "partial"}) == "partial"
+
+
+def test_property_values_render_scalar_lists_as_plain_text() -> None:
+    rows = property_rows({"retrieval_formats": ["json", "csv"]})
+
+    assert {row.name: row.value for row in rows}["Retrieval Formats"] == "json, csv"
+
+
+def test_dropped_paths_accept_origin_projects_only(tmp_path: Path) -> None:
+    project = tmp_path / "a.OPJU"
+    project.write_bytes(b"CPYUA")
+    legacy = tmp_path / "b.opj"
+    legacy.write_bytes(b"CPYA")
+    other = tmp_path / "notes.txt"
+    other.write_text("x", encoding="utf-8")
+
+    accepted, rejected = split_dropped_paths([str(project), str(other), str(legacy), str(tmp_path)])
+
+    assert accepted == [project, legacy]
+    assert rejected == [other, tmp_path]

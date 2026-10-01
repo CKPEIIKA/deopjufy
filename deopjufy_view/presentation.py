@@ -100,7 +100,12 @@ def _display_value(value: object) -> str:
         return "—"
     if isinstance(value, bool):
         return "Yes" if value else "No"
-    text = str(value) if isinstance(value, (str, int, float)) else json.dumps(value, ensure_ascii=False, sort_keys=True)
+    if isinstance(value, list) and all(isinstance(entry, (str, int, float)) for entry in value):
+        text = ", ".join(str(entry) for entry in value)
+    elif isinstance(value, (str, int, float)):
+        text = str(value)
+    else:
+        text = json.dumps(value, ensure_ascii=False, sort_keys=True)
     return text if len(text) <= _VALUE_LIMIT else f"{text[: _VALUE_LIMIT - 1]}…"
 
 
@@ -178,7 +183,7 @@ def export_summary(manifest: dict[str, Any], target: Path) -> str:
     statuses = [item.get("status") for item in items if isinstance(item, dict)] if isinstance(items, list) else []
     extracted = statuses.count("extracted")
     omitted = len(statuses) - extracted
-    summary = f"Exported {extracted} item(s) to {target}"
+    summary = f"Exported {plural(extracted, 'item')} to {target}"
     if omitted:
         summary += f"; {omitted} not extracted (see manifest.json)"
     return summary
@@ -208,7 +213,8 @@ def unreadable_item_summary(payload: dict[str, Any]) -> tuple[str, str] | None:
 _TIMES = "\N{MULTIPLICATION SIGN}"
 
 
-def _plural(count: int, noun: str) -> str:
+def plural(count: int, noun: str) -> str:
+    """Return ``count`` with ``noun`` in singular or regular plural form."""
     return f"{count:,} {noun}" if count == 1 else f"{count:,} {noun}s"
 
 
@@ -221,11 +227,24 @@ def status_detail(
     """Describe the open tab's content for the right-hand status bar field."""
     if table_shape is not None:
         rows, columns = table_shape
-        return f"{_plural(rows, 'row')} {_TIMES} {_plural(columns, 'column')}"
+        return f"{plural(rows, 'row')} {_TIMES} {plural(columns, 'column')}"
     if image_shape is not None:
         image_format, width, height = image_shape
         return f"{image_format.upper()} · {width} {_TIMES} {height} px · +/- zoom, 0 fit"
     content = payload.get("content")
     if isinstance(content, str):
-        return _plural(len(content.splitlines()), "line")
+        return plural(len(content.splitlines()), "line")
     return str(payload.get("status", ""))
+
+
+_PROJECT_SUFFIXES = frozenset({".opj", ".opju"})
+
+
+def split_dropped_paths(names: list[str]) -> tuple[list[Path], list[Path]]:
+    """Split dropped file names into openable Origin projects and everything else."""
+    accepted: list[Path] = []
+    rejected: list[Path] = []
+    for name in names:
+        path = Path(name)
+        (accepted if path.is_file() and path.suffix.lower() in _PROJECT_SUFFIXES else rejected).append(path)
+    return accepted, rejected

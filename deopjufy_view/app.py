@@ -26,8 +26,10 @@ from deopjufy_view.presentation import (
     SHORTCUT_ROWS,
     about_text,
     export_summary,
+    plural,
     property_rows,
     recovered_image,
+    split_dropped_paths,
     status_detail,
     unreadable_item_summary,
 )
@@ -216,20 +218,20 @@ def _loading_view_type(wx: Any) -> type:
             detail_control.Wrap(self.FromDIP(560))
             outer.Add(detail_control, 0, wx.ALIGN_CENTER | wx.BOTTOM, self.FromDIP(14))
 
-            self.progress = wx.Gauge(self, range=100, size=(self.FromDIP(420), self.FromDIP(8)))
-            outer.Add(self.progress, 0, wx.ALIGN_CENTER | wx.BOTTOM, self.FromDIP(8))
-            self.elapsed = wx.StaticText(self, label="Starting native parser…")
+            self.elapsed = wx.StaticText(self, label="")
             outer.Add(self.elapsed, 0, wx.ALIGN_CENTER)
             self.SetSizer(outer)
 
             self.Bind(wx.EVT_TIMER, self._on_timer, self.timer)
             self.Bind(wx.EVT_WINDOW_DESTROY, self._on_destroy)
-            self.timer.Start(120)
+            self.timer.Start(500)
 
         def _on_timer(self, _event: object) -> None:
-            self.progress.Pulse()
-            seconds = max(0, round(time.monotonic() - self.started))
-            self.elapsed.SetLabel(f"Native parser working · {seconds} s elapsed")
+            # The spinner shows activity; the counter appears once a wait is noticeable.
+            seconds = round(time.monotonic() - self.started)
+            if seconds >= 1:
+                self.elapsed.SetLabel(f"{seconds} s elapsed")
+                self.Layout()
 
         def _on_destroy(self, event: Any) -> None:
             if event.GetEventObject() is self:
@@ -264,6 +266,20 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
     unwrap_groups_id = int(wx.NewIdRef())
     show_evidence_id = int(wx.NewIdRef())
     open_item_id = int(wx.NewIdRef())
+
+    class _ProjectDropTarget(wx.FileDropTarget):
+        def __init__(self, frame: Any) -> None:
+            super().__init__()
+            self.frame = frame
+
+        def OnDropFiles(self, _x: int, _y: int, filenames: list[str]) -> bool:
+            accepted, rejected = split_dropped_paths(list(filenames))
+            if accepted:
+                self.frame.open_paths(accepted)
+            if rejected:
+                skipped = plural(len(rejected), "dropped file")
+                self.frame._set_status(f"Not opened: {skipped} (only .opj and .opju projects)")
+            return bool(accepted)
 
     class ViewerFrame(wx.Frame):
         def __init__(self, initial_paths: list[Path]) -> None:
@@ -503,6 +519,9 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             return bitmap
 
         def _bind_events(self) -> None:
+            # Dropping .opj/.opju files anywhere on the window opens them.
+            for window in (self, self.tree):
+                window.SetDropTarget(_ProjectDropTarget(self))
             self.Bind(wx.EVT_MENU, self._on_open, id=wx.ID_OPEN)
             self.open_button.Bind(wx.EVT_BUTTON, self._on_open)
             self.export_button.Bind(wx.EVT_BUTTON, self._on_export_popup)
@@ -552,7 +571,7 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
                 return
             self._show_message(
                 "Open an Origin project",
-                "Read-only recovery for OPJ and OPJU files",
+                "Read-only recovery for OPJ and OPJU files. Drop project files here or use Open.",
                 show_open=True,
             )
 
@@ -563,10 +582,8 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
                     label,
                     show_open=False,
                     busy=True,
-                    detail=(
-                        "Scanning parser records, byte ranges, and recoverable objects through "
-                        "deopjufy list --json. Large projects can take a while."
-                    ),
+                    detail="Listing worksheets, graphs, notes, and other recoverable objects. "
+                    "Large projects can take a while.",
                 )
 
         def _show_select_item(self) -> None:
@@ -636,7 +653,7 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             if not new_paths:
                 self._set_status("All selected projects are already open")
                 return
-            self._set_status(f"Opening {len(new_paths)} project(s)…")
+            self._set_status(f"Opening {plural(len(new_paths), 'project')}…")
             self._show_loading(", ".join(path.name for path in new_paths))
             for path in new_paths:
                 node = self.tree.AppendItem(
@@ -678,8 +695,8 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             self.SetTitle(f"deopjufy — {path.name}" if len(self.catalogs) == 1 else "deopjufy — multiple projects")
             document = payload.get("document")
             detected = document.get("detected_type", "") if isinstance(document, dict) else ""
-            hidden = f" · {hidden_count} evidence item(s) hidden" if hidden_count else ""
-            self._set_status(f"{path.name} · {str(detected).upper()} · {item_count} item(s){hidden}")
+            hidden = f" · {plural(hidden_count, 'evidence item')} hidden" if hidden_count else ""
+            self._set_status(f"{path.name} · {str(detected).upper()} · {plural(item_count, 'item')}{hidden}")
             if not self.notebook.GetPageCount() and not self.pending_targets:
                 leaf = preferred_leaf(self.catalog_leaves[path])
                 if leaf is None:
@@ -979,8 +996,8 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             view = loading_view(
                 panel,
                 f"Loading {label}",
-                "Retrieving the selected object",
-                "Running deopjufy get --json, matching recovered artifacts, then preparing the preview.",
+                f"Reading from {target[0].name}",
+                "Decoding the stored values and preparing the view.",
             )
             sizer.Add(view, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, self.FromDIP(40))
             sizer.AddStretchSpacer()
@@ -1619,14 +1636,23 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
                 self.catalog_rows.get(target, {}),
                 state.payload if state is not None else None,
             )
-            dialog = wx.Dialog(self, title="Properties", size=(840, 540))
+            dialog = wx.Dialog(
+                self,
+                title="Properties",
+                size=self.FromDIP(wx.Size(860, 560)),
+                style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
+            )
             sizer = wx.BoxSizer(wx.VERTICAL)
             control = wx.ListCtrl(dialog, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.BORDER_SUNKEN)
-            control.InsertColumn(0, "Section", width=110)
-            control.InsertColumn(1, "Property", width=260)
-            control.InsertColumn(2, "Value", width=430)
+            control.InsertColumn(0, "Section", width=self.FromDIP(100))
+            control.InsertColumn(1, "Property", width=self.FromDIP(250))
+            control.InsertColumn(2, "Value", width=self.FromDIP(440))
+            control.Bind(wx.EVT_SIZE, self._fill_last_column)
+            previous_section = None
             for index, row in enumerate(rows):
-                inserted = control.InsertItem(index, row.section)
+                # Name each section once so the groups read as groups.
+                inserted = control.InsertItem(index, row.section if row.section != previous_section else "")
+                previous_section = row.section
                 control.SetItem(inserted, 1, row.name)
                 control.SetItem(inserted, 2, row.value)
                 if index % 2:
@@ -1636,6 +1662,14 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             dialog.SetSizer(sizer)
             dialog.ShowModal()
             dialog.Destroy()
+
+        def _fill_last_column(self, event: Any) -> None:
+            control = event.GetEventObject()
+            used = sum(control.GetColumnWidth(column) for column in range(control.GetColumnCount() - 1))
+            available = control.GetClientSize().width - used
+            if available > self.FromDIP(120):
+                control.SetColumnWidth(control.GetColumnCount() - 1, available)
+            event.Skip()
 
         def _show_diagnostics(self, _event: object) -> None:
             text = "\n".join(self.diagnostics) if self.diagnostics else "No parser diagnostics have been reported."
@@ -1653,8 +1687,11 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             control.InsertColumn(0, "Area", width=self.FromDIP(110))
             control.InsertColumn(1, "Shortcut", width=self.FromDIP(190))
             control.InsertColumn(2, "Action", width=self.FromDIP(440))
+            control.Bind(wx.EVT_SIZE, self._fill_last_column)
+            previous_section = None
             for index, (section, key, action) in enumerate(SHORTCUT_ROWS):
-                inserted = control.InsertItem(index, section)
+                inserted = control.InsertItem(index, section if section != previous_section else "")
+                previous_section = section
                 control.SetItem(inserted, 1, key)
                 control.SetItem(inserted, 2, action)
                 if index % 2:

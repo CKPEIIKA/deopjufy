@@ -18,6 +18,10 @@ class OpjStreamError(ValueError):
         self.offset = offset
 
 
+class OpjTruncatedError(OpjStreamError):
+    """Raised when a declared object or field extends past the end of the data."""
+
+
 @dataclass
 class OpjStream:
     """Bounds-checked cursor over OPJ object bytes."""
@@ -43,7 +47,7 @@ class OpjStream:
 
     def _ensure(self, count: int) -> None:
         if self._offset + count > len(self.data):
-            raise OpjStreamError("insufficient bytes", offset=self._offset)
+            raise OpjTruncatedError("insufficient bytes", offset=self._offset)
 
     def read_u32_le(self) -> int:
         """Read a little-endian ``u32`` from the stream."""

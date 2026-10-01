@@ -27,6 +27,7 @@ from deopjufier.commands.support import (
     _coerce_default_heuristic_kind_limit,
     _command_state,
     _has_origin_family_mismatch,
+    _record_truncation,
     _safe_detect_file,
     _signature_hits_summary_from_blocks,
     _support_class,
@@ -284,6 +285,12 @@ def cmd_inspect(args: argparse.Namespace) -> int:
                 signature_message,
             )
 
+        truncation = (
+            _record_truncation(session, warnings, parser_warnings)
+            if is_supported_type and parser_status != "error"
+            else None
+        )
+
         opju_raw_crosswalk: list[dict[str, object]] = []
         if parser_status == "ok" and is_supported_type and detection.detected_type == "opju":
             crosswalk_items = session.list_items(
@@ -326,6 +333,8 @@ def cmd_inspect(args: argparse.Namespace) -> int:
             return exit_code
         if not is_supported_type:
             return EXIT_UNSUPPORTED
+        if truncation is not None and truncation.definitive:
+            return EXIT_CORRUPTED
         return EXIT_SUCCESS
     except Exception as exc:
         detection: DetectedFile | None

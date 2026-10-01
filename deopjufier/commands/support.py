@@ -12,7 +12,7 @@ from typing import cast
 from deopjufier.blocks import ImageBlock, find_all_blocks
 from deopjufier.detect import DetectedFile, detect_file
 from deopjufier.inventory import OriginObject
-from deopjufier.session import ExtractionSession
+from deopjufier.session import ExtractionSession, TruncationEvidence
 
 EXIT_SUCCESS = 0
 EXIT_GENERAL = 1
@@ -130,6 +130,18 @@ def _add_parser_warning(
 ) -> None:
     warnings.append(message)
     warnings_struct.append({"code": code, "message": message})
+
+
+def _record_truncation(
+    session: ExtractionSession,
+    warnings: list[str],
+    warnings_struct: list[dict[str, str]],
+) -> TruncationEvidence | None:
+    """Add a parser warning for truncation evidence and return it."""
+    evidence = session.truncation_evidence()
+    if evidence is not None:
+        _add_parser_warning(warnings, warnings_struct, evidence.code, evidence.message)
+    return evidence
 
 
 def _signature_inventory_from_blocks(

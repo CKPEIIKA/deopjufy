@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 MAGIC_OPJU = b"CPYUA"
+# Every complete OPJU in the public reference corpus ends with these 50 bytes;
+# truncated copies do not. See docs/format-notes.md ("OPJU end-of-file trailer").
+OPJU_END_TRAILER = bytes.fromhex(
+    "041000000495041000000580011890013ec011010191041000000680010495041000000780012090015dc01103010001960a"
+)
 OPJU_HINTS_MAX_BLOCKS = 4
 OPJU_HINTS_MAX_CHARS = 1200
 OPJU_HINTS_MAX_DESCRIPTION_BYTES = 160
@@ -20,3 +25,8 @@ OPJU_REGION_KIND_TAGGED_BINARY = "opju_tagged_binary"
 OPJU_REGION_KIND_COLUMN_DESCRIPTOR = "opju_column_descriptor"
 OPJU_REGION_KIND_FOLDER_DIRECTORY = "opju_folder_directory"
 OPJU_REGION_KIND_PAGE_DIRECTORY = "opju_page_directory"
+
+
+def opju_has_end_trailer(tail: bytes) -> bool:
+    """Return whether ``tail`` (the last bytes of an OPJU file) ends with the known trailer."""
+    return tail.endswith(OPJU_END_TRAILER)

@@ -9,6 +9,7 @@ import pytest
 
 from deopjufier.cli import main
 from deopjufier.inventory import OriginObject
+from deopjufier.opju.common import OPJU_END_TRAILER
 from deopjufier.session import ExtractionSession
 from tests.test_core_unit_coverage_utils import _resolve_repo_fixture
 
@@ -84,7 +85,7 @@ def test_extract_writes_manifest_to_requested_path(tmp_path: Path) -> None:
 
 def test_extract_no_steps_warns_and_marks_partial(tmp_path: Path) -> None:
     sample = tmp_path / "empty.opju"
-    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x00" * 128)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x00" * 128 + OPJU_END_TRAILER)
 
     outdir = tmp_path / "out"
 

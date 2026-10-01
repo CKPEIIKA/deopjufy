@@ -84,6 +84,10 @@ def cmd_extract(args):
             message,
         )
 
+    truncation = _record_truncation(session, manifest.warnings, manifest.parser_warnings)
+    if truncation is not None:
+        partial = True
+
     if not args.extended and (args.raw_dir is not None or args.text_dir is not None):
         _warn(
             "Raw/text carving options are inactive in human profile; use --extended or --map.",
@@ -750,6 +754,8 @@ def cmd_extract(args):
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest.write(manifest_path)
 
+    if truncation is not None and truncation.definitive:
+        return EXIT_CORRUPTED
     if partial or (args.fail_on_partial and _manifest_has_partial_outputs(manifest)):
         if args.fail_on_partial:
             return EXIT_PARTIAL

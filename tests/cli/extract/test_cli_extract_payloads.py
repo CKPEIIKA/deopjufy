@@ -11,6 +11,7 @@ from deopjufier.blocks import ImageBlock
 from deopjufier.cli import main
 from deopjufier.extract.raw_regions import RawRegionClassification
 from deopjufier.inventory import OriginObject
+from deopjufier.opju.common import OPJU_END_TRAILER
 from tests.test_core_unit_coverage_utils import _resolve_synthetic_fixture
 
 _VALID_PNG_1X1 = (
@@ -677,7 +678,7 @@ def test_extract_fail_on_partial_returns_exit_code(tmp_path: Path) -> None:
 
 def test_extract_fail_on_partial_ignores_recon_scan_gap(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     sample = tmp_path / "scan-no-match.opju"
-    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"1 2 3\\n4 5 6\\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"1 2 3\\n4 5 6\\n" + OPJU_END_TRAILER)
 
     def _empty_table_rows(
         _self: object,

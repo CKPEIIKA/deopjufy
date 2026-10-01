@@ -334,7 +334,13 @@ Partial extraction with
 Requested optional dependency unavailable.
 .TP
 .B 6
-Corrupted or truncated input.
+Corrupted or truncated input. A truncated OPJ (a declared object runs past the
+end of the file) still produces its report or partial extraction, carries the
+.B input-truncated
+parser warning, and returns 6. An OPJU without the known end-of-file trailer
+gets the
+.B opju-trailer-missing
+warning and partial status but no special exit status.
 .SH EXAMPLES
 .EX
 deopjufy inspect project.opju

@@ -11,6 +11,7 @@ from deopjufier.cli import NATIVE_BACKEND, main
 from deopjufier.detect import detect_file
 from deopjufier.errors import CorruptedInputError
 from deopjufier.inventory import OpjObjectBoundary
+from deopjufier.opju.common import OPJU_END_TRAILER
 from deopjufier.session import ExtractionSession
 from tests.test_core_unit_coverage_utils import _repo_root, _resolve_synthetic_fixture
 
@@ -176,7 +177,7 @@ def test_rejects_backend_argument(tmp_path: Path, capsys: pytest.CaptureFixture[
 
 def test_inspect_includes_tool_metadata(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "tool.opju"
-    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"binary\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"binary\n" + OPJU_END_TRAILER)
 
     code = main(["inspect", str(sample), "--json"])
     captured = capsys.readouterr()
@@ -235,7 +236,9 @@ def test_inspect_unsupported_binary_with_embedded_signatures_still_reports_zero_
 
 def test_inspect_recognized_file_reports_status_and_counts(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "opju.opju"
-    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82")
+    sample.write_bytes(
+        b"CPYUA 4.3445 200\n" + b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82" + OPJU_END_TRAILER
+    )
 
     code = main(["inspect", str(sample), "--json"])
     captured = capsys.readouterr()

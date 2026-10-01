@@ -5,6 +5,13 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Truncated input is reported instead of passing as complete. A strict OPJ walk
+  whose declared size overruns the file yields `input-truncated` and exit 6 from
+  `inspect`, `list`, and `extract` (output is still written, extract status
+  partial). An OPJU without the 50-byte end trailer shared by all reference
+  files yields `opju-trailer-missing` and partial status. Evidence is recorded in
+  `docs/format-notes.md`; regressions in `tests/core/misc/test_truncation_evidence.py`
+  and `tests/real/contracts/test_real_truncation.py`.
 - Detection now requires the `CPYA`/`CPYUA` signature. An `.opj`/`.opju`
   extension alone used to be accepted at 0.95 confidence, so random bytes
   extracted with `status=ok`; such files are now `detected_type=unknown` with

@@ -58,6 +58,31 @@ bounds, masks, workbook/sheet suffixes, and column metadata are retained as
 separate evidence. Missing or unsupported metadata is not inferred from adjacent
 text.
 
+### OPJ truncation evidence
+
+A strict (non-tolerant) walk of every complete reference OPJ either succeeds or
+stops at a tail record with a delimiter mismatch. Copies cut at 30/60/90/99% of
+their length instead fail because a declared size runs past the end of the data
+(13 of 14 cuts; the miss fell in a trailing region the walker does not own).
+That overrun alone is reported as definitive truncation (`input-truncated`,
+exit 6); other strict-mode failures are not truncation evidence.
+
+## OPJU end-of-file trailer
+
+All 16 distinct complete OPJU files available to the project (15 public Zenodo
+records and one local project, written by several Origin versions) end with the
+same 50 bytes:
+
+```text
+04 10 00 00 04 95 04 10 00 00 05 80 01 18 90 01 3e c0 11 01 01 91 04 10 00 00
+06 80 01 04 95 04 10 00 00 07 80 01 20 90 01 5d c0 11 03 01 00 01 96 0a
+```
+
+The byte meaning is not decoded. Its absence is reported as possible truncation
+(`opju-trailer-missing`, status partial) but not as definitive corruption,
+because other writer versions may end differently. Author-generated synthetic
+fixtures do not carry the trailer.
+
 ## OPJU framed regions
 
 Accepted compressed regions must provide:

@@ -28,7 +28,9 @@ from deopjufier.inventory import (
     iter_object_windows,
     parse_opj_boundaries,
 )
-from deopjufier.io import read_cached_bytes, sha256_file
+from deopjufier.io import dump_range, read_cached_bytes, sha256_file
+from deopjufier.opj.walker import opj_truncation_offset
+from deopjufier.opju.common import OPJU_END_TRAILER, opju_has_end_trailer
 from deopjufier.opju.decoded import OpjuDecodedRegion, iter_opju_decoded_regions
 from deopjufier.opju.directory import parse_opju_page_directory
 from deopjufier.opju.tagged import (
@@ -166,6 +168,19 @@ def _attach_opju_page_previews(
         )
 
 
+@dataclass(frozen=True)
+class TruncationEvidence:
+    """Evidence that the input ends early.
+
+    ``definitive`` is true only when a parsed structure declares bytes past the
+    end of the file; a missing OPJU end trailer is strong but not conclusive.
+    """
+
+    code: str
+    message: str
+    definitive: bool
+
+
 @dataclass
 class ExtractionSession:
     """Cached extraction context for a single input file."""
@@ -206,6 +221,28 @@ class ExtractionSession:
         if self._file_data is None:
             self._file_data = read_cached_bytes(self.input_path)
         return self._file_data
+
+    def truncation_evidence(self) -> TruncationEvidence | None:
+        """Report whether the input appears cut short, or None when no evidence exists."""
+        if self.detection.detected_type == "opj":
+            offset = opj_truncation_offset(self.file_data())
+            if offset is None:
+                return None
+            return TruncationEvidence(
+                code="input-truncated",
+                message=f"Input is truncated: an OPJ object at offset {offset} extends past the end of the file.",
+                definitive=True,
+            )
+        if self.detection.detected_type == "opju":
+            tail_start = max(0, self.size_bytes - len(OPJU_END_TRAILER))
+            if opju_has_end_trailer(dump_range(self.input_path, tail_start, len(OPJU_END_TRAILER))):
+                return None
+            return TruncationEvidence(
+                code="opju-trailer-missing",
+                message="Input lacks the OPJU end-of-file trailer found in complete files; it may be truncated.",
+                definitive=False,
+            )
+        return None
 
     def image_blocks(self) -> list[ImageBlock]:
         """Lazily discover image-like blocks."""

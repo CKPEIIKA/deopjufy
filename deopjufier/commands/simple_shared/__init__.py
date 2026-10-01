@@ -15,6 +15,7 @@ from deopjufier.commands.render import _print_compare_summary
 from deopjufier.commands.support import (
     _EXTRACT_HEURISTIC_OBJECT_LIMIT_PER_KIND,
     _EXTRACT_LARGE_FILE_HEURISTIC_LIMIT_BYTES,
+    EXIT_CORRUPTED,
     EXIT_GENERAL,
     EXIT_PARTIAL,
     EXIT_SUCCESS,
@@ -28,6 +29,7 @@ from deopjufier.commands.support import (
     _is_recon_heuristic_item,
     _limit_extract_objects,
     _log,
+    _record_truncation,
     _support_class,
 )
 from deopjufier.compare import compare_manifests

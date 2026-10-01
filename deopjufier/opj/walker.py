@@ -12,7 +12,7 @@ from .records import (
     _parse_opj_data_header,
     parse_opj_signature,
 )
-from .stream import OpjStream, OpjStreamError
+from .stream import OpjStream, OpjStreamError, OpjTruncatedError
 
 _WalkMetadataValue = int | float | str | None | tuple[int, int] | tuple[int, ...]
 _OPJ_WINDOW_LABEL_OFFSET = 0xC3
@@ -871,3 +871,20 @@ def walk_opj_file(data: bytes, *, tolerant: bool = True) -> list[OpjWalkElement]
     if cursor.offset < len(cursor.data):
         elements.extend(_walk_attachments(cursor, tolerate=tolerant))
     return elements
+
+
+def opj_truncation_offset(data: bytes) -> int | None:
+    """Return the offset where a declared OPJ object overruns the data, else None.
+
+    A strict walk of a complete file either succeeds or stops at an unparsed tail
+    record with a delimiter mismatch; across the reference corpus only truncated
+    copies made a declared size run past the end of the data. Other strict-mode
+    failures are therefore not treated as truncation evidence.
+    """
+    try:
+        walk_opj_file(data, tolerant=False)
+    except OpjTruncatedError as exc:
+        return exc.offset
+    except (ValueError, IndexError, struct.error):
+        return None
+    return None

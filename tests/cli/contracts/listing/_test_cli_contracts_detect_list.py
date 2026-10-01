@@ -265,6 +265,9 @@ def test_list_opju_bounded_heuristic_items_default_and_exhaustive_override(
         def image_blocks(self) -> list[object]:
             return []
 
+        def truncation_evidence(self) -> None:
+            return None
+
         def list_items(self, **kwargs: object) -> list[dict[str, object]]:
             limit = kwargs.get("heuristic_kind_limit")
             if isinstance(limit, int):
@@ -329,6 +332,9 @@ def test_list_opju_parser_items_are_included_in_default_output(
 
         def image_blocks(self) -> list[object]:
             return []
+
+        def truncation_evidence(self) -> None:
+            return None
 
         def list_items(self, **_kwargs: object) -> list[dict[str, object]]:
             return [

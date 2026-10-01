@@ -112,6 +112,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         _add_parser_warning,
         _build_session,
         _has_origin_family_mismatch,
+        _record_truncation,
         _signature_hits_summary_from_blocks,
     )
     from deopjufier.errors import CorruptedInputError
@@ -266,6 +267,7 @@ def cmd_list(args: argparse.Namespace) -> int:
                 signature_message,
             )
 
+        truncation = _record_truncation(session, warnings, parser_warnings) if parser_status != "error" else None
         status = _command_state(
             is_supported=True,
             parser_status=parser_status,
@@ -290,6 +292,8 @@ def cmd_list(args: argparse.Namespace) -> int:
             return exit_code
         if not items:
             return EXIT_UNSUPPORTED
+        if truncation is not None and truncation.definitive:
+            return EXIT_CORRUPTED
         return EXIT_SUCCESS
     except FileNotFoundError as exc:
         payload, exit_code = _list_failure_payload(file_path, exc, None)

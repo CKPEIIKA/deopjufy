@@ -309,3 +309,23 @@ def test_get_reads_catalog_from_stdin(tmp_path: Path, capsys, monkeypatch) -> No
 
     assert code == 0
     assert json.loads(capsys.readouterr().out)["item"]["id"] == item_id
+
+
+def test_get_descriptor_worksheet_skips_object_discovery(tmp_path: Path, capsys, monkeypatch) -> None:
+    from deopjufier.session import ExtractionSession
+
+    sample = tmp_path / "descriptor.opju"
+    _descriptor_opju(sample)
+    catalog, item_id = _worksheet_catalog(sample, capsys)
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+
+    def _no_discovery(*_args: object, **_kwargs: object) -> list[object]:
+        raise AssertionError("descriptor worksheets must not run whole-file object discovery")
+
+    monkeypatch.setattr(ExtractionSession, "objects", _no_discovery)
+    code = main(["get", str(sample), item_id, "--json", "--catalog", str(catalog_path)])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert code == 0
+    assert payload["content"]["headers"] == ["A", "B"]

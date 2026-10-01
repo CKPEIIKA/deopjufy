@@ -367,7 +367,10 @@ def _materialize_catalog_item(
     elif item.get("kind") in _IMAGE_KINDS or kind in _IMAGE_KINDS:
         _materialize_image(session, item, out_dir, manifest)
     else:
-        all_objects = _all_objects(session)
+        # Descriptor-table worksheets are fully identified by their catalog item; skip
+        # whole-file object discovery for them (the target record is built from the item).
+        descriptor_table = item.get("discovery_type") == "opju_column_descriptor_table"
+        all_objects = [] if descriptor_table else _all_objects(session)
         obj = _target_object(all_objects, item)
         if obj is not None:
             if obj not in all_objects:

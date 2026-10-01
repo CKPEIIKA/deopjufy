@@ -344,10 +344,11 @@ Show command help and exit.
 Show the installed version and exit.
 .TP
 .B \-\-verbose
-Enable detailed diagnostics for commands that support verbosity.
+.RB ( extract
+only) Report extraction steps on standard error.
 .TP
 .B \-\-quiet
-Suppress non-error diagnostics for commands that support quiet mode.
+Suppress non-error output.
 .SH OUTPUT CONTRACT
 Extraction paths are sanitized, relative to the selected output root, and never
 escape it. Existing user data is not overwritten without

@@ -44,8 +44,10 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 
-    def _add_verbosity_options(command_parser: argparse.ArgumentParser) -> None:
-        command_parser.add_argument("--verbose", action="store_true", help="enable detailed messages")
+    def _add_verbosity_options(command_parser: argparse.ArgumentParser, *, verbose: bool = False) -> None:
+        # --verbose is only offered where a command has step messages to show.
+        if verbose:
+            command_parser.add_argument("--verbose", action="store_true", help="report extraction steps on stderr")
         command_parser.add_argument("--quiet", action="store_true", help="suppress non-error output")
 
     commands = parser.add_subparsers(dest="command", required=True)
@@ -156,7 +158,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     extract_p.add_argument("--fail-on-partial", action="store_true", help="exit 4 when the extraction is partial")
     extract_p.add_argument("--force", action="store_true", help="overwrite extracted files")
-    _add_verbosity_options(extract_p)
+    _add_verbosity_options(extract_p, verbose=True)
 
     strings_p = commands.add_parser("strings", help="print visible text strings")
     strings_p.add_argument("file", type=Path)

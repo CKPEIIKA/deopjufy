@@ -494,3 +494,11 @@ def test_strings_json_without_byte_offsets_uses_null(tmp_path: Path, capsys: pyt
     payload = json.loads(capsys.readouterr().out)
 
     assert payload["strings"] == [{"offset": None, "text": "alpha"}, {"offset": None, "text": "bravo"}]
+
+
+@pytest.mark.parametrize("command", ["inspect", "list", "strings", "walk", "table-scan"])
+def test_verbose_is_offered_only_where_it_has_an_effect(command: str, capsys: pytest.CaptureFixture[str]) -> None:
+    code = main([command, "sample.opj", "--verbose"])
+
+    assert code == 2
+    assert "unrecognized arguments: --verbose" in capsys.readouterr().err

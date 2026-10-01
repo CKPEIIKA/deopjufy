@@ -32,7 +32,7 @@ _VALID_JPEG_1X1 = (
 def test_extract_raw_dir_emits_manifest_items(tmp_path: Path) -> None:
     sample = tmp_path / "rawsample.opju"
     jpeg = _VALID_JPEG_1X1
-    sample.write_bytes(b"R" * 1536 + jpeg + b"X" * 1536)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"R" * 1536 + jpeg + b"X" * 1536)
 
     outdir = tmp_path / "out"
     rawdir = tmp_path / "raw"
@@ -68,7 +68,7 @@ def test_extract_raw_dir_emits_manifest_items(tmp_path: Path) -> None:
 
 def test_extract_default_profile_ignores_raw_dir_without_extended(tmp_path: Path) -> None:
     sample = tmp_path / "rawsample.opju"
-    sample.write_bytes(b"R" * 512)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"R" * 512)
 
     outdir = tmp_path / "out"
     rawdir = tmp_path / "raw"
@@ -357,7 +357,8 @@ def test_extract_parser_only_with_extended_keeps_raw_text_output(
 ) -> None:
     sample = tmp_path / "parser-only-extended.opju"
     sample.write_bytes(
-        b"Readable text for parser-only extended profile\n"
+        b"CPYUA 4.3445 200\n"
+        + b"Readable text for parser-only extended profile\n"
         + b"visible text for classification\n"
         + b"\x89PNG\r\n\x1a\n"
         + b"\x00\x00\x00\x00IEND\xaeB`\x82"
@@ -446,7 +447,7 @@ def test_extract_extended_profile_auto_defaults_raw_and_text_output_dirs(
     machine_profile: str,
 ) -> None:
     sample = tmp_path / "extended-defaults.opju"
-    sample.write_bytes(b"Readable text for extraction profile\n" * 128)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Readable text for extraction profile\n" * 128)
 
     outdir = tmp_path / "out"
     manifest = outdir / "manifest.json"
@@ -480,7 +481,7 @@ def test_extract_extended_profile_auto_defaults_raw_and_text_output_dirs(
 
 def test_extract_human_only_skips_raw_and_text_artifacts(tmp_path: Path) -> None:
     sample = tmp_path / "samples.opju"
-    sample.write_bytes(b"Readable text for extract\nand visible strings from the file.\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Readable text for extract\nand visible strings from the file.\n")
 
     outdir = tmp_path / "out"
     rawdir = tmp_path / "raw"

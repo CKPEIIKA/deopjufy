@@ -25,7 +25,7 @@ _VALID_PNG_1X1 = (
 
 def test_extract_human_profile_omits_unowned_graph_preview_placeholder(tmp_path: Path) -> None:
     sample = tmp_path / "graph.opj"
-    sample.write_bytes(b"Graph1" + b"\x00" + _VALID_PNG_1X1)
+    sample.write_bytes(b"CPYA 4.2673 552#\n" + b"Graph1" + b"\x00" + _VALID_PNG_1X1)
 
     outdir = tmp_path / "out"
     code = main(
@@ -51,7 +51,7 @@ def test_extract_human_profile_omits_unowned_graph_preview_placeholder(tmp_path:
 
 def test_extract_emits_excel_items(tmp_path: Path) -> None:
     sample = tmp_path / "excel.opj"
-    sample.write_bytes(b"ExcelA" + b"\n1 2 3\n4 5 6\n" + b"Graph1\n")
+    sample.write_bytes(b"CPYA 4.2673 552#\n" + b"ExcelA" + b"\n1 2 3\n4 5 6\n" + b"Graph1\n")
 
     outdir = tmp_path / "out"
     code = main(
@@ -82,7 +82,7 @@ def test_extract_emits_excel_items(tmp_path: Path) -> None:
 
 def test_extract_emits_function_items(tmp_path: Path) -> None:
     sample = tmp_path / "function.opj"
-    sample.write_bytes(b"Function1" + b"\n1 2 3\n4 5 6\n" + b"Graph1\n")
+    sample.write_bytes(b"CPYA 4.2673 552#\n" + b"Function1" + b"\n1 2 3\n4 5 6\n" + b"Graph1\n")
 
     outdir = tmp_path / "out"
     code = main(
@@ -286,7 +286,7 @@ def test_extract_synthetic_opju_emits_note_and_function_items(tmp_path: Path) ->
 
 def test_extract_invalid_raw_min_bytes_is_usage_error(tmp_path: Path) -> None:
     sample = tmp_path / "invalid.opju"
-    sample.write_bytes(b"\x89PNG\r\n\x1a\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x89PNG\r\n\x1a\n")
 
     code = main(
         [
@@ -308,7 +308,11 @@ def test_extract_invalid_raw_min_bytes_is_usage_error(tmp_path: Path) -> None:
 def test_extract_text_regions_exports_text_files(tmp_path: Path) -> None:
     sample = tmp_path / "textregions.opju"
     sample.write_bytes(
-        b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82" + b"line one\nline two\n" + b"\xff\xd8\xff\xd9"
+        b"CPYUA 4.3445 200\n"
+        + b"\x89PNG\r\n\x1a\n"
+        + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82"
+        + b"line one\nline two\n"
+        + b"\xff\xd8\xff\xd9"
     )
 
     out_dir = tmp_path / "out"
@@ -349,7 +353,11 @@ def test_extract_reuses_gap_classification_for_raw_and_text_same_thresholds(
 ) -> None:
     sample = tmp_path / "shared_gaps.opju"
     sample.write_bytes(
-        b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82" + b"line one\nline two\n" + b"\xff\xd8\xff\xd9"
+        b"CPYUA 4.3445 200\n"
+        + b"\x89PNG\r\n\x1a\n"
+        + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82"
+        + b"line one\nline two\n"
+        + b"\xff\xd8\xff\xd9"
     )
 
     out_dir = tmp_path / "out"
@@ -428,7 +436,7 @@ def test_extract_reuses_gap_classification_for_raw_and_text_same_thresholds(
 
 def test_extract_verbose_reports_steps(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "log.opju"
-    sample.write_text("plain text\n", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"plain text\n")
 
     code = main(
         [
@@ -474,7 +482,7 @@ def test_extract_xlsx_format_requires_openpyxl_when_requested(tmp_path: Path, mo
         raise ModuleNotFoundError("openpyxl")
 
     sample = tmp_path / "xformat.opju"
-    sample.write_bytes(b"Book1_A\n1 2 3\n4 5 6\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Book1_A\n1 2 3\n4 5 6\n")
     out_dir = tmp_path / "out"
 
     monkeypatch.setattr(
@@ -521,7 +529,7 @@ def test_extract_xlsx_format_writes_book_xlsx_with_stub(
         return 1
 
     sample = tmp_path / "xformat_ok.opju"
-    sample.write_bytes(b"Book1_A\n1 2 3\n4 5 6\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Book1_A\n1 2 3\n4 5 6\n")
     out_dir = tmp_path / "out"
 
     monkeypatch.setattr(
@@ -561,7 +569,7 @@ def test_extract_xlsx_format_writes_book_xlsx_with_stub(
 
 def test_extract_json_format_outputs_json_tables_and_csv_book_exports(tmp_path: Path) -> None:
     sample = tmp_path / "jsonformat.opju"
-    sample.write_bytes(b"Book1_A\n1 2 3\n4 5 6\nGraph1\nFunction1\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Book1_A\n1 2 3\n4 5 6\nGraph1\nFunction1\n")
     out_dir = tmp_path / "out"
 
     code = main(
@@ -588,7 +596,7 @@ def test_extract_json_format_outputs_json_tables_and_csv_book_exports(tmp_path: 
 
 def test_extract_writes_matrix_exports(tmp_path: Path) -> None:
     sample = tmp_path / "matrix.opj"
-    sample.write_bytes(b"MatrixA" + b"\n1 2 3\n4 5 6\nGraph1\n")
+    sample.write_bytes(b"CPYA 4.2673 552#\n" + b"MatrixA" + b"\n1 2 3\n4 5 6\nGraph1\n")
     out_dir = tmp_path / "out"
 
     code = main(
@@ -619,7 +627,7 @@ def test_extract_writes_matrix_exports(tmp_path: Path) -> None:
 
 def test_extract_writes_note_exports(tmp_path: Path) -> None:
     sample = tmp_path / "note.opj"
-    sample.write_bytes(b"Note1\nThis is a markdown note.\n- bullet\nGraph1\n")
+    sample.write_bytes(b"CPYA 4.2673 552#\n" + b"Note1\nThis is a markdown note.\n- bullet\nGraph1\n")
     out_dir = tmp_path / "out"
 
     code = main(
@@ -648,7 +656,7 @@ def test_extract_writes_note_exports(tmp_path: Path) -> None:
 
 def test_extract_fail_on_partial_returns_exit_code(tmp_path: Path) -> None:
     sample = tmp_path / "partial.opju"
-    sample.write_bytes(b"\x00" * 50)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x00" * 50)
 
     code = main(
         [
@@ -669,7 +677,7 @@ def test_extract_fail_on_partial_returns_exit_code(tmp_path: Path) -> None:
 
 def test_extract_fail_on_partial_ignores_recon_scan_gap(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     sample = tmp_path / "scan-no-match.opju"
-    sample.write_text("1 2 3\\n4 5 6\\n", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"1 2 3\\n4 5 6\\n")
 
     def _empty_table_rows(
         _self: object,

@@ -68,7 +68,7 @@ def test_multi_file_commands_require_explicit_output_dir(
 
 def test_inspect_supported_input_uses_stdout_for_payload(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_text("sample", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"sample")
 
     code = main(["inspect", str(sample), "--json"])
     captured = capsys.readouterr()
@@ -93,7 +93,7 @@ def test_list_supported_input_uses_stdout_for_payload(tmp_path: Path, capsys: py
 
 def test_inspect_default_output_is_human_readable(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_text("sample", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"sample")
 
     code = main(["inspect", str(sample)])
     captured = capsys.readouterr()
@@ -120,7 +120,7 @@ def test_extract_command_writes_files_and_stays_quiet_on_stdout(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_bytes(b"")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"")
     output = tmp_path / "output"
 
     code = main(
@@ -160,7 +160,7 @@ def test_images_command_no_images_prints_supported_error_to_stderr(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_text("sample", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"sample")
 
     code = main(["images", str(sample), "--out", str(tmp_path / "img")])
     captured = capsys.readouterr()
@@ -172,7 +172,7 @@ def test_images_command_no_images_prints_supported_error_to_stderr(
 
 def test_images_default_output_is_human_readable(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_bytes(_VALID_PNG_1X1)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + _VALID_PNG_1X1)
 
     code = main(["images", str(sample), "--out", str(tmp_path / "images")])
     captured = capsys.readouterr()
@@ -185,7 +185,7 @@ def test_images_default_output_is_human_readable(tmp_path: Path, capsys: pytest.
 
 def test_images_json_output_is_machine_readable(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_bytes(_VALID_PNG_1X1)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + _VALID_PNG_1X1)
 
     code = main(["images", str(sample), "--out", str(tmp_path / "images"), "--json"])
     captured = capsys.readouterr()
@@ -204,7 +204,7 @@ def test_images_json_output_on_no_images_reports_supported_status(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_text("sample", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"sample")
 
     code = main(["images", str(sample), "--out", str(tmp_path / "images"), "--json"])
     captured = capsys.readouterr()
@@ -218,7 +218,7 @@ def test_images_json_output_on_no_images_reports_supported_status(
 
 def test_images_json_output_marks_malformed_png_as_partial(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\x00\x00\x00\x00")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\x00\x00\x00\x00")
 
     code = main(
         [
@@ -240,7 +240,7 @@ def test_images_json_output_marks_malformed_png_as_partial(tmp_path: Path, capsy
 
 def test_table_scan_no_rows_outputs_message_to_stderr(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.opju"
-    sample.write_text("sample", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"sample")
 
     code = main(["table-scan", str(sample), "--min-rows", "5", "--min-columns", "2"])
     captured = capsys.readouterr()

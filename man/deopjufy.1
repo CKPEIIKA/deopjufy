@@ -77,6 +77,19 @@ This software is vibe-coded, use it carefully for one-off tasks.
 .SS inspect
 Report detected type, input size and digest, parser status, support class,
 coverage scope, and warnings.
+A file is treated as OPJ or OPJU only when it begins with the
+.B CPYA
+or
+.B CPYUA
+signature; an
+.I .opj
+or
+.I .opju
+extension without it is reported as
+.B unknown
+with reason
+.B extension-without-origin-magic
+and status 3.
 .TP
 .B \-\-json
 Emit the stable machine-readable representation instead of human output.

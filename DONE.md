@@ -5,6 +5,13 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Detection now requires the `CPYA`/`CPYUA` signature. An `.opj`/`.opju`
+  extension alone used to be accepted at 0.95 confidence, so random bytes
+  extracted with `status=ok`; such files are now `detected_type=unknown` with
+  reason `extension-without-origin-magic` (exit 3). Tests that fed
+  extension-only fake inputs now carry an Origin header. OPJU `support_class`
+  uses the OPJ rule: `parser` only when every listed item is parser-backed.
+  AGENTS.md now names the published `support_class` vocabulary.
 - Rerunning `extract` into an existing output without `--force` destroyed
   the earlier result: writers skipped existing files, the human projection
   then deleted every manifest path it did not retain (355 of 369 files on a

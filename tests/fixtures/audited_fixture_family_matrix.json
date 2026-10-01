@@ -211,7 +211,7 @@
     },
     "partial_items": 0,
     "status": "ok",
-    "support_class": "parser",
+    "support_class": "partial",
     "unsupported_items": 2,
     "warning_count": 2
   },

@@ -261,11 +261,12 @@ def _support_class(
         return _SUPPORT_CLASS_HEURISTIC
 
     if detected_type == "opju":
-        if has_partial_or_failed_items:
+        # Same bar as OPJ: one parser-backed item does not vouch for heuristic siblings.
+        if not has_parser_backed:
+            return _SUPPORT_CLASS_HEURISTIC
+        if has_partial_or_failed_items or not all(_is_parser_backed_item(item) for item in parsed_items):
             return _SUPPORT_CLASS_PARTIAL
-        if has_parser_backed:
-            return _SUPPORT_CLASS_PARSER
-        return _SUPPORT_CLASS_HEURISTIC
+        return _SUPPORT_CLASS_PARSER
 
     return _SUPPORT_CLASS_HEURISTIC
 

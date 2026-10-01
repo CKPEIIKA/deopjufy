@@ -19,13 +19,13 @@ from deopjufier.inventory import OpjObjectBoundary
 from tests.test_core_unit_coverage_utils import _resolve_synthetic_fixture
 
 
-def test_detect_prefers_extension_over_magic_signature(tmp_path: Path) -> None:
+def test_detect_reports_foreign_magic_behind_origin_extension(tmp_path: Path) -> None:
     candidate = tmp_path / "fake.opju"
     candidate.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)
 
     detected = detect_file(candidate)
-    assert detected.detected_type == "opju"
-    assert detected.reason == "extension"
+    assert detected.detected_type == "png"
+    assert detected.reason == "extension-without-origin-magic"
 
 
 def test_detect_magic_magic_falls_back_for_unknown_extension(tmp_path: Path) -> None:
@@ -98,7 +98,8 @@ def test_list_unsupported_file_type_is_supported_shape(tmp_path: Path, capsys: p
 def test_list_outputs_items_sorted_by_offset_for_opju_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "ordered.opju"
     sample.write_bytes(
-        b"\x00\x00"
+        b"CPYUA 4.3445 200\n"
+        + b"\x00\x00"
         + b"\xff\xd8\xff\xd9"
         + b"\x00\x00\x00\x00"
         + b"\x89PNG\r\n\x1a\n"
@@ -372,7 +373,7 @@ def test_list_opju_parser_items_are_included_in_default_output(
 
 def test_list_opju_heuristic_note_function_excel_graph_are_parser_gated(tmp_path: Path) -> None:
     sample = tmp_path / "no-opju-evidence.opju"
-    sample.write_bytes(b"Graph1\nNote1\nFunction1\nExcelA\nMatrix1\nBook1_A\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Graph1\nNote1\nFunction1\nExcelA\nMatrix1\nBook1_A\n")
 
     output = StringIO()
     with redirect_stdout(output):
@@ -389,7 +390,7 @@ def test_list_opju_heuristic_note_function_excel_graph_are_parser_gated(tmp_path
     assert "graph" not in kinds
 
 
-def test_list_supported_file_with_no_items_is_unsupported(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_list_opju_extension_without_magic_is_unsupported(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "empty.opju"
     sample.write_bytes(b"\x00\x00")
 
@@ -397,14 +398,13 @@ def test_list_supported_file_with_no_items_is_unsupported(tmp_path: Path, capsys
     payload = json.loads(capsys.readouterr().out)
 
     assert code == 3
-    assert payload["detected_type"] == "opju"
+    assert payload["detected_type"] == "unknown"
     assert payload["items"] == []
-    assert payload["parser_status"] == "empty"
-    assert payload["warnings"] == ["Native parser found no listable items."]
-    assert payload["status"] == "empty"
+    assert payload["parser_status"] == "unsupported"
+    assert payload["status"] == "unsupported"
 
 
-def test_list_empty_opj_file_is_marked_empty(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_list_opj_extension_without_magic_is_unsupported(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "empty.opj"
     sample.write_bytes(b"\x00\x00")
 
@@ -412,17 +412,15 @@ def test_list_empty_opj_file_is_marked_empty(tmp_path: Path, capsys: pytest.Capt
     payload = json.loads(capsys.readouterr().out)
 
     assert code == 3
-    assert payload["detected_type"] == "opj"
-    assert payload["parser_status"] == "empty"
-    assert payload["status"] == "empty"
-    assert payload["support_class"] == "parser"
+    assert payload["detected_type"] == "unknown"
+    assert payload["parser_status"] == "unsupported"
+    assert payload["status"] == "unsupported"
     assert payload["items"] == []
-    assert payload["warnings"] == ["Native parser found no listable items."]
 
 
 def test_list_can_include_raw_gaps_as_items(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "empty_with_gaps.opju"
-    sample.write_bytes(b"\x00\x00")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x00\x00")
 
     code = main(["list", str(sample), "--json", "--include-raw-gaps"])
     payload = json.loads(capsys.readouterr().out)

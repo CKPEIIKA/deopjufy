@@ -78,7 +78,7 @@ def test_table_scan_json_flag_is_available(tmp_path: Path, capsys: pytest.Captur
 
 def test_table_scan_no_matches_is_unsupported(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "none.opju"
-    sample.write_text("abc\ndef\n", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"abc\ndef\n")
 
     code = main(
         [

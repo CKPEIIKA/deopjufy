@@ -2,13 +2,13 @@ from deopjufier.commands.parser import _build_parser
 from tests.cli.contracts.misc._test_cli_contracts_extract_misc_common import *  # noqa: F403
 
 
-def test_detect_prefers_extension_over_magic_signature(tmp_path: Path) -> None:
+def test_detect_reports_foreign_magic_behind_origin_extension(tmp_path: Path) -> None:
     candidate = tmp_path / "fake.opju"
     candidate.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)
 
     detected = detect_file(candidate)
-    assert detected.detected_type == "opju"
-    assert detected.reason == "extension"
+    assert detected.detected_type == "png"
+    assert detected.reason == "extension-without-origin-magic"
 
 
 def test_detect_magic_magic_falls_back_for_unknown_extension(tmp_path: Path) -> None:
@@ -685,7 +685,7 @@ def test_extract_without_file_data_inputs_does_not_load_full_bytes(
     from deopjufier import commands
 
     sample = tmp_path / "extract_stream.opju"
-    sample.write_bytes(b"xx" + b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"xx" + b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82")
 
     def _fail_file_data(_: object) -> bytes:
         raise AssertionError("cmd_extract should not preload full bytes for image-only run")

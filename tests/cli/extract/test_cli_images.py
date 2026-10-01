@@ -20,7 +20,7 @@ _VALID_PNG_1X1 = (
 
 def test_images_quiet_suppresses_paths(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "img.opju"
-    sample.write_bytes(b"\x00\x00" + _VALID_PNG_1X1 + b"\x11\x11")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x00\x00" + _VALID_PNG_1X1 + b"\x11\x11")
 
     code = main(
         [
@@ -39,7 +39,7 @@ def test_images_quiet_suppresses_paths(tmp_path: Path, capsys: pytest.CaptureFix
 
 def test_images_json_quiet_suppresses_payload(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "img-json.opju"
-    sample.write_bytes(_VALID_PNG_1X1)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + _VALID_PNG_1X1)
 
     code = main(
         [
@@ -78,7 +78,7 @@ def test_images_command_prints_relative_paths_when_not_quiet(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     sample = tmp_path / "img2.opju"
-    sample.write_bytes(_VALID_PNG_1X1 + b"suffix")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + _VALID_PNG_1X1 + b"suffix")
 
     code = main(
         [

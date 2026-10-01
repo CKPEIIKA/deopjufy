@@ -17,10 +17,12 @@ fallback is used.
 A parser path ran and produced evidence. This is not a whole-file grade.
 .TP
 .B support_class=parser
-Parser-backed evidence exists.
+Every listed item is parser-backed and none is partial. Carved OPJU media does
+not count. This is not a whole-file grade.
 .TP
 .B support_class=partial
-At least one relevant gap remains.
+Parser-backed evidence exists, but at least one listed item is heuristic,
+partial, or failed.
 .TP
 .B status=extracted
 An artifact was written.

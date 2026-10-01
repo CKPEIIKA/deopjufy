@@ -419,7 +419,8 @@ Inspect/list command output should also include:
 - `parser_status`:
   - `ok`, `empty`, `error`, or `unsupported`
 - `support_class`:
-  - `supported-opj`, `partial-opju`, `unknown`, `corrupt`
+  - `parser`, `partial`, `heuristic`, or `failed`, as defined in
+    `man/deopjufy-formats.7`; OPJ and OPJU use the same rule
 
 ## Output naming rules
 

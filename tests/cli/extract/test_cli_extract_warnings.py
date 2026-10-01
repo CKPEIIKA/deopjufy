@@ -15,7 +15,7 @@ from tests.test_core_unit_coverage_utils import _resolve_repo_fixture
 
 def test_extract_raw_dir_with_large_min_size_emits_no_raw_blocks(tmp_path: Path) -> None:
     sample = tmp_path / "rawsample.opju"
-    sample.write_bytes(b"\x00" * 500)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x00" * 500)
 
     outdir = tmp_path / "out"
     rawdir = tmp_path / "raw"
@@ -48,7 +48,7 @@ def test_extract_raw_dir_with_large_min_size_emits_no_raw_blocks(tmp_path: Path)
 
 def test_extract_writes_manifest_to_requested_path(tmp_path: Path) -> None:
     sample = tmp_path / "rawsample.opju"
-    sample.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 32)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x89PNG\r\n\x1a\n" + b"\x00" * 32)
 
     outdir = tmp_path / "out"
     manifest_path = tmp_path / "custom-manifest.json"
@@ -84,7 +84,7 @@ def test_extract_writes_manifest_to_requested_path(tmp_path: Path) -> None:
 
 def test_extract_no_steps_warns_and_marks_partial(tmp_path: Path) -> None:
     sample = tmp_path / "empty.opju"
-    sample.write_bytes(b"\x00" * 128)
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x00" * 128)
 
     outdir = tmp_path / "out"
 

@@ -9,13 +9,13 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from tests.cli.contracts.listing._test_cli_contracts import (  # noqa: F401
     test_inspect_counts_include_origin_object_inventory,
-    test_inspect_empty_opj_file_marks_empty,
     test_inspect_failure_payload_stays_schema_stable,
     test_inspect_includes_compact_parser_evidence_counts,
     test_inspect_includes_opju_raw_dump_crosswalk_summary,
     test_inspect_includes_tool_metadata,
     test_inspect_missing_file_still_emits_json,
-    test_inspect_opju_without_parser_backed_artifacts_is_unknown,
+    test_inspect_opj_extension_without_magic_is_unsupported,
+    test_inspect_opju_object_tokens_without_magic_are_unsupported,
     test_inspect_parser_error_reports_error_status,
     test_inspect_payload_is_deterministic_for_same_input,
     test_inspect_recognized_file_reports_status_and_counts,

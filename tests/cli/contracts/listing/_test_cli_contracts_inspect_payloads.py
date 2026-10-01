@@ -17,13 +17,13 @@ from tests.test_core_unit_coverage_utils import _repo_root, _resolve_synthetic_f
 REPO_ROOT = _repo_root(Path(__file__))
 
 
-def test_detect_prefers_extension_over_magic_signature(tmp_path: Path) -> None:
+def test_detect_reports_foreign_magic_behind_origin_extension(tmp_path: Path) -> None:
     candidate = tmp_path / "fake.opju"
     candidate.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)
 
     detected = detect_file(candidate)
-    assert detected.detected_type == "opju"
-    assert detected.reason == "extension"
+    assert detected.detected_type == "png"
+    assert detected.reason == "extension-without-origin-magic"
 
 
 def test_detect_magic_magic_falls_back_for_unknown_extension(tmp_path: Path) -> None:
@@ -176,7 +176,7 @@ def test_rejects_backend_argument(tmp_path: Path, capsys: pytest.CaptureFixture[
 
 def test_inspect_includes_tool_metadata(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "tool.opju"
-    sample.write_text("binary\n", encoding="utf-8")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"binary\n")
 
     code = main(["inspect", str(sample), "--json"])
     captured = capsys.readouterr()
@@ -235,7 +235,7 @@ def test_inspect_unsupported_binary_with_embedded_signatures_still_reports_zero_
 
 def test_inspect_recognized_file_reports_status_and_counts(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "opju.opju"
-    sample.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82")
 
     code = main(["inspect", str(sample), "--json"])
     captured = capsys.readouterr()
@@ -244,7 +244,8 @@ def test_inspect_recognized_file_reports_status_and_counts(tmp_path: Path, capsy
     assert code == 0
     assert payload["status"] == "ok"
     assert payload["parser_status"] == "ok"
-    assert payload["support_class"] == "heuristic"
+    # Carved media is excluded from the OPJU support class; the parsed header remains.
+    assert payload["support_class"] == "parser"
     assert payload["warnings"] == []
     assert payload["counts"]["images"] >= 1
     assert payload["counts"]["items"] >= 1
@@ -278,7 +279,7 @@ def test_inspect_support_class_for_opj(tmp_path: Path, capsys: pytest.CaptureFix
     assert payload["parser_status"] in {"empty", "ok"}
 
 
-def test_inspect_opju_without_parser_backed_artifacts_is_unknown(
+def test_inspect_opju_object_tokens_without_magic_are_unsupported(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     sample = tmp_path / "no-opju-evidence.opju"
@@ -287,8 +288,8 @@ def test_inspect_opju_without_parser_backed_artifacts_is_unknown(
     code = main(["inspect", str(sample), "--json"])
     payload = json.loads(capsys.readouterr().out)
 
-    assert code == 0
-    assert payload["detected_type"] == "opju"
+    assert code == 3
+    assert payload["detected_type"] == "unknown"
     assert payload["support_class"] == "heuristic"
 
 
@@ -307,19 +308,18 @@ def test_inspect_synthetic_binary_opju_without_parser_records_is_unknown(
     assert payload["support_class"] == "parser"
 
 
-def test_inspect_empty_opj_file_marks_empty(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_inspect_opj_extension_without_magic_is_unsupported(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "empty.opj"
     sample.write_bytes(b"\x00\x00")
 
     code = main(["inspect", str(sample), "--json"])
     payload = json.loads(capsys.readouterr().out)
 
-    assert code == 0
-    assert payload["detected_type"] == "opj"
-    assert payload["support_class"] == "parser"
-    assert payload["parser_status"] == "empty"
-    assert payload["status"] == "empty"
-    assert payload["warnings"] == ["Native parser found no listable items."]
+    assert code == 3
+    assert payload["detected_type"] == "unknown"
+    assert payload["reason"] == "extension-without-origin-magic"
+    assert payload["parser_status"] == "unsupported"
+    assert payload["status"] == "unsupported"
     assert payload["counts"]["items"] == 0
 
 
@@ -490,7 +490,7 @@ def test_signature_scan_not_repeated_for_supported_commands(
 
 def test_inspect_payload_is_deterministic_for_same_input(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "repeat.opju"
-    sample.write_bytes(b"Book1_A\n1 2 3\nGraph1\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Book1_A\n1 2 3\nGraph1\n")
 
     code_a = main(["inspect", str(sample), "--json"])
     payload_a = json.loads(capsys.readouterr().out)
@@ -504,7 +504,7 @@ def test_inspect_payload_is_deterministic_for_same_input(tmp_path: Path, capsys:
 
 def test_list_payload_is_deterministic_for_same_input(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "repeat.opju"
-    sample.write_bytes(b"Book1_A\n1 2 3\nGraph1\n")
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + b"Book1_A\n1 2 3\nGraph1\n")
 
     code_a = main(["list", str(sample), "--json"])
     payload_a = json.loads(capsys.readouterr().out)

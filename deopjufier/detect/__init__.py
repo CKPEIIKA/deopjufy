@@ -294,10 +294,9 @@ def probe_container_regions(data: bytes) -> list[ContainerProbe]:
 
 @lru_cache(maxsize=512)
 def _detect_file_cached(path: str, _size: int, _mtime_ns: int) -> DetectedFile:
-    """Detect file kind from extension and bounded magic bytes.
+    """Detect file kind from bounded magic bytes.
 
-    Extension checks are accepted, but magic signatures override when they confirm
-    a different file family.
+    OPJ/OPJU require their Origin magic; the extension only labels the reason.
     """
     path_obj = Path(path)
     suffix = path_obj.suffix.lower()
@@ -306,46 +305,26 @@ def _detect_file_cached(path: str, _size: int, _mtime_ns: int) -> DetectedFile:
         magic = fh.read(64)
     magic_hit = _classify_magic(magic)
 
-    if suffix in {".opj", ".opju"}:
-        detected_type = "opj" if suffix == ".opj" else "opju"
-
-        if magic_hit is None:
-            return DetectedFile(
-                path=path_obj,
-                detected_type=detected_type,
-                confidence=0.95,
-                reason="extension",
-                magic_type=None,
-                magic_offset=None,
-            )
-
-        if magic_hit[0] in KNOWN_ORIGIN_TYPES:
-            if magic_hit[0] == detected_type:
-                return DetectedFile(
-                    path=path_obj,
-                    detected_type=detected_type,
-                    confidence=magic_hit[1],
-                    reason="extension",
-                    magic_type=magic_hit[0],
-                    magic_offset=0,
-                )
-
-            return DetectedFile(
-                path=path_obj,
-                detected_type=magic_hit[0],
-                confidence=magic_hit[1],
-                reason="magic",
-                magic_type=magic_hit[0],
-                magic_offset=0,
-            )
-
+    if suffix in {".opj", ".opju"} and magic_hit is not None and magic_hit[0] in KNOWN_ORIGIN_TYPES:
+        extension_type = "opj" if suffix == ".opj" else "opju"
         return DetectedFile(
             path=path_obj,
-            detected_type=detected_type,
-            confidence=0.95,
-            reason="extension",
+            detected_type=magic_hit[0],
+            confidence=magic_hit[1],
+            reason="extension" if magic_hit[0] == extension_type else "magic",
             magic_type=magic_hit[0],
             magic_offset=0,
+        )
+
+    if suffix in {".opj", ".opju"}:
+        # An Origin extension without Origin magic is not evidence of an Origin file.
+        return DetectedFile(
+            path=path_obj,
+            detected_type=magic_hit[0] if magic_hit is not None else "unknown",
+            confidence=magic_hit[1] if magic_hit is not None else 0.05,
+            reason="extension-without-origin-magic",
+            magic_type=magic_hit[0] if magic_hit is not None else None,
+            magic_offset=0 if magic_hit is not None else None,
         )
 
     if magic_hit is None:

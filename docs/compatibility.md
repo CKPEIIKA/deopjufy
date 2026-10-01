@@ -10,9 +10,12 @@ compatibility.
 ## Status terms
 
 - `parser_status=ok`: a parser path ran and produced evidence.
-- `support_class=parser`: parser-backed evidence exists; it is not a whole-file
-  grade.
-- `support_class=partial`: at least one relevant gap remains.
+- `support_class=parser`: every listed item is parser-backed and none is
+  partial (carved OPJU media does not count); it is not a whole-file grade.
+- `support_class=partial`: parser-backed evidence exists, but at least one listed
+  item is heuristic, partial, or failed.
+- Detection requires the `CPYA`/`CPYUA` signature; an `.opj`/`.opju` extension
+  alone yields `detected_type=unknown`.
 - `status=extracted`: an artifact was written.
 - `heuristic=true`: scanning, carving, proximity, or token evidence was used.
 - `verification=exact`: the emitted bytes or values satisfy a bounded parser

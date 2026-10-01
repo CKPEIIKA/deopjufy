@@ -43,9 +43,9 @@ SYNTHETIC_BINARY_FIXTURE = _resolve_tests_fixture(
 SYNTHETIC_FIXTURE = _resolve_tests_fixture(Path(__file__), Path("fixtures") / "synthetic" / "synthetic-cpyua.opju")
 
 
-def test_detect_file_opju_extension_stays_opju(tmp_path: Path) -> None:
+def test_detect_file_opju_extension_with_magic_is_opju(tmp_path: Path) -> None:
     path = tmp_path / "sample.opju"
-    path.write_bytes(b"not-binary")
+    path.write_bytes(b"CPYUA 4.3445 200\n")
 
     payload = detect_file(path)
     assert payload.detected_type == "opju"
@@ -54,20 +54,22 @@ def test_detect_file_opju_extension_stays_opju(tmp_path: Path) -> None:
 
 def test_detect_file_extension_is_case_insensitive(tmp_path: Path) -> None:
     path = tmp_path / "sample.OPJ"
+    path.write_bytes(b"CPYA 4.2673 552#\n")
+
+    payload = detect_file(path)
+    assert payload.detected_type == "opj"
+    assert payload.reason == "extension"
+
+
+@pytest.mark.parametrize("name", ["sample.opj", "sample.opju"])
+def test_detect_file_origin_extension_without_magic_is_unknown(tmp_path: Path, name: str) -> None:
+    path = tmp_path / name
     path.write_bytes(b"not-binary")
 
     payload = detect_file(path)
-    assert payload.detected_type == "opj"
-    assert payload.reason == "extension"
-
-
-def test_detect_file_opj_extension_stays_opj(tmp_path: Path) -> None:
-    path = tmp_path / "sample.opj"
-    path.write_bytes(b"abc")
-
-    payload = detect_file(path)
-    assert payload.detected_type == "opj"
-    assert payload.reason == "extension"
+    assert payload.detected_type == "unknown"
+    assert payload.reason == "extension-without-origin-magic"
+    assert payload.magic_type is None
 
 
 def test_detect_file_unknown_magic_only(tmp_path: Path) -> None:
@@ -114,7 +116,7 @@ def test_detect_extension_mismatch_still_records_magic_type(tmp_path: Path) -> N
 
 def test_make_manifest_and_write_has_stable_payload(tmp_path: Path) -> None:
     project = tmp_path / "tiny.opj"
-    project.write_bytes(b"\x50\x4b\x03\x04")
+    project.write_bytes(b"CPYA 4.2673 552#\n")
     detection = detect_file(project)
     manifest = make_manifest(
         project,

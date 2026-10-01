@@ -1,26 +1,48 @@
 from deopjufier.commands.simple_shared import *
 
 
-def cmd_strings(args):
-    _ensure_file(args.file)
-    if getattr(args, "decoded", False):
+def _string_rows(args) -> Iterator[dict[str, object]]:
+    """Yield one JSON-ready row per string; ``offset`` is null when no byte offset exists."""
+    if args.decoded:
         data = args.file.read_bytes()
         if not data.startswith(b"CPYUA"):
             raise UnsupportedFileError("--decoded requires a recognized OPJU file")
-        values = (
-            item.value
-            for item in iter_opju_decoded_strings(
-                data,
-                encoding=args.encoding,
-                min_length=args.min_length,
-            )
-        )
-    else:
-        values = iter_strings(args.file, encoding=args.encoding, min_length=args.min_length)
+        for item in iter_opju_decoded_strings(data, encoding=args.encoding, min_length=args.min_length):
+            yield {"offset": None, "source_start": item.source_start, "source_end": item.source_end, "text": item.value}
+        return
+    if args.encoding == "ascii":
+        for offset, text in iter_ascii_string_spans(args.file, args.min_length):
+            yield {"offset": offset, "text": text}
+        return
+    for text in iter_strings(args.file, encoding=args.encoding, min_length=args.min_length):
+        yield {"offset": None, "text": text}
+
+
+def _write_strings_json(args, rows: Iterator[dict[str, object]]) -> None:
+    # Streamed so a large input never holds every string in memory at once.
+    header = {
+        "schema_version": 1,
+        "file": str(args.file),
+        "encoding": args.encoding,
+        "min_length": args.min_length,
+        "decoded": args.decoded,
+    }
+    sys.stdout.write(json.dumps(header, sort_keys=True)[:-1] + ', "strings": [')
+    for index, row in enumerate(rows):
+        sys.stdout.write(("" if index == 0 else ", ") + json.dumps(row, sort_keys=True))
+    sys.stdout.write("]}\n")
+
+
+def cmd_strings(args):
+    _ensure_file(args.file)
+    rows = _string_rows(args)
     if args.quiet:
         return EXIT_SUCCESS
-    for value in values:
-        print(value)
+    if args.json:
+        _write_strings_json(args, rows)
+        return EXIT_SUCCESS
+    for row in rows:
+        print(row["text"])
     return EXIT_SUCCESS
 
 

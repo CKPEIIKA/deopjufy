@@ -466,3 +466,31 @@ def test_internal_type_error_is_not_reported_as_usage(monkeypatch: pytest.Monkey
 
     with pytest.raises(TypeError, match="internal bug"):
         main(["inspect", "whatever.opj"])
+
+
+def test_strings_json_lists_text_with_byte_offsets(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    sample = tmp_path / "sample.bin"
+    sample.write_bytes(b"\x00\x00alpha\x00bravo")
+
+    code = main(["strings", str(sample), "--json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert code == 0
+    assert payload == {
+        "schema_version": 1,
+        "file": str(sample),
+        "encoding": "ascii",
+        "min_length": 4,
+        "decoded": False,
+        "strings": [{"offset": 2, "text": "alpha"}, {"offset": 8, "text": "bravo"}],
+    }
+
+
+def test_strings_json_without_byte_offsets_uses_null(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    sample = tmp_path / "sample.bin"
+    sample.write_bytes("alpha\nbravo\n".encode("utf-16-le"))
+
+    main(["strings", str(sample), "--json", "--encoding", "utf16"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert payload["strings"] == [{"offset": None, "text": "alpha"}, {"offset": None, "text": "bravo"}]

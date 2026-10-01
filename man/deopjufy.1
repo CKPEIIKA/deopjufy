@@ -258,6 +258,22 @@ Set the minimum run length; the default is 4.
 .B \-\-decoded
 Scan parser-decoded OPJU LZ4 payloads instead of raw file bytes. This mode is
 OPJU-only.
+.TP
+.B \-\-json
+Emit one JSON object whose
+.B strings
+array holds
+.RB { offset ,
+.BR text }
+rows.
+.B offset
+is the byte offset for ASCII scans and null where no byte offset exists (other
+encodings, or
+.BR \-\-decoded ,
+which adds the compressed
+.B source_start
+and
+.BR source_end ).
 .SS images
 Carve validated embedded image signatures into an output directory.
 .TP

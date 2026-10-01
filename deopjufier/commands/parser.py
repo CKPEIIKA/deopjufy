@@ -169,6 +169,7 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="scan decoded OPJU LZ4 payloads instead of raw file bytes",
     )
+    _json_flag_argument_parser(strings_p)
     _add_verbosity_options(strings_p)
 
     images_p = commands.add_parser("images", help="extract embedded images")

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 from deopjufier.blocks import ImageBlock
@@ -73,7 +74,7 @@ from deopjufier.opj import walk_opj_file
 from deopjufier.opj.stream import OpjStreamError
 from deopjufier.opju import iter_opju_decoded_strings, walk_opju_file
 from deopjufier.session import ExtractionSession
-from deopjufier.strings import iter_strings
+from deopjufier.strings import iter_ascii_string_spans, iter_strings
 
 
 def _compute_parser_status(step_enabled: bool, manifest_items: list) -> str:

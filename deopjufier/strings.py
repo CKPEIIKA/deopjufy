@@ -11,6 +11,7 @@ from pathlib import Path
 from deopjufier.io import iter_file_chunks
 
 _UTF16_LINE_SPLIT = re.compile(r"\s+")
+_TRAILING_PRINTABLE = re.compile(rb"[ -~]*\Z")
 
 
 @lru_cache(maxsize=16)
@@ -19,41 +20,47 @@ def _ascii_pattern(min_length: int) -> re.Pattern[bytes]:
     return re.compile(rb"[ -~]" + f"{{{min_length},}}".encode())
 
 
-def _iter_ascii_strings(path: Path, min_length: int = 4) -> Iterator[str]:
+def _iter_ascii_spans_from_path(path: Path, min_length: int, chunk_size: int) -> Iterator[tuple[int, str]]:
     printable = _ascii_pattern(min_length)
-    overlap = max(min_length - 1, 1)
     carry = b""
+    position = 0
 
-    for block in iter_file_chunks(path):
-        current = block if not carry else carry + block
-        last_match_touches_end = False
-        matched = False
-        block_len = len(current)
+    for block in iter_file_chunks(path, chunk_size=chunk_size):
+        current = carry + block
+        base = position - len(carry)
+        position += len(block)
+        # The trailing printable run may continue in the next block, whatever its length.
+        trailing = _TRAILING_PRINTABLE.search(current)
+        tail_start = trailing.start() if trailing is not None else len(current)
+        for match in printable.finditer(current, 0, tail_start):
+            yield base + match.start(), match.group().decode("ascii", "ignore")
+        carry = current[tail_start:]
 
-        for match in printable.finditer(current):
-            matched = True
-            start, end = match.span()
-            if end == block_len:
-                carry = current[start:]
-                last_match_touches_end = True
-                break
-            yield match.group().decode("ascii", "ignore")
+    if len(carry) >= min_length:
+        yield position - len(carry), carry.decode("ascii", "ignore")
 
-        if not matched:
-            carry = current[-overlap:]
-        elif not last_match_touches_end:
-            carry = b""
 
-    if carry:
-        for m in printable.finditer(carry):
-            if len(m.group()) >= min_length:
-                yield m.group().decode("ascii", "ignore")
+def iter_ascii_string_spans(
+    source: Path | bytes,
+    min_length: int = 4,
+    *,
+    chunk_size: int = 1 << 20,
+) -> Iterator[tuple[int, str]]:
+    """Yield ``(byte offset, text)`` for printable ASCII runs of at least ``min_length``."""
+    if isinstance(source, bytes):
+        printable = _ascii_pattern(min_length)
+        for match in printable.finditer(source):
+            yield match.start(), match.group().decode("ascii", "ignore")
+        return
+    yield from _iter_ascii_spans_from_path(source, min_length, chunk_size)
+
+
+def _iter_ascii_strings(path: Path, min_length: int = 4) -> Iterator[str]:
+    return (text for _offset, text in iter_ascii_string_spans(path, min_length))
 
 
 def _iter_ascii_strings_from_bytes(raw: bytes, min_length: int = 4) -> Iterator[str]:
-    printable = _ascii_pattern(min_length)
-    for match in printable.finditer(raw):
-        yield match.group().decode("ascii", "ignore")
+    return (text for _offset, text in iter_ascii_string_spans(raw, min_length))
 
 
 def _iter_utf16_strings(path: Path, min_length: int = 4) -> Iterator[str]:

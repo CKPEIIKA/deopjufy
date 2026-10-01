@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import base64
+from pathlib import Path
 
-from deopjufy_view.presentation import SHORTCUT_ROWS, about_text, property_rows, recovered_image
+from deopjufy_view.presentation import SHORTCUT_ROWS, about_text, export_summary, property_rows, recovered_image
 
 
 def test_recovered_image_accepts_graph_preview_path_and_preserves_format() -> None:
@@ -56,3 +57,19 @@ def test_shortcuts_are_structured_for_accessible_table_presentation() -> None:
     assert all(len(row) == 3 for row in SHORTCUT_ROWS)
     assert ("Export", "Ctrl+Shift+S", "Export all content from the active project") in SHORTCUT_ROWS
     assert len({key for _section, key, _action in SHORTCUT_ROWS}) == len(SHORTCUT_ROWS)
+
+
+def test_export_summary_separates_extracted_from_omitted_items() -> None:
+    manifest = {
+        "status": "partial",
+        "items": [
+            {"status": "extracted"},
+            {"status": "extracted"},
+            {"status": "skipped", "error": "human profile omits unverified recovery"},
+        ],
+    }
+
+    assert export_summary(manifest, Path("/tmp/out")) == (
+        "Exported 2 item(s) to /tmp/out; 1 not extracted (see manifest.json)"
+    )
+    assert export_summary({"items": [{"status": "extracted"}]}, Path("out")) == "Exported 1 item(s) to out"

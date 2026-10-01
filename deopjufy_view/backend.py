@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 import threading
 from collections.abc import Iterable, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -11,7 +12,12 @@ from pathlib import Path
 from typing import Any, Final
 
 SUPPORTED_SCHEMA_VERSION: Final[int] = 1
-_STRUCTURED_NONZERO_CODES: Final[frozenset[int]] = frozenset({3, 4})
+# Exit statuses that still carry a complete JSON payload: unsupported (3),
+# partial (4), and corrupted or truncated input (6).
+_STRUCTURED_NONZERO_CODES: Final[frozenset[int]] = frozenset({3, 4, 6})
+# Run the CLI with this interpreter so the viewer never picks up another
+# deopjufy installation from PATH.
+_DEFAULT_COMMAND: Final[tuple[str, ...]] = (sys.executable, "-m", "deopjufier")
 
 
 class DeopjufyCommandError(RuntimeError):
@@ -41,7 +47,7 @@ class DeopjufyBackend:
 
     def __init__(
         self,
-        command: Sequence[str] = ("deopjufy",),
+        command: Sequence[str] = _DEFAULT_COMMAND,
         *,
         max_workers: int = 2,
         timeout_seconds: float = 600.0,
@@ -130,7 +136,8 @@ class DeopjufyBackend:
             profile,
             "--quiet",
         )
-        if completed.returncode != 0:
+        # Truncated input (6) still writes its partial output and manifest.
+        if completed.returncode not in {0, 6}:
             detail = completed.stderr.strip() or completed.stdout.strip() or "deopjufy extract failed"
             raise DeopjufyCommandError(detail, returncode=completed.returncode, stderr=completed.stderr)
         manifest_path = output / "manifest.json"

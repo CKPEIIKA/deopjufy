@@ -14,6 +14,13 @@ activating an object invokes
 .BR "deopjufy get --json" .
 Whole-project export invokes
 .BR "deopjufy extract" .
+The CLI is run as
+.B python -m deopjufier
+with the viewer's own interpreter, so another
+.B deopjufy
+on
+.B PATH
+is never used.
 .PP
 Several OPJ or OPJU projects may be opened in one process. Catalogs are loaded
 with a bounded worker pool. Retrieved objects are cached in memory by document
@@ -71,7 +78,8 @@ invokes the canonical extraction command. It offers readable CSV, readable XLSX,
 or complete recovery with an exact byte map. A new project-named directory is
 created below the selected destination. The viewer never requests
 .B --force
-and therefore does not overwrite an existing export.
+and therefore does not overwrite an existing export. The status bar reports how many items were
+extracted and how many the manifest lists as not extracted.
 .SH KEYBOARD
 .TS
 tab(|);

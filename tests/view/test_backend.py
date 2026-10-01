@@ -236,3 +236,59 @@ def test_table_selection_search_and_payload_export_helpers() -> None:
     json_bytes = payload_bytes({"content_encoding": "json", "content": {"b": 2, "a": 1}})
     assert json_bytes is not None and json.loads(json_bytes) == {"a": 1, "b": 2}
     assert default_artifact_suffix({"artifacts": [{"path": "images/plot.png", "content": "..."}]}) == ".png"
+
+
+def test_backend_default_command_does_not_depend_on_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    sample = (
+        Path(__file__).resolve().parents[1] / "fixtures/synthetic/synthetic-opju-preview-report-with-valid-image.opju"
+    )
+    monkeypatch.setenv("PATH", str(tmp_path))
+    backend = DeopjufyBackend()
+    try:
+        catalog = backend.catalog(sample)
+    finally:
+        backend.close()
+
+    assert catalog["schema_version"] == 1
+    assert catalog["items"]
+
+
+def test_backend_accepts_corrupted_input_payload(tmp_path: Path) -> None:
+    script = tmp_path / "truncated_cli.py"
+    script.write_text(
+        "import json, sys\n"
+        'print(json.dumps({"schema_version": 1, "items": [], "parser_warnings": '
+        '[{"code": "input-truncated", "message": "cut"}]}))\n'
+        "sys.exit(6)\n",
+        encoding="utf-8",
+    )
+    sample = tmp_path / "cut.opj"
+    sample.write_bytes(b"CPYA")
+    backend = DeopjufyBackend((sys.executable, str(script)))
+    try:
+        catalog = backend.catalog(sample)
+    finally:
+        backend.close()
+
+    assert catalog["parser_warnings"][0]["code"] == "input-truncated"
+
+
+def test_export_all_keeps_partial_output_from_truncated_input(tmp_path: Path) -> None:
+    script = tmp_path / "truncated_extract.py"
+    script.write_text(
+        "import json, pathlib, sys\n"
+        'out = pathlib.Path(sys.argv[sys.argv.index("--out") + 1])\n'
+        "out.mkdir(parents=True)\n"
+        '(out / "manifest.json").write_text(json.dumps({"status": "partial", "items": []}))\n'
+        "sys.exit(6)\n",
+        encoding="utf-8",
+    )
+    sample = tmp_path / "cut.opj"
+    sample.write_bytes(b"CPYA")
+    backend = DeopjufyBackend((sys.executable, str(script)))
+    try:
+        manifest = backend.export_all(sample, tmp_path / "out")
+    finally:
+        backend.close()
+
+    assert manifest["status"] == "partial"

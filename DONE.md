@@ -5,6 +5,11 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Viewer: runs the CLI as `python -m deopjufier` with its own interpreter instead
+  of whatever `deopjufy` is first on PATH; accepts the JSON payload and the
+  export written alongside exit 6 (truncated input) instead of reporting a
+  failure; the export status line separates extracted from not-extracted items
+  instead of counting every manifest entry as exported.
 - `list` human output: the table printer padded capped columns to their cap
   (about 170 columns of mostly blanks), never right-aligned numbers, and left
   trailing spaces; the always-empty Status/Path columns are replaced by an

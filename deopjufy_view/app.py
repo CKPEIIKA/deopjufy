@@ -22,7 +22,7 @@ from deopjufy_view.model import (
     table_region_text,
     tabular_view,
 )
-from deopjufy_view.presentation import SHORTCUT_ROWS, about_text, property_rows, recovered_image
+from deopjufy_view.presentation import SHORTCUT_ROWS, about_text, export_summary, property_rows, recovered_image
 from deopjufy_view.project_tree import (
     ProjectBranch,
     ProjectLeaf,
@@ -1268,10 +1268,8 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
                 self._record_diagnostic(path.name, str(exc))
                 self._set_status(f"Export all failed: {exc}")
                 return
-            items = manifest.get("items")
-            item_count = len(items) if isinstance(items, list) else 0
             status = str(manifest.get("status", "complete"))
-            self._set_status(f"Exported {item_count} manifest item(s) to {target}", status)
+            self._set_status(export_summary(manifest, target), status)
 
         def _on_export_popup(self, _event: object) -> None:
             target = self._export_target()

@@ -170,3 +170,15 @@ __all__ = [
     "property_rows",
     "recovered_image",
 ]
+
+
+def export_summary(manifest: dict[str, Any], target: Path) -> str:
+    """Describe a whole-project export without counting omitted items as exported."""
+    items = manifest.get("items")
+    statuses = [item.get("status") for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+    extracted = statuses.count("extracted")
+    omitted = len(statuses) - extracted
+    summary = f"Exported {extracted} item(s) to {target}"
+    if omitted:
+        summary += f"; {omitted} not extracted (see manifest.json)"
+    return summary

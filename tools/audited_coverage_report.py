@@ -8,7 +8,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 _KNOWN_VERIFICATION_STATES = {"external-parity", "synthetic"}
 _KNOWN_MODE_SUFFIXES = {"default", "human-only", "human-artifacts-only", "human", "map", "extended", "parser-only"}
@@ -129,7 +129,7 @@ def _build_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {"fixtures": [{"fixture": fixture, "families": families} for fixture, families in by_fixture.items()]}
 
 
-def _print_text(rows: list[dict[str, Any]], *, out) -> None:
+def _print_text(rows: list[dict[str, Any]], *, out: TextIO) -> None:
     print("fixture,kind,discovered,extracted,partial,unsupported,heuristic,verified", file=out)
     for row in rows:
         print(

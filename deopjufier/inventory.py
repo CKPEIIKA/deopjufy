@@ -164,7 +164,7 @@ def _parse_opju_records_uncached(
     if path is not None and "path" in accepted:
         parse_kwargs["path"] = path
     backend_parser = cast(Any, opju_parser.parse_opju_records)
-    return backend_parser(data, **parse_kwargs)
+    return cast(OpjuRecords, backend_parser(data, **parse_kwargs))
 
 
 def parse_opju_column_tables(

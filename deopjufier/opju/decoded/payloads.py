@@ -96,7 +96,7 @@ class _Cursor:
 def _u32(data: bytes, offset: int) -> int:
     if offset < 0 or offset + 4 > len(data):
         raise OpjuPayloadError(f"u32 at offset {offset} exceeds the decoded payload")
-    return struct.unpack_from("<I", data, offset)[0]
+    return int(struct.unpack_from("<I", data, offset)[0])
 
 
 def _sha256(data: bytes) -> str:

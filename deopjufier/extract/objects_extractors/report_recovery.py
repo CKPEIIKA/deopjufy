@@ -45,13 +45,16 @@ def is_encoded_opju_report_candidate(raw: bytes) -> bool:
 
 
 def _function_link(manifest: Manifest, record: OpjuRecoveredXml) -> tuple[dict[str, object], int | None]:
+    calculation_uid = record.calculation_uid
+    if calculation_uid is not None and not isinstance(calculation_uid, int):
+        calculation_uid = None
     functions = [
         item
         for item in manifest.items
         if item.kind == "function" and item.verification == "exact" and item.status in {"extracted", "skipped"}
     ]
-    if record.calculation_uid is not None:
-        candidates = [item for item in functions if item.calculation_uid == record.calculation_uid]
+    if calculation_uid is not None:
+        candidates = [item for item in functions if item.calculation_uid == calculation_uid]
         rule = "calculation_uid"
     elif record.calculation_label:
         candidates = [item for item in functions if item.calculation_label == record.calculation_label]
@@ -65,8 +68,11 @@ def _function_link(manifest: Manifest, record: OpjuRecoveredXml) -> tuple[dict[s
             "rule": rule,
             "candidate_count": len(candidates),
             "verification": "exact" if candidates else "unverified",
-        }, record.calculation_uid
+        }, calculation_uid
     function = candidates[0]
+    function_uid = function.calculation_uid
+    if function_uid is not None and not isinstance(function_uid, int):
+        function_uid = None
     return {
         "status": "resolved_exact",
         "rule": rule,
@@ -76,7 +82,7 @@ def _function_link(manifest: Manifest, record: OpjuRecoveredXml) -> tuple[dict[s
         "calculation_label": function.calculation_label,
         "calculation_uid": function.calculation_uid,
         "verification": "exact",
-    }, record.calculation_uid if record.calculation_uid is not None else function.calculation_uid
+    }, calculation_uid if calculation_uid is not None else function_uid
 
 
 def _state_payload(envelope: OpjuTaggedEnvelope | None) -> dict[str, object] | None:

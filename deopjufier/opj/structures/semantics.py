@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from typing import cast
 
 from ..records import is_opj_signature
 from ..stream import OpjStreamError
@@ -148,7 +149,7 @@ class OpjWindowMetadata:
 
     def to_dict(self) -> dict[str, object]:
         """Return a JSON-serializable semantic metadata mapping."""
-        return asdict(self)
+        return cast(dict[str, object], asdict(self))
 
 
 def _walk_semantic_elements(data: bytes) -> list[OpjWalkElement]:

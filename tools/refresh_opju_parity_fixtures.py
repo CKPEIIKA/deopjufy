@@ -60,7 +60,7 @@ def _run_list(project: Path) -> tuple[int, dict[str, Any]]:
     return code, payload
 
 
-def _counter_from_items(items: Iterable[dict], key: str) -> dict[str, int]:
+def _counter_from_items(items: Iterable[dict[str, object]], key: str) -> dict[str, int]:
     counter: Counter[str] = Counter()
     for item in items:
         value = item.get(key)

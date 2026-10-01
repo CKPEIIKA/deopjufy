@@ -116,7 +116,7 @@ REAL_SMOKE_PROJECTS = [path for path in dict.fromkeys(REAL_SMOKE_PROJECTS) if pa
 LIGHT_REAL_PROJECTS = list(REAL_PROJECTS)
 
 
-def _run_list(path: Path) -> tuple[int, dict]:
+def _run_list(path: Path) -> tuple[int, dict[str, Any]]:
     stdout = StringIO()
     with redirect_stdout(stdout), redirect_stderr(StringIO()):
         code = main(["list", str(path), "--json"])
@@ -128,7 +128,7 @@ if not REAL_PROJECTS:
     pytest.skip("No real OPJ/OPJU fixtures available for smoke coverage.", allow_module_level=True)
 
 
-def _run_inspect(path: Path) -> tuple[int, dict]:
+def _run_inspect(path: Path) -> tuple[int, dict[str, Any]]:
     stdout = StringIO()
     with redirect_stdout(stdout), redirect_stderr(StringIO()):
         code = main(["inspect", str(path), "--json"])

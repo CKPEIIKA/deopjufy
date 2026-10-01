@@ -1,6 +1,6 @@
 # deopjufier TODO
 
-Last audited: 2026-10-01.
+Last audited: 2026-10-02.
 
 This file contains unfinished, concrete work only. Completed outcomes belong in
 `DONE.md`, newest first.
@@ -115,18 +115,13 @@ page-to-folder membership, child-window type codes, image ownership beyond exact
 containment, neutral flags, 128-bit sentinels, and affine-tail hypotheses remain
 unfinished until the differential-fixture acceptance rules above are met.
 
-## U09 — split the viewer frame
+## U10 — add a synthetic GUI screenshot to the README
 
-`deopjufy_view/app.py` defines about 1,500 lines of `ViewerFrame` inside the
-`_frame_type()` factory so `wx` is imported lazily. Nothing in it can be
-imported or unit-tested without wx.
+The README documents how to start the optional viewer but has no screenshot.
+Capture the current GUI using a tracked author-generated synthetic project only;
+do not use real project data or filenames.
 
-Steps: move state transitions and export/selection decisions into plain
-functions or dataclasses in `deopjufy_view/` modules, leave only widget wiring
-in the frame, and test the extracted logic without wx.
-
-Acceptance: viewer behavior unchanged; extracted logic covered by tests in
-`tests/view/` that do not import wx.
+Acceptance: add the screenshot under `docs/images/` and embed it in the README.
 
 ## Working rules
 

@@ -662,7 +662,7 @@ def _parse_gif_payload_length(data: bytes, start: int) -> int | None:
 def _consume_gif_sub_blocks(data: bytes, pos: int) -> int | None:
     data_len = len(data)
     while pos < data_len:
-        sub_block_size = data[pos]
+        sub_block_size = int(data[pos])
         pos += 1
         if pos + sub_block_size > data_len:
             return None

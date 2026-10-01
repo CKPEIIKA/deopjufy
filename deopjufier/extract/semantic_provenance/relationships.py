@@ -88,6 +88,8 @@ def _cell_record(
     workbook = match.group("workbook")
     sheet = match.group("sheet")
     path = match.group("path")
+    if not isinstance(workbook, str) or not isinstance(sheet, str) or not isinstance(path, str):
+        return None
     payload: dict[str, object] = {
         "uri": value,
         "cell_path": path,
@@ -98,7 +100,19 @@ def _cell_record(
         "source_attribution": "decoded_range_with_compressed_source_region",
         "verification": "exact",
     }
-    return (workbook, sheet), payload
+    return (workbook or None, sheet), payload
+
+
+def _decoded_string_index(cell: dict[str, object]) -> int:
+    value = cell.get("decoded_string_index")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return -1
+    return -1
 
 
 def _report_accumulators(
@@ -270,7 +284,7 @@ def _report_payloads(
                     key=lambda cell: (
                         str(cell["uri"]),
                         cast(dict[str, int], cell["source_region_range"])["start"],
-                        int(cell["decoded_string_index"]),
+                        _decoded_string_index(cell),
                     ),
                 ),
                 "owner_symbol_ids": sorted(report.owner_symbol_ids),

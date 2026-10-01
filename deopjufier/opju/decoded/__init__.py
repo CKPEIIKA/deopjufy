@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import cast
 
 from deopjufier.opju.analysis import analyze_origin_storage_candidates
 from deopjufier.opju.common import MAGIC_OPJU
@@ -52,7 +53,7 @@ def _root_label(root: object) -> str | None:
     attributes = getattr(root, "attrib", None)
     if not isinstance(attributes, dict):
         return None
-    for key, value in attributes.items():
+    for key, value in cast(dict[object, object], attributes).items():
         if str(key).lower() == "label" and isinstance(value, str) and value.strip():
             return value.strip()
     return None

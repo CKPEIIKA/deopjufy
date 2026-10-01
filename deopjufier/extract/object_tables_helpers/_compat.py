@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import importlib
+from collections.abc import Callable
 from pathlib import Path
 from types import ModuleType
+from typing import Protocol, cast
 
 from deopjufier.inventory import (
     MAGIC_OPJ,
@@ -16,9 +18,28 @@ from deopjufier.opj import (
     OpjWorksheetMetadata,
 )
 
+_WorksheetRows = dict[str, list[list[str]]]
+_TableRanges = dict[str, tuple[int, int]]
+_WorksheetMetadata = dict[str, OpjWorksheetMetadata]
+_MatrixMetadata = dict[str, OpjMatrixMetadata]
+_TableScanRows = list[tuple[int, int, int, list[str]]]
 
-def _object_tables_module() -> ModuleType:
-    return importlib.import_module("deopjufier.extract.object_tables")
+
+class _ObjectTablesAPI(Protocol):
+    """Typed return contracts for the deliberately version-tolerant import boundary."""
+
+    scan_numeric_tables_from_bytes: Callable[..., _TableScanRows]
+    _write_book_xlsx: Callable[..., int]
+    recover_worksheet_metadata_from_opj_sections: Callable[..., tuple[_WorksheetRows, _TableRanges, _WorksheetMetadata]]
+    recover_worksheet_rows_from_opju: Callable[..., tuple[_WorksheetRows, _TableRanges, set[str]]]
+    recover_matrix_rows_from_opju: Callable[..., tuple[_WorksheetRows, _TableRanges, set[str]]]
+    recover_worksheet_metadata_from_opju: Callable[..., _WorksheetMetadata]
+    recover_matrix_metadata_from_opj_sections: Callable[..., tuple[_WorksheetRows, _TableRanges, _MatrixMetadata]]
+
+
+def _object_tables_module() -> _ObjectTablesAPI:
+    module: ModuleType = importlib.import_module("deopjufier.extract.object_tables")
+    return cast(_ObjectTablesAPI, module)
 
 
 def scan_numeric_tables_from_bytes(

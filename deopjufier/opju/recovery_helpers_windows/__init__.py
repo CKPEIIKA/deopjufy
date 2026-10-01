@@ -191,7 +191,7 @@ def _discover_worksheet_object_windows(
         return []
 
     def _object_offset(item: OriginObject) -> int:
-        return getattr(item, "offset", 0)
+        return item.offset
 
     provided_objects = sorted(worksheet_objects, key=_object_offset) if worksheet_objects is not None else None
 

@@ -144,7 +144,7 @@ def extract_origin_inventory(
     return len(payload)
 
 
-def list_items(input_path: Path):
+def list_items(input_path: Path) -> list[dict[str, object]]:
     """Return a lightweight inventory of discoverable items."""
     from deopjufier.session import ExtractionSession
 
@@ -157,7 +157,7 @@ def list_items_with_gaps(
     include_gaps: bool = False,
     *,
     file_data: bytes | None = None,
-):
+) -> list[dict[str, object]]:
     """Return list items, optionally including unknown gap entries."""
     from deopjufier.session import ExtractionSession
 

@@ -23,7 +23,7 @@ CONTRACT_PATH = _resolve_tests_fixture(
 
 
 def _load_contract() -> dict[str, object]:
-    return json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+    return cast(dict[str, object], json.loads(CONTRACT_PATH.read_text(encoding="utf-8")))
 
 
 def _assert_manifest_item(actual: dict[str, object], expected: dict[str, object]) -> None:

@@ -111,7 +111,7 @@ def _limit_extract_objects(
     return limited
 
 
-def _coerce_counts_by_artifact(items: list[dict]) -> dict[str, int]:
+def _coerce_counts_by_artifact(items: list[dict[str, object]]) -> dict[str, int]:
     artifact_counts: Counter[str] = Counter()
     for item in items:
         kind = item.get("kind")

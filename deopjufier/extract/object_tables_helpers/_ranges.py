@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from deopjufier.extract.path_helpers import manifest_relative_path as _manifest_path
-from deopjufier.inventory import parse_opju_records
+from deopjufier.inventory import OriginObject, parse_opju_records
 from deopjufier.manifest import Manifest, ManifestItem
 from deopjufier.opju import OPJU_REGION_KIND_CONTAINER
 
@@ -63,7 +63,7 @@ def _derive_opju_worksheet_unsupported_range(
     data: bytes,
     *,
     input_path: Path,
-    worksheet_objects: list,
+    worksheet_objects: list[OriginObject],
     max_tables: int = 200,
     include_decoded: bool = False,
 ) -> tuple[int, int, str | None] | None:
@@ -106,12 +106,11 @@ def _derive_opju_worksheet_unsupported_range(
     if not spans:
         return None
 
-    starts, ends, sources = zip(*spans, strict=False)
-    range_start = min(starts)
-    range_end = max(ends)
+    range_start = min(start for start, _, _ in spans)
+    range_end = max(end for _, end, _ in spans)
     source_candidates = sorted(source for start, _, source in spans if start == range_start and source)
     if not source_candidates:
-        source_candidates = sorted(source for source in sources if source)
+        source_candidates = sorted(source for _, _, source in spans if source)
     source_object_path = source_candidates[0] if source_candidates else None
 
     return range_start, range_end, source_object_path
@@ -172,7 +171,7 @@ def _dedupe_partial_tabular_items_with_extracted_names(
     kept_partial_paths: set[str] = set()
     kept_partial_keys: set[tuple[str, str | None, str | None]] = set()
     kept_name_keys: dict[tuple[str, str | None], int] = {}
-    kept_items: list = []
+    kept_items: list[ManifestItem] = []
 
     def _status_rank(item: ManifestItem) -> int:
         return {

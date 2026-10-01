@@ -27,7 +27,7 @@ def test_global_version_option_reports_package_version(capsys: pytest.CaptureFix
 
     captured = capsys.readouterr()
     assert code == 0
-    assert captured.out == "deopjufy 0.6.0\n"
+    assert captured.out == "deopjufy 0.7.0\n"
     assert captured.err == ""
 
 
@@ -269,7 +269,7 @@ def test_compare_human_output_reports_match_and_summary(tmp_path: Path, capsys: 
                     "sha256": "left-hash",
                     "detected_type": "opj",
                 },
-                "tool": {"name": "deopjufy", "version": "0.6.0", "backend": "native-parser"},
+                "tool": {"name": "deopjufy", "version": "0.7.0", "backend": "native-parser"},
                 "status": "ok",
                 "items": [],
                 "warnings": [],
@@ -287,7 +287,7 @@ def test_compare_human_output_reports_match_and_summary(tmp_path: Path, capsys: 
                     "sha256": "right-hash",
                     "detected_type": "opj",
                 },
-                "tool": {"name": "deopjufy", "version": "0.6.0", "backend": "native-parser"},
+                "tool": {"name": "deopjufy", "version": "0.7.0", "backend": "native-parser"},
                 "status": "ok",
                 "items": [],
                 "warnings": [],

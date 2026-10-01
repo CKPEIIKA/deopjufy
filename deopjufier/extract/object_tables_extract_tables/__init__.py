@@ -16,12 +16,12 @@ __all__: list[str] = [
 
 for _name in _object_tables_extract_filters.__all__:
     if _name not in __all__:
-        __all__.append(_name)
+        __all__ += [_name]
     globals()[_name] = getattr(_object_tables_extract_filters, _name)
 
 for _name in _object_tables_match.__all__:
     if _name not in __all__:
-        __all__.append(_name)
+        __all__ += [_name]
     if _name not in globals():
         globals()[_name] = getattr(_object_tables_match, _name)
 

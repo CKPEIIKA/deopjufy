@@ -950,7 +950,7 @@
   "tool": {
     "backend": "native-parser",
     "name": "deopjufy",
-    "version": "0.6.0"
+    "version": "0.7.0"
   },
   "warnings": [
     "No excel data emitted to excel exports."

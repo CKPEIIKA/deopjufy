@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import cast
 
 from deopjufier.blocks import find_all_blocks
 from deopjufier.commands.metadata import (
@@ -114,7 +116,7 @@ def _handle_cli_command_error(
     return fallback_exit_code if fallback_exit_code is not None else exit_code
 
 
-def _map_command_to_handler(command: str):
+def _map_command_to_handler(command: str) -> Callable[[argparse.Namespace], int]:
     handlers = {
         "inspect": cmd_inspect,
         "list": cmd_list,
@@ -127,7 +129,7 @@ def _map_command_to_handler(command: str):
         "compare": cmd_compare,
         "walk": cmd_walk,
     }
-    return handlers[command]
+    return cast(Callable[[argparse.Namespace], int], handlers[command])
 
 
 def main(argv: list[str] | None = None) -> int:

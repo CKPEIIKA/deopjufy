@@ -1,3 +1,7 @@
+import argparse
+from typing import cast
+
+from deopjufier.blocks import ImageBlock
 from deopjufier.commands.simple_extract.human_artifacts import retain_human_artifacts
 from deopjufier.commands.simple_shared import *
 from deopjufier.commands.support import _support_scope
@@ -8,6 +12,7 @@ from deopjufier.opj import (
     parse_opj_window_metadata,
     parse_opj_worksheet_metadata,
 )
+from deopjufier.session import ExtractionSession
 
 _OPJU_SHARED_OBJECT_KINDS = frozenset(
     {
@@ -38,8 +43,8 @@ def _emit_skipped_table_scan(manifest: Manifest, *, error: str) -> None:
     )
 
 
-def cmd_extract(args):
-    session = _build_session(args.file)
+def cmd_extract(args: argparse.Namespace) -> int:
+    session: ExtractionSession = _build_session(args.file)
 
     if args.format == "xlsx":
         table_format = "csv"
@@ -72,9 +77,11 @@ def cmd_extract(args):
 
     def _required_file_data() -> bytes:
         nonlocal shared_data
-        if shared_data is None:
-            shared_data = session.file_data()
-        return shared_data
+        if shared_data is not None:
+            return cast(bytes, shared_data)
+        file_data = session.file_data()
+        shared_data = file_data
+        return file_data
 
     def _warn(message: str, code: str) -> None:
         _add_parser_warning(
@@ -98,9 +105,11 @@ def cmd_extract(args):
 
     def _get_image_blocks() -> list[ImageBlock]:
         nonlocal shared_blocks
-        if shared_blocks is None:
-            shared_blocks = session.image_blocks()
-        return shared_blocks
+        if shared_blocks is not None:
+            return cast(list[ImageBlock], shared_blocks)
+        image_blocks = session.image_blocks()
+        shared_blocks = image_blocks
+        return image_blocks
 
     raw_output_dir = None if human_profile else args.raw_dir
     text_output_dir = None if human_profile else args.text_dir
@@ -126,12 +135,12 @@ def cmd_extract(args):
     shared_objects: list[OriginObject] | None = None
     opju_recovery_max_tables = 200
     opju_recovery_include_family_binary = True
+    use_parser_only_objects = effective_parser_only or (
+        detection.detected_type == "opj" and session.size_bytes > _EXTRACT_LARGE_FILE_HEURISTIC_LIMIT_BYTES
+    )
+    collect_heuristics = not use_parser_only_objects
     should_collect_objects = (not args.no_objects) or (raw_output_dir is not None) or (text_output_dir is not None)
     if should_collect_objects:
-        use_parser_only_objects = effective_parser_only or (
-            detection.detected_type == "opj" and session.size_bytes > _EXTRACT_LARGE_FILE_HEURISTIC_LIMIT_BYTES
-        )
-        collect_heuristics = not use_parser_only_objects
         if detection.detected_type == "opju":
             shared_objects = session.objects(
                 collect_heuristics=collect_heuristics,

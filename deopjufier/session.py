@@ -358,8 +358,6 @@ class ExtractionSession:
         else:
             return source_object_path
 
-        if not workbook:
-            return source_object_path
         return f"{workbook}/{leaf}"
 
     def _parser_boundaries_as_objects(self, file_data: bytes) -> list[OriginObject]:

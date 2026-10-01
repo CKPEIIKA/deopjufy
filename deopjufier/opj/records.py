@@ -7,11 +7,12 @@ import struct
 from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import TYPE_CHECKING
 
 from .stream import OpjStreamError
 
-_WalkElementMetadataValue = int | float | str | None | tuple[int, int] | tuple[int, ...]
+if TYPE_CHECKING:
+    from .walker import OpjWalkElement
 
 MAGIC_OPJ = b"CPYA"
 MAGIC_OPJU = b"CPYUA"
@@ -93,13 +94,6 @@ class OpjDataSection:
     values: list[object | None]
     mask_offset: int | None = None
     mask: bytes = b""
-
-
-class _WalkElement(Protocol):
-    kind: str
-    start_offset: int
-    end_offset: int
-    metadata: dict[str, _WalkElementMetadataValue]
 
 
 @dataclass(frozen=True)
@@ -315,7 +309,7 @@ def _parse_tag_value(payload: str, tag: str) -> str | None:
     match = pattern.search(payload)
     if not match:
         return None
-    value = match.group(1).strip()
+    value = str(match.group(1)).strip()
     return value or None
 
 
@@ -330,7 +324,7 @@ def _parse_xml_attribute(tag: str, name: str) -> str | None:
     match = pattern.search(tag)
     if not match:
         return None
-    value = match.group(2) or match.group(3) or ""
+    value = str(match.group(2) or match.group(3) or "")
     value = value.strip()
     return value or None
 
@@ -560,7 +554,7 @@ def parse_opj_note_sections(
         opj_walker_module = imported_walker
 
     if opj_walker_module is not None:
-        matches = []
+        matches: list[OpjNoteSection] = []
         try:
             for element in opj_walker_module.walk_opj_file(data, tolerant=True):
                 if element.kind != "note":
@@ -842,7 +836,7 @@ def _iter_opj_data_sections_uncached(data: bytes, *, max_sections: int | None = 
     parse_failed = False
     sections: list[OpjDataSection] = []
 
-    def _collect_sections(walk_elements: Iterable[_WalkElement]) -> tuple[list[OpjDataSection], bool]:
+    def _collect_sections(walk_elements: Iterable[OpjWalkElement]) -> tuple[list[OpjDataSection], bool]:
         sections: list[OpjDataSection] = []
         parse_failed = False
         try:

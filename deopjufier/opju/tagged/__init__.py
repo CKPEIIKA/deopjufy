@@ -245,7 +245,9 @@ def _column_name_match(data: bytes, prefix_offset: int) -> re.Match[bytes] | Non
             legacy = _LEGACY_COLUMN_NAME_RE.fullmatch(match.group()) is not None
             if (framed or legacy) and prefix_offset - match.end() <= 16:
                 matches.append(match)
-    return max(matches, key=lambda item: (item.end(), item.start()), default=None)
+    if not matches:
+        return None
+    return max(matches, key=lambda item: (item.end(), item.start()))
 
 
 def iter_opju_column_descriptors(data: bytes) -> tuple[OpjuColumnDescriptor, ...]:

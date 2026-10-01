@@ -12,4 +12,4 @@ __all__ = [
 PACKAGE_NAME = "deopjufier"
 APP_NAME = "deopjufy"
 PROJECT_DESCRIPTION = "Unix-style extractor for OriginLab `.opj` and `.opju` files."
-__version__ = "0.6.0"
+__version__ = "0.7.0"

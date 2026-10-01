@@ -34,11 +34,10 @@ for _name in _recovery_helpers.__all__:
     if _name in globals():
         continue
     globals()[_name] = getattr(_recovery_helpers, _name)
-    __all__.append(_name)
+    __all__ += [_name]
 
 __all__.sort()
 
-del _name
 del _build_worksheet_name_candidate_lookup
 del _expand_adjacent_alpha1_sheet_targets_from_selection
 del _infer_parser_backed_worksheet_names

@@ -452,7 +452,7 @@ def test_list_items_matches_block_inventory(tmp_path: Path) -> None:
     kinds = {item["kind"] for item in items}
     assert {"png", "jpeg", "svg"} <= kinds
     assert len(items) == 3
-    assert all(item["offset"] >= 0 for item in items)
+    assert all(isinstance(item["offset"], int) and item["offset"] >= 0 for item in items)
 
 
 def test_session_list_items_can_include_raw_gaps(tmp_path: Path) -> None:

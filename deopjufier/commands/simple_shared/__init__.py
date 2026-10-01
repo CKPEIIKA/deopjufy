@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
-from collections.abc import Iterator
+from collections.abc import Callable, Iterable
 from pathlib import Path
 
 from deopjufier.blocks import ImageBlock
@@ -34,7 +35,7 @@ from deopjufier.commands.support import (
     _support_class,
 )
 from deopjufier.compare import compare_manifests
-from deopjufier.detect import detect_file
+from deopjufier.detect import DetectedFile, detect_file
 from deopjufier.errors import CorruptedInputError, UnsupportedFileError
 from deopjufier.extract import (
     extract_books,
@@ -72,12 +73,12 @@ from deopjufier.io import dump_range
 from deopjufier.manifest import Manifest, ManifestItem, make_manifest
 from deopjufier.opj import walk_opj_file
 from deopjufier.opj.stream import OpjStreamError
-from deopjufier.opju import iter_opju_decoded_strings, walk_opju_file
+from deopjufier.opju import OpjuWalkElement, iter_opju_decoded_strings, walk_opju_file
 from deopjufier.session import ExtractionSession
 from deopjufier.strings import iter_ascii_string_spans, iter_strings
 
 
-def _compute_parser_status(step_enabled: bool, manifest_items: list) -> str:
+def _compute_parser_status(step_enabled: bool, manifest_items: list[ManifestItem]) -> str:
     if not step_enabled:
         return "unsupported"
     if not manifest_items:
@@ -129,7 +130,7 @@ def _scan_gaps_once(
     *,
     session: ExtractionSession,
     min_size: int,
-    image_blocks: list | None,
+    image_blocks: list[ImageBlock] | None,
     objects: list[OriginObject] | None,
     min_rows: int,
     min_columns: int,
@@ -210,18 +211,18 @@ _OPJU_GRAPH_PREVIEW_KIND_LIMIT = 16
 
 
 def _export_graph_previews(
-    args,
-    detection,
-    session,
+    args: argparse.Namespace,
+    detection: DetectedFile,
+    session: ExtractionSession,
     manifest: Manifest,
     outdir: Path,
     shared_blocks: list[ImageBlock] | None,
     owned_image_blocks: list[ImageBlock],
     shared_objects: list[OriginObject] | None,
     use_parser_only_objects: bool,
-    required_file_data,
-    get_image_blocks,
-    warn,
+    required_file_data: Callable[[], bytes],
+    get_image_blocks: Callable[[], list[ImageBlock]],
+    warn: Callable[[str, str], None],
 ) -> bool:
     if args.no_images:
         if not any(item.kind == "graph" and item.name == "graph_collection" for item in manifest.items):
@@ -248,7 +249,7 @@ def _export_graph_previews(
             )
         return False
 
-    graph_blocks_for_previews: list | None = shared_blocks if shared_blocks is not None else None
+    graph_blocks_for_previews: list[ImageBlock] | None = shared_blocks if shared_blocks is not None else None
     if graph_blocks_for_previews is None and shared_blocks is None:
         graph_blocks_for_previews = get_image_blocks()
     if graph_blocks_for_previews is not None and not any(block.valid for block in graph_blocks_for_previews):
@@ -324,7 +325,7 @@ def _export_graph_previews(
 
 def _export_notes_and_functions(
     *,
-    args,
+    args: argparse.Namespace,
     manifest: Manifest,
     outdir: Path,
     shared_objects: list[OriginObject] | None,
@@ -332,10 +333,10 @@ def _export_notes_and_functions(
     function_allow_parser_recovery: bool,
     function_has_parser_backed_artifacts: bool,
     file_data: bytes,
-    detection,
+    detection: DetectedFile,
     use_parser_only_objects: bool,
-    warn,
-    walk_elements=None,
+    warn: Callable[[str, str], None],
+    walk_elements: Iterable[OpjuWalkElement] | None = None,
 ) -> bool:
     function_count = extract_functions(
         args.file,

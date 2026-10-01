@@ -74,12 +74,15 @@ def _sheet_aliases(table: OpjuDescriptorTable) -> tuple[str, ...]:
 
 def _workbook_aliases(table: OpjuDescriptorTable) -> tuple[str, ...]:
     aliases = [table.workbook]
-    for field_name in ("workbook", "workbook_long_name"):
-        values = {
-            getattr(column.metadata, field_name)
-            for column in table.columns
-            if column.metadata is not None and getattr(column.metadata, field_name)
-        }
+    workbook_names = {
+        column.metadata.workbook for column in table.columns if column.metadata is not None and column.metadata.workbook
+    }
+    workbook_long_names = {
+        column.metadata.workbook_long_name
+        for column in table.columns
+        if column.metadata is not None and column.metadata.workbook_long_name
+    }
+    for values in (workbook_names, workbook_long_names):
         if len(values) == 1:
             aliases.append(next(iter(values)))
     return tuple(dict.fromkeys(aliases))

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from deopjufier.manifest import Manifest
+from deopjufier.manifest import Manifest, ManifestItem
 
 _KIND_COLLECTION_NAME_OVERRIDES: dict[str, set[str]] = {
     "worksheet": {"book", "worksheet"},
@@ -11,7 +11,7 @@ def _collection_names_for_kind(kind: str) -> set[str]:
     return _KIND_COLLECTION_NAME_OVERRIDES.get(kind, {kind})
 
 
-def _is_collection_item_name(kind: str, item) -> bool:
+def _is_collection_item_name(kind: str, item: ManifestItem) -> bool:
     collection_names = _collection_names_for_kind(kind)
     collection_markers = {f"{name}_collection" for name in collection_names}
     return str(item.name) in collection_markers or (

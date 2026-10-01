@@ -28,7 +28,7 @@ def _locked_fixture() -> tuple[dict[str, Any], Path, bytes]:
     return lock, fixture, fixture.read_bytes()
 
 
-def _cell_token(kind: str, value: float | int | str | None, bits: str | None) -> str:
+def _cell_token(kind: str, value: float | str | None, bits: str | None) -> str:
     if kind == "missing":
         return "-"
     if bits is not None:

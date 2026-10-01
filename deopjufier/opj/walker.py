@@ -162,13 +162,14 @@ def _read_u16_le(payload: bytes, offset: int) -> int | None:
 def _read_f64_le(payload: bytes, offset: int) -> float | None:
     if offset < 0 or offset + 8 > len(payload):
         return None
-    return struct.unpack_from("<d", payload, offset)[0]
+    return float(struct.unpack_from("<d", payload, offset)[0])
 
 
 def _read_i16_rect(payload: bytes, offset: int) -> tuple[int, int, int, int] | None:
     if offset < 0 or offset + 8 > len(payload):
         return None
-    return struct.unpack_from("<hhhh", payload, offset)
+    values = struct.unpack_from("<hhhh", payload, offset)
+    return int(values[0]), int(values[1]), int(values[2]), int(values[3])
 
 
 def _read_or_skip_object(cursor: OpjStream, *, size: int, tolerate: bool) -> bytes | None:

@@ -65,7 +65,15 @@ class _MutableBranch:
 
 
 def _natural_key(value: str) -> tuple[tuple[int, int | str], ...]:
-    return tuple((0, int(part)) if part.isdigit() else (1, part.casefold()) for part in _NUMBER.split(value) if part)
+    parts: list[tuple[int, int | str]] = []
+    for part in _NUMBER.split(value):
+        if not part:
+            continue
+        if part.isdigit():
+            parts.append((0, int(part)))
+        else:
+            parts.append((1, part.casefold()))
+    return tuple(parts)
 
 
 def _semantic_kind(item: dict[str, Any]) -> str:
@@ -82,7 +90,8 @@ def _source_parts(item: dict[str, Any]) -> tuple[str, ...]:
     candidate = source_path if isinstance(source_path, str) and source_path else name
     if not isinstance(candidate, str):
         return ()
-    return tuple(part for part in candidate.strip("/").split("/") if part and part != ".")
+    parts = candidate.strip("/").split("/")
+    return tuple(str(part) for part in parts if part and part != ".")
 
 
 def _hidden_by_default(item: dict[str, Any], kind: str) -> bool:

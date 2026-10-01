@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from collections.abc import Mapping
 from typing import cast
 
 
-def _json_flag_argument_parser(command_parser) -> None:
+def _json_flag_argument_parser(command_parser: argparse.ArgumentParser) -> None:
     command_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON output")
 
 

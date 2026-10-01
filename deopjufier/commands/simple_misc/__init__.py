@@ -1,7 +1,12 @@
+import argparse
+from collections.abc import Iterator
+
 from deopjufier.commands.simple_shared import *
+from deopjufier.opj import OpjWalkElement
+from deopjufier.opju import OpjuWalkElement
 
 
-def _string_rows(args) -> Iterator[dict[str, object]]:
+def _string_rows(args: argparse.Namespace) -> Iterator[dict[str, object]]:
     """Yield one JSON-ready row per string; ``offset`` is null when no byte offset exists."""
     if args.decoded:
         data = args.file.read_bytes()
@@ -18,7 +23,7 @@ def _string_rows(args) -> Iterator[dict[str, object]]:
         yield {"offset": None, "text": text}
 
 
-def _write_strings_json(args, rows: Iterator[dict[str, object]]) -> None:
+def _write_strings_json(args: argparse.Namespace, rows: Iterator[dict[str, object]]) -> None:
     # Streamed so a large input never holds every string in memory at once.
     header = {
         "schema_version": 1,
@@ -33,7 +38,7 @@ def _write_strings_json(args, rows: Iterator[dict[str, object]]) -> None:
     sys.stdout.write("]}\n")
 
 
-def cmd_strings(args):
+def cmd_strings(args: argparse.Namespace) -> int:
     _ensure_file(args.file)
     rows = _string_rows(args)
     if args.quiet:
@@ -46,7 +51,7 @@ def cmd_strings(args):
     return EXIT_SUCCESS
 
 
-def cmd_images(args):
+def cmd_images(args: argparse.Namespace) -> int:
     session = _build_session(args.file)
     detection = session.detection
     as_json = getattr(args, "json", False)
@@ -96,7 +101,7 @@ def cmd_images(args):
     return EXIT_SUCCESS
 
 
-def cmd_table_scan(args):
+def cmd_table_scan(args: argparse.Namespace) -> int:
     _ensure_file(args.file)
     if args.quiet:
         count = sum(
@@ -143,7 +148,7 @@ def cmd_table_scan(args):
     return EXIT_SUCCESS
 
 
-def _walk_element_payload(element):
+def _walk_element_payload(element: OpjWalkElement | OpjuWalkElement) -> dict[str, object]:
     return {
         "kind": element.kind,
         "name": element.name,
@@ -154,7 +159,7 @@ def _walk_element_payload(element):
     }
 
 
-def cmd_walk(args):
+def cmd_walk(args: argparse.Namespace) -> int:
     _ensure_file(args.file)
     detection = detect_file(args.file)
     if detection.detected_type not in {"opj", "opju"}:
@@ -194,7 +199,7 @@ def cmd_walk(args):
     return EXIT_SUCCESS
 
 
-def cmd_dump_block(args):
+def cmd_dump_block(args: argparse.Namespace) -> int:
     _ensure_file(args.file)
     if args.offset < 0 or args.length < 0:
         raise ValueError("offset and length must be non-negative")
@@ -209,7 +214,7 @@ def cmd_dump_block(args):
     return EXIT_SUCCESS
 
 
-def cmd_compare(args):
+def cmd_compare(args: argparse.Namespace) -> int:
     result = compare_manifests(args.left, args.right, compare_bytes=args.compare_bytes)
     if args.quiet:
         return EXIT_SUCCESS if result["match"] else EXIT_GENERAL
@@ -220,7 +225,7 @@ def cmd_compare(args):
     return EXIT_SUCCESS if result["match"] else EXIT_GENERAL
 
 
-def cmd_strings_payload(manifest):
+def cmd_strings_payload(manifest: list[dict[str, object]]) -> dict[str, int]:
     return _coerce_counts_by_artifact(manifest)
 
 

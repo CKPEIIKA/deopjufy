@@ -28,13 +28,13 @@ def lz4_block_decompress(src: bytes, expected_size: int) -> tuple[bytes, int]:
     cursor = 0
 
     while cursor < len(src) and len(out) < expected_size:
-        token = src[cursor]
+        token = int(src[cursor])
         cursor += 1
 
         literal_count = token >> 4
         if literal_count == 15:
             while cursor < len(src):
-                extension = src[cursor]
+                extension = int(src[cursor])
                 cursor += 1
                 literal_count += extension
                 if extension != 255:
@@ -47,7 +47,7 @@ def lz4_block_decompress(src: bytes, expected_size: int) -> tuple[bytes, int]:
 
         if cursor + 1 >= len(src):
             raise ValueError("bad LZ4 offset")
-        offset = src[cursor] | (src[cursor + 1] << 8)
+        offset = int(src[cursor]) | (int(src[cursor + 1]) << 8)
         cursor += 2
         if offset <= 0 or offset > len(out):
             raise ValueError("bad LZ4 back-reference")
@@ -55,7 +55,7 @@ def lz4_block_decompress(src: bytes, expected_size: int) -> tuple[bytes, int]:
         match_length = (token & 0x0F) + 4
         if (token & 0x0F) == 15:
             while cursor < len(src):
-                extension = src[cursor]
+                extension = int(src[cursor])
                 cursor += 1
                 match_length += extension
                 if extension != 255:
@@ -68,4 +68,4 @@ def lz4_block_decompress(src: bytes, expected_size: int) -> tuple[bytes, int]:
 
     if len(out) != expected_size:
         raise ValueError("LZ4 block shorter than declared size")
-    return bytes(out), cursor
+    return bytes(out), int(cursor)

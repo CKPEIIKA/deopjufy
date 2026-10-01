@@ -38,6 +38,7 @@ from deopjufier.detect import DetectedFile
 from deopjufier.errors import CorruptedInputError
 from deopjufier.inventory import OriginObject
 from deopjufier.session import (
+    ExtractionSession,
     _list_kind_for_origin_object,
 )
 
@@ -47,7 +48,7 @@ _INSPECT_OPJU_FORMAT_HINT_LIMIT_BYTES = 4 * 1024 * 1024
 def _build_inspect_payload(
     file_path: Path,
     detection: DetectedFile,
-    session,
+    session: ExtractionSession,
     is_supported_type: bool,
     parser_status: str,
     warnings: list[str],

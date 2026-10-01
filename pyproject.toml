@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deopjufier"
-version = "0.6.0"
+version = "0.7.0"
 description = "Unix-style extractor for OriginLab OPJ/OPJU project files"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -47,7 +47,7 @@ include = ["deopjufier", "deopjufier.*", "deopjufy_view", "deopjufy_view.*"]
 "share/man/man7" = ["man/deopjufy-formats.7"]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "pytest-xdist", "ruff>=0.16.7", "ty"]
+dev = ["pytest", "pytest-cov", "pytest-xdist", "ruff>=0.16.7", "ty>=0.0.84"]
 xlsx = ["openpyxl>=3.1"]
 image = ["pillow"]
 re = ["python-magic", "construct", "kaitaistruct"]
@@ -60,13 +60,17 @@ exclude = ["refs", "tmp", ".venv", ".uv-cache", ".pytest_cache", ".ruff_cache", 
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "C90", "PLR", "RUF"]
+# Enforce missing parameter and return annotations in production code. ANN401
+# stays off because JSON payloads and dynamically loaded wx APIs are intentional boundaries.
+extend-select = ["ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "PYI"]
 ignore = ["PLR0913"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "SIM102"]
-# Optional wx classes are constructed after dependency discovery so importing the
-# core package never imports wxPython; Ruff counts nested event methods together.
-"deopjufy_view/app.py" = ["C901", "PLR0912"]
+# pytest injects fixture arguments by name, so Ruff cannot infer their types here.
+"tests/**/*.py" = [
+  "ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "C901",
+  "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "SIM102",
+]
 # Ruff 0.16 split positional-argument counting from PLR0913. These exact files
 # retain existing explicit data-flow signatures until that tracked debt is refactored.
 "deopjufier/commands/simple_shared/__init__.py" = ["PLR0917"]
@@ -651,3 +655,9 @@ line-ending = "auto"
 
 [tool.ty]
 src.exclude = ["refs/**"]
+
+[tool.ty.rules]
+dynamic-function-decorator-return = "error"
+missing-type-argument = "error"
+possibly-unresolved-reference = "warn"
+unsound-return-statement = "error"

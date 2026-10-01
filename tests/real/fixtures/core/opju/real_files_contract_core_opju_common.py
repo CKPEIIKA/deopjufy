@@ -199,7 +199,7 @@ def _assert_tabular_shape_matches_extracted_file(output: Path, item: dict[str, A
 
 @pytest.mark.timeout(480)  # Multi-sample OPJU loop in one extraction test.
 def _assert_real_fixture_worksheet_scope_contract(
-    payload: dict,
+    payload: dict[str, Any],
     *,
     sample: Path,
     sample_label: str,
@@ -316,7 +316,7 @@ def _assert_scoped_worksheet_partial_count(
     sample_label: str,
     expected_partial_count: int,
     allow_zero_row_extracted: bool = False,
-) -> dict:
+) -> dict[str, Any]:
     payload = _run_extract_manifest(sample, cached_extract, "--no-images")
     _assert_real_fixture_worksheet_scope_contract(
         payload,

@@ -35,7 +35,7 @@ def _build_list_payload(
     warnings: list[str],
     parser_warnings: list[dict[str, str]],
     signatures: dict[str, object],
-    items: list[dict],
+    items: list[dict[str, object]],
     size_bytes: int,
     sha256: str,
 ) -> dict[str, object]:
@@ -197,7 +197,7 @@ def cmd_list(args: argparse.Namespace) -> int:
                 _print_list_summary(payload, as_json=json_output)
             return EXIT_UNSUPPORTED
 
-        items: list[dict] = []
+        items: list[dict[str, object]] = []
         parser_status = "ok"
         warnings = []
         parser_warnings: list[dict[str, str]] = []

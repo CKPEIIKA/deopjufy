@@ -6,6 +6,7 @@ import json
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -126,7 +127,7 @@ SYNTHETIC_OPJ_CASES = [
 ]
 
 
-def _run_json_command(argv: list[str]) -> tuple[int, dict]:
+def _run_json_command(argv: list[str]) -> tuple[int, dict[str, Any]]:
     command_args = list(argv)
     if command_args and command_args[0] in {"inspect", "list"}:
         command_args.append("--json")

@@ -275,6 +275,7 @@ def _pick_unresolved_overlap_root_target(
     assigned_names: set[str],
     can_use_boundary_windows: bool,
 ) -> str | None:
+    overlap_windows = tuple(overlap_windows)
     if not overlap_windows:
         return None
 
@@ -325,6 +326,7 @@ def _iter_short_window_name_markers(
     max_payload_bytes: int,
     worksheet_window_lengths: dict[str, list[int]] | None = None,
 ) -> set[str]:
+    worksheet_windows = tuple(worksheet_windows)
     if not data or not worksheet_windows or not worksheet_name_lookup:
         return set()
 

@@ -11,7 +11,6 @@ for _name in _object_tables_extract_main.__all__:
     globals()[_name] = getattr(_object_tables_extract_main, _name)
 
 if _filter_meaningful_recovered_rows.__name__ not in __all__:
-    __all__.append(_filter_meaningful_recovered_rows.__name__)
+    __all__ += [_filter_meaningful_recovered_rows.__name__]
 
-del _name
 del _object_tables_extract_main

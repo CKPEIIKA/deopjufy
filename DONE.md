@@ -3,6 +3,21 @@
 Outcomes are recorded newest first. Detailed historical fixture reconnaissance is
 intentionally excluded from the publication tree.
 
+## 2026-10-02
+
+- Bumped the package and manual-page version to 0.7.0. Added README instructions
+  for launching the optional viewer through uv or a distribution wxPython
+  install; documented the GTK 3 build requirement for PyPI wxPython on Linux.
+- Split the 1,926-line optional viewer frame into focused catalog, export, input,
+  layout, tab, widget, and state modules; `app.py` now only loads wx lazily and
+  composes the frame. Added an isolated regression proving handler imports do
+  not load wx. Validation: 842 tests passed and 1 skipped in the full suite;
+  Ruff, formatting, and Ty pass. Built 0.7.0 source and wheel distributions.
+- Adopted the current Ruff and Ty releases, enabled production annotation and
+  stub-export checks plus stricter return/generic-reference type rules, and
+  fixed all reported issues. The lockfile records the minimum Ty version needed
+  for those rules.
+
 ## 2026-10-01
 
 - `get` for an OPJU descriptor-table worksheet no longer runs whole-file object

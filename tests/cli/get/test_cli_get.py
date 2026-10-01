@@ -6,6 +6,7 @@ import json
 import struct
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -245,7 +246,7 @@ def test_get_human_error_uses_stderr(tmp_path: Path, capsys) -> None:
     assert "does not exist" in captured.err
 
 
-def _worksheet_catalog(sample: Path, capsys) -> tuple[dict, str]:
+def _worksheet_catalog(sample: Path, capsys) -> tuple[dict[str, Any], str]:
     main(["list", str(sample), "--json", "--exhaustive", "--include-raw-gaps"])
     catalog = json.loads(capsys.readouterr().out)
     worksheet = next(item for item in catalog["items"] if item["discovery_type"] == "opju_column_descriptor_table")

@@ -166,7 +166,7 @@ def test_public_opju_extract_records_has_parser_backed_worksheet_objects(
 
 
 def _assert_real_fixture_worksheet_scope_contract(
-    payload: dict,
+    payload: dict[str, Any],
     *,
     sample: Path,
     sample_label: str,
@@ -485,7 +485,7 @@ def _assert_scoped_worksheet_partial_count(
     sample_label: str,
     expected_partial_count: int,
     allow_zero_row_extracted: bool = False,
-) -> dict:
+) -> dict[str, Any]:
     payload = _run_extract_manifest(sample, cached_extract, "--no-images")
     _assert_real_fixture_worksheet_scope_contract(
         payload,

@@ -12,14 +12,13 @@ from deopjufier.extract import object_tables_extract_tables as _object_tables_ex
 __all__: list[str] = []
 
 for _name in _object_tables_extract_filters.__all__:
-    __all__.append(_name)
+    __all__ += [_name]
     globals()[_name] = getattr(_object_tables_extract_filters, _name)
 
 for _name in _object_tables_extract_tables.__all__:
     if _name not in __all__:
-        __all__.append(_name)
+        __all__ += [_name]
     globals()[_name] = getattr(_object_tables_extract_tables, _name)
 
-del _name
 del _object_tables_extract_filters
 del _object_tables_extract_tables

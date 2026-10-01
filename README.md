@@ -49,11 +49,33 @@ uv sync --extra dev
 uv run deopjufy --help
 ```
 
-Optional XLSX and viewer dependencies:
+Optional XLSX dependency:
 
 ```bash
-uv sync --extra dev --extra xlsx --extra viewer
+uv sync --extra dev --extra xlsx
 ```
+
+## GUI VIEWER
+
+The read-only viewer needs wxPython. With a compatible wxPython package
+available to the project environment, install and launch it with:
+
+```bash
+uv sync --extra viewer
+uv run deopjufy-view
+uv run deopjufy-view project.opju
+```
+
+On Linux, PyPI may build wxPython from source, which requires GTK 3 development
+files (`gtk+-3.0`). If that build fails and your distribution provides wxPython,
+run from the checkout with the same Python that can import `wx`:
+
+```bash
+python3 -m deopjufy_view.app project.opju
+```
+
+The viewer is read-only and uses the CLI for discovery, retrieval, and export.
+XLSX export additionally uses openpyxl.
 
 ## EXAMPLES
 

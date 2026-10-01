@@ -630,7 +630,7 @@ def test_list_parser_error_reports_error_status(
     sample = tmp_path / "parser-error.opj"
     sample.write_bytes(b"CPYA")
 
-    def _raise(_self: ExtractionSession, *_args, **_kwargs) -> list[dict]:
+    def _raise(_self: ExtractionSession, *_args, **_kwargs) -> list[dict[str, object]]:
         raise CorruptedInputError("bad object map")
 
     monkeypatch.setattr("deopjufier.app.ExtractionSession.list_items", _raise)

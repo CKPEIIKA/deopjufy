@@ -1,4 +1,4 @@
-.TH DEOPJUFY-VIEW 1 "2026-08-21" "deopjufy 0.6.0" "User Commands"
+.TH DEOPJUFY-VIEW 1 "2026-10-02" "deopjufy 0.7.0" "User Commands"
 .SH NAME
 deopjufy-view \- browse recovered OPJ and OPJU content through the deopjufy CLI
 .SH SYNOPSIS
@@ -124,8 +124,15 @@ Install the optional viewer dependencies with:
 uv sync --extra viewer
 .EE
 .PP
-The viewer requires wxPython. XLSX export uses openpyxl. Neither dependency is
-imported by the base CLI path.
+The viewer requires wxPython. On Linux, installing the PyPI package may build
+from source and require GTK 3 development files, including
+.BR gtk+-3.0 .
+If the distribution supplies wxPython, a source checkout can use that interpreter
+directly:
+.EX
+python3 -m deopjufy_view.app FILE
+.EE
+XLSX export uses openpyxl. Neither dependency is imported by the base CLI path.
 .SH STATE AND FILES
 The viewer creates no application configuration, persistent cache, recent-file
 list, window-state file, or project database. It makes no hidden network calls.

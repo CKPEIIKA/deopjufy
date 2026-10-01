@@ -141,7 +141,7 @@ def _write_payload(path: Path, payload: dict[str, Any]) -> None:
 
 
 def _matches_required_fields(expected: dict[str, Any], actual: dict[str, Any]) -> bool:
-    return (
+    return bool(
         expected["object_count"] == actual.get("object_count")
         and expected["object_kind_counts"] == actual.get("object_kind_counts")
         and expected["tree_paths"] == actual.get("tree_paths")

@@ -8,6 +8,7 @@ from collections.abc import Iterable
 from hashlib import sha256
 from pathlib import Path
 from types import ModuleType
+from typing import cast
 
 from deopjufier import opj as opj_parser
 from deopjufier import opju as opju_parser
@@ -113,11 +114,11 @@ def _project_tree_node_contract(node: OpjProjectNode | OpjTreeNode) -> tuple[flo
     return node.confidence, node.parser_rule, node.length
 
 
-def _parse_parser_note_sections(file_data: bytes, *, path: Path | None = None):
+def _parse_parser_note_sections(file_data: bytes, *, path: Path | None = None) -> list[opj_parser.OpjNoteSection]:
     parser_api = _objects_module()
     parser_func = getattr(parser_api, "parse_opj_note_sections", parse_opj_note_sections)
     del path
-    return parser_func(file_data)
+    return cast(list[opj_parser.OpjNoteSection], parser_func(file_data))
 
 
 def _write_function_metadata_sidecar(
@@ -305,12 +306,11 @@ def _derive_opju_note_unsupported_range(
 
     if not spans:
         return None
-    starts, ends, sources = zip(*spans, strict=False)
-    range_start = min(starts)
-    range_end = max(ends)
+    range_start = min(start for start, _, _ in spans)
+    range_end = max(end for _, end, _ in spans)
     source_candidates = sorted(source for start, _, source in spans if start == range_start and source is not None)
     if not source_candidates:
-        source_candidates = sorted(source for source in sources if source is not None)
+        source_candidates = sorted(source for _, _, source in spans if source is not None)
     source_object_path = source_candidates[0] if source_candidates else None
     return range_start, range_end, source_object_path
 

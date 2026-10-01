@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 import zlib
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 
 ZIP_LOCAL_HEADER = b"PK\x03\x04"
@@ -292,8 +291,7 @@ def probe_container_regions(data: bytes) -> list[ContainerProbe]:
     )
 
 
-@lru_cache(maxsize=512)
-def _detect_file_cached(path: str, _size: int, _mtime_ns: int) -> DetectedFile:
+def detect_file(path: Path) -> DetectedFile:
     """Detect file kind from bounded magic bytes.
 
     OPJ/OPJU require their Origin magic; the extension only labels the reason.
@@ -344,8 +342,3 @@ def _detect_file_cached(path: str, _size: int, _mtime_ns: int) -> DetectedFile:
         magic_type=kind,
         magic_offset=0,
     )
-
-
-def detect_file(path: Path) -> DetectedFile:
-    stats = path.stat()
-    return _detect_file_cached(str(path), stats.st_size, stats.st_mtime_ns)

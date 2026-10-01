@@ -31,6 +31,7 @@ from deopjufier.inventory import (
     discover_origin_objects,
 )
 from deopjufier.io import dump_range, iter_file_chunks, read_cached_bytes, sanitize_name, sha256_file
+from deopjufier.io.parse_cache import parse_cache_scope
 from deopjufier.manifest import ManifestItem, make_manifest
 from deopjufier.session import ExtractionSession
 from tests.test_core_unit_coverage_utils import _repo_root, _resolve_tests_fixture
@@ -182,7 +183,7 @@ def test_extraction_session_caches_file_data(tmp_path: Path) -> None:
     assert first == second
 
 
-def test_sha256_file_uses_stat_keyed_cache(
+def test_sha256_file_is_memoized_within_a_command_scope(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -198,14 +199,15 @@ def test_sha256_file_uses_stat_keyed_cache(
 
     monkeypatch.setattr("deopjufier.io.iter_file_chunks", _counting_chunks)
 
-    first = sha256_file(sample)
-    second = sha256_file(sample)
+    with parse_cache_scope():
+        first = sha256_file(sample)
+        second = sha256_file(sample)
 
     assert first == second
     assert calls["count"] == 1
 
 
-def test_read_cached_bytes_uses_stat_keyed_cache(
+def test_read_cached_bytes_is_memoized_within_a_command_scope(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -221,8 +223,9 @@ def test_read_cached_bytes_uses_stat_keyed_cache(
 
     monkeypatch.setattr(Path, "read_bytes", _counting_read_bytes)
 
-    first = read_cached_bytes(sample)
-    second = read_cached_bytes(sample)
+    with parse_cache_scope():
+        first = read_cached_bytes(sample)
+        second = read_cached_bytes(sample)
 
     assert first == second == b"payload"
     assert calls["count"] == 1

@@ -6,6 +6,8 @@ import re
 from dataclasses import dataclass
 from hashlib import sha256
 
+from deopjufier.io.parse_cache import memoized
+
 from .column_payloads import OpjuColumnPayload, decode_opju_column_payload
 
 _TAGGED_FAMILY_SIGNATURES = (
@@ -247,7 +249,17 @@ def _column_name_match(data: bytes, prefix_offset: int) -> re.Match[bytes] | Non
 
 
 def iter_opju_column_descriptors(data: bytes) -> tuple[OpjuColumnDescriptor, ...]:
-    """Decode ASCII column names and their explicitly sized stored payloads."""
+    """Decode ASCII column names and their explicitly sized stored payloads.
+
+    Several command paths decode the same file; the result is memoized per command
+    scope (see ``deopjufier.io.parse_cache``), keyed by the input bytes.
+    """
+    if not isinstance(data, bytes):
+        return _iter_opju_column_descriptors_uncached(data)
+    return memoized("opju_column_descriptors", (data,), lambda: _iter_opju_column_descriptors_uncached(data))
+
+
+def _iter_opju_column_descriptors_uncached(data: bytes) -> tuple[OpjuColumnDescriptor, ...]:
     descriptors: list[OpjuColumnDescriptor] = []
     previous_payload_end: int | None = None
     for prefix_match in re.finditer(re.escape(_COLUMN_ROW_PREFIX), data):

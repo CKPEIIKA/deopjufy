@@ -9,8 +9,9 @@ import re
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
+
+from deopjufier.io.parse_cache import file_key, memoized
 
 
 def iter_file_chunks(path: Path, chunk_size: int = 1 << 20) -> Iterable[bytes]:
@@ -41,29 +42,21 @@ def open_mmap(path: Path) -> Iterator[mmap.mmap | None]:
             yield mapped
 
 
-@lru_cache(maxsize=64)
-def _read_cached_bytes(path: str, _size: int, _mtime_ns: int) -> bytes:
-    return Path(path).read_bytes()
-
-
 def read_cached_bytes(path: Path) -> bytes:
-    """Read a file into memory once per stat signature."""
-    stats = path.stat()
-    return _read_cached_bytes(str(path), stats.st_size, stats.st_mtime_ns)
+    """Read a file into memory once per command scope (see ``parse_cache``)."""
+    return memoized("file_bytes", file_key(path), path.read_bytes)
 
 
-@lru_cache(maxsize=512)
-def _sha256_file_cached(path: str, _size: int, _mtime_ns: int) -> str:
+def _sha256_of_file(path: Path) -> str:
     h = hashlib.sha256()
-    for chunk in iter_file_chunks(Path(path)):
+    for chunk in iter_file_chunks(path):
         h.update(chunk)
     return h.hexdigest()
 
 
 def sha256_file(path: Path) -> str:
-    """Compute sha256 for a file path with stat-keyed caching."""
-    stats = path.stat()
-    return _sha256_file_cached(str(path), stats.st_size, stats.st_mtime_ns)
+    """Compute the SHA-256 of a file once per command scope."""
+    return memoized("file_sha256", file_key(path), lambda: _sha256_of_file(path))
 
 
 _SANITIZE_RE = re.compile(r"[^A-Za-z0-9._-]")

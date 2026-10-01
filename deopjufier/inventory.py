@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
-from typing import Any, TypeVar, cast
+from typing import Any, cast
 
 from deopjufier import discovery as discovery_helpers
 from deopjufier import opj as opj_parser
 from deopjufier import opju as opju_parser
 from deopjufier.blocks import GIF_SIGS, JPEG_SIG, PNG_SIG
 from deopjufier.io import iter_file_chunks, read_cached_bytes
+from deopjufier.io.parse_cache import file_key, memoized
 from deopjufier.opj import records as opj_records
 from deopjufier.opju import reports as opju_reports
 
@@ -25,15 +26,6 @@ OPJ_PARAMETERS_SCAN_WINDOW = opj_parser.OPJ_PARAMETERS_SCAN_WINDOW
 OPJ_NOTES_MAX_BLOCKS = opj_parser.OPJ_NOTES_MAX_BLOCKS
 OPJ_NOTES_MAX_CHARS = opj_parser.OPJ_NOTES_MAX_CHARS
 OPJ_NOTE_SECTION_NAMES = opj_parser.OPJ_NOTE_SECTION_NAMES
-_ORIGIN_OBJECT_CACHE: dict[
-    tuple[Path, int, int, tuple[object, ...]],
-    list[discovery_helpers.OriginObject],
-] = {}
-_OPJU_RECORDS_CACHE: dict[tuple[Path, int, int, tuple[object, ...]], opju_parser.OpjuRecords] = {}
-_OPJ_BOUNDARIES_CACHE: dict[tuple[Path, int, int, tuple[object, ...]], list[OpjObjectBoundary]] = {}
-_OPJ_NOTE_SECTIONS_CACHE: dict[tuple[Path, int, int, tuple[object, ...]], list[OpjNoteSection]] = {}
-_OPJ_DATA_SECTIONS_CACHE: dict[tuple[Path, int, int, tuple[object, ...]], list[OpjDataSection]] = {}
-_OPJ_CACHE_MAX_ENTRIES = 16
 _OPJU_REGION_OBJECT_KIND_BY_KIND = {
     opju_parser.OPJU_REGION_KIND_CONTAINER: "meta",
     opju_parser.OPJU_REGION_KIND_ORIGIN_STORAGE_REPORT: "opju_report",
@@ -47,8 +39,6 @@ _OPJU_REGION_OBJECT_KIND_BY_KIND = {
     opju_parser.OPJU_REGION_KIND_PAGE_DIRECTORY: "project_page",
     opju_parser.OPJU_REGION_KIND_FOLDER_DIRECTORY: "project_folder",
 }
-_CacheKey = TypeVar("_CacheKey")
-_CacheValue = TypeVar("_CacheValue")
 OriginObject = discovery_helpers.OriginObject
 ParserBackedDiscoveryRecord = discovery_helpers.ParserBackedDiscoveryRecord
 HeuristicDiscoveryRecord = discovery_helpers.HeuristicDiscoveryRecord
@@ -122,8 +112,8 @@ def parse_opju_records(
     include_family_binary: bool = False,
     path: Path | None = None,
 ) -> OpjuRecords:
-    """Parse OPJU records with file-stat keyed caching."""
-    cache_key = _cache_key_for_path(
+    """Parse OPJU records, memoized per command when ``path`` identifies the file."""
+    cache_key = file_key(
         path,
         max_reports,
         max_input_items,
@@ -132,11 +122,33 @@ def parse_opju_records(
         include_decoded,
         include_family_binary,
     )
-    if cache_key is not None:
-        cached = _OPJU_RECORDS_CACHE.get(cache_key)
-        if cached is not None:
-            return cached
+    return memoized(
+        "opju_records",
+        cache_key,
+        lambda: _parse_opju_records_uncached(
+            data,
+            max_reports=max_reports,
+            max_input_items=max_input_items,
+            max_tables=max_tables,
+            max_rows=max_rows,
+            include_decoded=include_decoded,
+            include_family_binary=include_family_binary,
+            path=path,
+        ),
+    )
 
+
+def _parse_opju_records_uncached(
+    data: bytes,
+    *,
+    max_reports: int,
+    max_input_items: int,
+    max_tables: int,
+    max_rows: int,
+    include_decoded: bool,
+    include_family_binary: bool,
+    path: Path | None,
+) -> OpjuRecords:
     parsed_kwargs = {
         "max_reports": max_reports,
         "max_input_items": max_input_items,
@@ -152,12 +164,7 @@ def parse_opju_records(
     if path is not None and "path" in accepted:
         parse_kwargs["path"] = path
     backend_parser = cast(Any, opju_parser.parse_opju_records)
-    parsed = backend_parser(data, **parse_kwargs)
-
-    if cache_key is not None:
-        _OPJU_RECORDS_CACHE[cache_key] = parsed
-        _prune_cache(_OPJU_RECORDS_CACHE)
-    return parsed
+    return backend_parser(data, **parse_kwargs)
 
 
 def parse_opju_column_tables(
@@ -186,22 +193,6 @@ def parse_opju_description(data: bytes) -> str | None:
     return opju_parser.parse_opju_description(data)
 
 
-def _cache_key_for_path(path: Path | None, *parts: object) -> tuple[Path, int, int, tuple[object, ...]] | None:
-    if path is None:
-        return None
-    try:
-        stats = path.stat()
-    except OSError:
-        return None
-    return (path.resolve(), stats.st_size, stats.st_mtime_ns, tuple(parts))
-
-
-def _prune_cache(cache: dict[_CacheKey, _CacheValue]) -> None:
-    while len(cache) > _OPJ_CACHE_MAX_ENTRIES:
-        oldest_key = next(iter(cache))
-        cache.pop(oldest_key)
-
-
 def parse_opj_boundaries(
     data: bytes,
     *,
@@ -210,23 +201,16 @@ def parse_opj_boundaries(
     disable_heavy_scans: bool | None = None,
 ) -> list[OpjObjectBoundary]:
     """Parse OPJ boundaries with optional file-level caching."""
-    cache_key = _cache_key_for_path(path, max_sections, disable_heavy_scans)
-    if cache_key is not None:
-        cached = _OPJ_BOUNDARIES_CACHE.get(cache_key)
-        if cached is not None:
-            return [*cached]
-
-    if disable_heavy_scans is None:
-        disable_heavy_scans = False
-
-    parsed = opj_parser.parse_opj_boundaries(
-        data,
-        max_sections=max_sections,
-        disable_heavy_scans=disable_heavy_scans,
+    heavy_scans_disabled = bool(disable_heavy_scans)
+    parsed = memoized(
+        "opj_boundaries",
+        file_key(path, max_sections, heavy_scans_disabled),
+        lambda: opj_parser.parse_opj_boundaries(
+            data,
+            max_sections=max_sections,
+            disable_heavy_scans=heavy_scans_disabled,
+        ),
     )
-    if cache_key is not None:
-        _OPJ_BOUNDARIES_CACHE[cache_key] = parsed
-        _prune_cache(_OPJ_BOUNDARIES_CACHE)
     return [*parsed]
 
 
@@ -234,16 +218,11 @@ def iter_opj_data_sections(
     data: bytes, *, max_sections: int | None = None, path: Path | None = None
 ) -> list[OpjDataSection]:
     """Parse OPJ data sections with optional file-level caching."""
-    cache_key = _cache_key_for_path(path, max_sections)
-    if cache_key is not None:
-        cached = _OPJ_DATA_SECTIONS_CACHE.get(cache_key)
-        if cached is not None:
-            return [*cached]
-
-    sections = opj_parser.iter_opj_data_sections(data, max_sections=max_sections)
-    if cache_key is not None:
-        _OPJ_DATA_SECTIONS_CACHE[cache_key] = sections
-        _prune_cache(_OPJ_DATA_SECTIONS_CACHE)
+    sections = memoized(
+        "opj_data_sections",
+        file_key(path, max_sections),
+        lambda: opj_parser.iter_opj_data_sections(data, max_sections=max_sections),
+    )
     return [*sections]
 
 
@@ -255,20 +234,11 @@ def parse_opj_note_sections(
     path: Path | None = None,
 ) -> list[OpjNoteSection]:
     """Parse OPJ note sections with optional file-level caching."""
-    cache_key = _cache_key_for_path(path, max_sections, max_chars)
-    if cache_key is not None:
-        cached = _OPJ_NOTE_SECTIONS_CACHE.get(cache_key)
-        if cached is not None:
-            return [*cached]
-
-    sections = opj_parser.parse_opj_note_sections(
-        data,
-        max_sections=max_sections,
-        max_chars=max_chars,
+    sections = memoized(
+        "opj_note_sections",
+        file_key(path, max_sections, max_chars),
+        lambda: opj_parser.parse_opj_note_sections(data, max_sections=max_sections, max_chars=max_chars),
     )
-    if cache_key is not None:
-        _OPJ_NOTE_SECTIONS_CACHE[cache_key] = sections
-        _prune_cache(_OPJ_NOTE_SECTIONS_CACHE)
     return [*sections]
 
 
@@ -583,27 +553,43 @@ def discover_origin_objects(
 
     The probe is intentionally conservative and only emits obvious-looking names.
     """
+    discovered = memoized(
+        "origin_objects",
+        file_key(
+            path,
+            max_repeats_per_name,
+            include_redundant_tokens,
+            heuristic_kind_limit,
+            collect_heuristics,
+            tuple(sorted(allowed_kinds)) if allowed_kinds is not None else None,
+            total_limit,
+        ),
+        lambda: _discover_origin_objects_uncached(
+            path,
+            max_repeats_per_name=max_repeats_per_name,
+            include_redundant_tokens=include_redundant_tokens,
+            heuristic_kind_limit=heuristic_kind_limit,
+            collect_heuristics=collect_heuristics,
+            allowed_kinds=allowed_kinds,
+            total_limit=total_limit,
+        ),
+    )
+    return [_clone_discovery_record(item) for item in discovered]
+
+
+def _discover_origin_objects_uncached(
+    path: Path,
+    *,
+    max_repeats_per_name: int | None,
+    include_redundant_tokens: bool,
+    heuristic_kind_limit: int | None,
+    collect_heuristics: bool,
+    allowed_kinds: frozenset[str] | None,
+    total_limit: int | None,
+) -> list[OriginObject]:
     file_stats = path.stat()
     with path.open("rb") as fh:
         header_magic = fh.read(max(len(MAGIC_OPJU), len(MAGIC_OPJ)))
-
-    cache_key = _cache_key_for_path(
-        path,
-        max_repeats_per_name,
-        include_redundant_tokens,
-        heuristic_kind_limit,
-        collect_heuristics,
-        tuple(sorted(allowed_kinds)) if allowed_kinds is not None else None,
-        total_limit,
-    )
-    if cache_key is not None and cache_key in _ORIGIN_OBJECT_CACHE:
-        if header_magic.startswith(MAGIC_OPJU):
-            # Keep parser-evidence instrumentation visible even when object discovery cache
-            # is reused across sessions/runs.
-            cached_data = read_cached_bytes(path)
-            if cached_data:
-                parse_opju_records(cached_data, path=path)
-        return [_clone_discovery_record(item) for item in _ORIGIN_OBJECT_CACHE[cache_key]]
 
     use_streaming_discovery = (
         file_stats.st_size > discovery_helpers._OPJ_DISCOVERY_STREAM_THRESHOLD_BYTES
@@ -787,8 +773,4 @@ def discover_origin_objects(
             limited.append(obj)
         dedup = limited
 
-    discovered = discovery_helpers._ensure_unique_paths(dedup)
-    if cache_key is not None:
-        _ORIGIN_OBJECT_CACHE[cache_key] = discovered
-        _prune_cache(_ORIGIN_OBJECT_CACHE)
-    return [_clone_discovery_record(item) for item in discovered]
+    return discovery_helpers._ensure_unique_paths(dedup)

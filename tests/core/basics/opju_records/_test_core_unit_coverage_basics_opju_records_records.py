@@ -1,5 +1,6 @@
 import deopjufier
 import deopjufier.inventory
+from deopjufier.io.parse_cache import parse_cache_scope
 from tests.core.basics.opju_records._test_core_unit_coverage_basics_opju_records_common import *  # noqa: F403
 from tests.core.basics.opju_records._test_core_unit_coverage_basics_opju_records_common import (
     _book_dir,
@@ -746,12 +747,13 @@ def test_parse_opju_records_cache_reuse_for_reports_and_tables(tmp_path: Path, m
         _counting_parse_opju_records,
     )
 
-    first_reports = parse_opju_origin_storage_reports(data, path=sample)
-    first_tables = parse_opju_column_tables(data, path=sample)
-    second_reports = parse_opju_origin_storage_reports(data, path=sample)
+    with parse_cache_scope():
+        first_reports = parse_opju_origin_storage_reports(data, path=sample)
+        first_tables = parse_opju_column_tables(data, path=sample)
+        second_reports = parse_opju_origin_storage_reports(data, path=sample)
+        assert first_tables == parse_opju_column_tables(data, path=sample)
 
     assert calls["count"] == 1
-    assert first_tables == parse_opju_column_tables(data, path=sample)
     assert second_reports == first_reports
 
 

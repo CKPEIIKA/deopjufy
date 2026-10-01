@@ -49,9 +49,9 @@ from tests.core.basics.common._test_core_unit_coverage_basics import (  # noqa: 
     test_origin_object_collision_paths_are_stabilized,
     test_parse_helpers_cover_edge_cases,
     test_parse_helpers_cover_opj_payload_boundaries,
-    test_read_cached_bytes_uses_stat_keyed_cache,
+    test_read_cached_bytes_is_memoized_within_a_command_scope,
     test_sanitize_name_keeps_safe_and_replaces_unsafe,
     test_session_list_items_can_include_raw_gaps,
-    test_sha256_file_uses_stat_keyed_cache,
+    test_sha256_file_is_memoized_within_a_command_scope,
     test_unique_path_avoids_case_insensitive_collision,
 )

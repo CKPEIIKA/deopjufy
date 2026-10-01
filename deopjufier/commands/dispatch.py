@@ -30,6 +30,7 @@ from deopjufier.commands.support import (
 )
 from deopjufier.detect import DetectedFile
 from deopjufier.errors import CorruptedInputError, DeopjufyError, UnsupportedFileError
+from deopjufier.io.parse_cache import parse_cache_scope
 from deopjufier.session import ExtractionSession
 
 from .get import cmd_get
@@ -137,7 +138,8 @@ def main(argv: list[str] | None = None) -> int:
         return int(exc.code) if isinstance(exc.code, int) else EXIT_USAGE
 
     try:
-        return _map_command_to_handler(args.command)(args)  # type: ignore[call-arg]
+        with parse_cache_scope():
+            return _map_command_to_handler(args.command)(args)  # type: ignore[call-arg]
     except FileNotFoundError as exc:
         return _handle_cli_command_error(args, args.command, exc, f"{exc}")
     except ModuleNotFoundError as exc:

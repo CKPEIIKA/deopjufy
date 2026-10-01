@@ -152,6 +152,16 @@ Emit the complete schema-version-1 retrieval envelope.
 .TP
 .B \-\-force
 Permit replacement of an existing output file.
+.TP
+.BI \-\-catalog " FILE"
+Resolve
+.I ITEM_ID
+in a catalog previously printed by
+.B list \-\-json
+for the same input
+.RB ( \- " reads standard input)"
+instead of rebuilding it. The catalog must name the input's SHA-256, and item IDs
+are recomputed from their fields, so an edited entry no longer resolves.
 .SS extract
 Recover recognized content into a new directory and write
 .IR manifest.json .

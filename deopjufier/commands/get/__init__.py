@@ -76,6 +76,25 @@ def _catalog_for_get(session: ExtractionSession) -> list[dict[str, object]]:
     return catalog_items(ordered, session.sha256)
 
 
+def _supplied_catalog(source: str, session: ExtractionSession) -> list[dict[str, object]]:
+    """Load a catalog the caller already holds from ``list --json``, bound to these input bytes."""
+    text = sys.stdin.read() if source == "-" else Path(source).read_text(encoding="utf-8")
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"supplied catalog is not valid JSON: {exc}") from exc
+    if not isinstance(payload, dict) or payload.get("schema_version") != CATALOG_SCHEMA_VERSION:
+        raise ValueError(f"supplied catalog is not a schema-version-{CATALOG_SCHEMA_VERSION} catalog")
+    document = payload.get("document")
+    if not isinstance(document, dict) or document.get("sha256") != session.sha256:
+        raise UnsupportedFileError("supplied catalog was not produced from these input bytes")
+    items = payload.get("items")
+    if not isinstance(items, list) or not all(isinstance(item, dict) for item in items):
+        raise ValueError("supplied catalog has no item list")
+    # IDs are rebuilt from identity fields, so an edited entry no longer resolves.
+    return catalog_items(items, session.sha256)
+
+
 def _matches_object(obj: OriginObject, item: dict[str, object]) -> bool:
     return (
         obj.name == item.get("name")
@@ -525,7 +544,8 @@ def cmd_get(args: argparse.Namespace) -> int:
         session = _build_session(file_path)
         if session.detection.detected_type not in SUPPORTED_TYPES:
             raise UnsupportedFileError("input is not a recognized Origin project")
-        catalog = _catalog_for_get(session)
+        catalog_source = cast(str | None, args.catalog)
+        catalog = _supplied_catalog(catalog_source, session) if catalog_source else _catalog_for_get(session)
         item = find_catalog_item(catalog, item_id)
         if item is None:
             payload = _failure_payload(file_path, item_id, "catalog item does not exist for these input bytes")

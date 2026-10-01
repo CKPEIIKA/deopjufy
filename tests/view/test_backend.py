@@ -292,3 +292,30 @@ def test_export_all_keeps_partial_output_from_truncated_input(tmp_path: Path) ->
         backend.close()
 
     assert manifest["status"] == "partial"
+
+
+def test_backend_get_reuses_cached_catalog_through_stdin(tmp_path: Path) -> None:
+    script = tmp_path / "recording_cli.py"
+    record = tmp_path / "record.json"
+    script.write_text(
+        "import json, pathlib, sys\n"
+        f"record = pathlib.Path({str(record)!r})\n"
+        'if sys.argv[1] == "list":\n'
+        '    print(json.dumps({"schema_version": 1, "document": {"sha256": "a" * 64}, "items": []}))\n'
+        "else:\n"
+        '    record.write_text(json.dumps({"argv": sys.argv[1:], "stdin": sys.stdin.read()}))\n'
+        '    print(json.dumps({"schema_version": 1, "status": "ok", "item": {"id": sys.argv[3]}}))\n',
+        encoding="utf-8",
+    )
+    sample = tmp_path / "sample.opju"
+    sample.write_bytes(b"CPYUA")
+    backend = DeopjufyBackend((sys.executable, str(script)))
+    try:
+        catalog = backend.catalog(sample)
+        backend.get(sample, "item:v1:one")
+    finally:
+        backend.close()
+
+    recorded = json.loads(record.read_text(encoding="utf-8"))
+    assert recorded["argv"][-2:] == ["--catalog", "-"]
+    assert json.loads(recorded["stdin"]) == catalog

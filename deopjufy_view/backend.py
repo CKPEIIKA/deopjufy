@@ -64,7 +64,7 @@ class DeopjufyBackend:
         self._lock = threading.Lock()
         self._closed = False
 
-    def _run(self, *arguments: str) -> subprocess.CompletedProcess[str]:
+    def _run(self, *arguments: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
         if self._closed:
             raise DeopjufyCommandError("backend is closed")
         try:
@@ -72,14 +72,15 @@ class DeopjufyBackend:
                 [*self._command, *arguments],
                 check=False,
                 text=True,
+                input=stdin,
                 capture_output=True,
                 timeout=self._timeout_seconds,
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
             raise DeopjufyCommandError(str(exc)) from exc
 
-    def _run_json(self, *arguments: str) -> dict[str, Any]:
-        completed = self._run(*arguments)
+    def _run_json(self, *arguments: str, stdin: str | None = None) -> dict[str, Any]:
+        completed = self._run(*arguments, stdin=stdin)
 
         try:
             decoded = json.loads(completed.stdout)
@@ -179,7 +180,8 @@ class DeopjufyBackend:
             cached = self._object_cache.get(key)
         if cached is not None:
             return cached
-        payload = self._run_json("get", str(path), item_id, "--json")
+        # Hand over the catalog this backend already holds so get skips rebuilding it.
+        payload = self._run_json("get", str(path), item_id, "--json", "--catalog", "-", stdin=json.dumps(catalog))
         with self._lock:
             self._object_cache[key] = payload
         return payload
@@ -220,6 +222,9 @@ class DeopjufyBackend:
             str(output),
             "--force",
             "--json",
+            "--catalog",
+            "-",
+            stdin=json.dumps(catalog),
         )
 
     def submit_export(

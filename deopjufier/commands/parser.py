@@ -83,6 +83,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "-o", "--output", type=Path, default=None, help="output file (default: stdout for non-JSON formats)"
     )
     get_p.add_argument("--force", action="store_true", help="overwrite the selected output file")
+    get_p.add_argument(
+        "--catalog",
+        metavar="FILE",
+        default=None,
+        help="reuse a 'list --json' catalog of this input ('-' for stdin) instead of rebuilding it",
+    )
     _json_flag_argument_parser(get_p)
     _add_verbosity_options(get_p)
 

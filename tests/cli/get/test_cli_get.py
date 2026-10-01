@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import io
 import json
 import struct
 import sys
@@ -242,3 +243,69 @@ def test_get_human_error_uses_stderr(tmp_path: Path, capsys) -> None:
     assert code == 3
     assert captured.out == ""
     assert "does not exist" in captured.err
+
+
+def _worksheet_catalog(sample: Path, capsys) -> tuple[dict, str]:
+    main(["list", str(sample), "--json", "--exhaustive", "--include-raw-gaps"])
+    catalog = json.loads(capsys.readouterr().out)
+    worksheet = next(item for item in catalog["items"] if item["discovery_type"] == "opju_column_descriptor_table")
+    return catalog, worksheet["id"]
+
+
+def test_get_with_supplied_catalog_matches_rebuilt_catalog(tmp_path: Path, capsys) -> None:
+    sample = tmp_path / "descriptor.opju"
+    _descriptor_opju(sample)
+    catalog, item_id = _worksheet_catalog(sample, capsys)
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+
+    rebuilt_code = main(["get", str(sample), item_id, "--json"])
+    rebuilt = json.loads(capsys.readouterr().out)
+    supplied_code = main(["get", str(sample), item_id, "--json", "--catalog", str(catalog_path)])
+    supplied = json.loads(capsys.readouterr().out)
+
+    assert rebuilt_code == supplied_code == 0
+    assert supplied == rebuilt
+
+
+def test_get_rejects_catalog_for_other_bytes(tmp_path: Path, capsys) -> None:
+    sample = tmp_path / "descriptor.opju"
+    _descriptor_opju(sample)
+    catalog, item_id = _worksheet_catalog(sample, capsys)
+    catalog["document"]["sha256"] = "0" * 64
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+
+    code = main(["get", str(sample), item_id, "--json", "--catalog", str(catalog_path)])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert code == 3
+    assert payload["error"] == "supplied catalog was not produced from these input bytes"
+
+
+def test_get_rejects_tampered_catalog_item(tmp_path: Path, capsys) -> None:
+    sample = tmp_path / "descriptor.opju"
+    _descriptor_opju(sample)
+    catalog, item_id = _worksheet_catalog(sample, capsys)
+    item = next(entry for entry in catalog["items"] if entry["id"] == item_id)
+    item["offset"] = 0
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+
+    code = main(["get", str(sample), item_id, "--json", "--catalog", str(catalog_path)])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert code == 3
+    assert payload["error"] == "catalog item does not exist for these input bytes"
+
+
+def test_get_reads_catalog_from_stdin(tmp_path: Path, capsys, monkeypatch) -> None:
+    sample = tmp_path / "descriptor.opju"
+    _descriptor_opju(sample)
+    catalog, item_id = _worksheet_catalog(sample, capsys)
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(catalog)))
+
+    code = main(["get", str(sample), item_id, "--json", "--catalog", "-"])
+
+    assert code == 0
+    assert json.loads(capsys.readouterr().out)["item"]["id"] == item_id

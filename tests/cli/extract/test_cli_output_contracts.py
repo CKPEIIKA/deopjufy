@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import subprocess
 import sys
@@ -375,3 +376,20 @@ def test_closed_stdout_pipe_exits_quietly() -> None:
     assert process.wait(timeout=60) == 0
     assert b"BrokenPipeError" not in stderr
     assert b"Exception ignored" not in stderr
+
+
+def test_strings_write_failure_is_reported(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sample = tmp_path / "sample.bin"
+    sample.write_bytes(b"visible text\x00more text")
+
+    class _FullDisk(io.StringIO):
+        def write(self, _text: str) -> int:
+            raise OSError(28, "No space left on device")
+
+    monkeypatch.setattr(sys, "stdout", _FullDisk())
+    code = main(["strings", str(sample)])
+
+    assert code == 1
+    assert "No space left on device" in capsys.readouterr().err

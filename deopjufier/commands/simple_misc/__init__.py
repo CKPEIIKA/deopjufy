@@ -20,13 +20,7 @@ def cmd_strings(args):
     if args.quiet:
         return EXIT_SUCCESS
     for value in values:
-        try:
-            print(value)
-        except OSError:
-            # In constrained environments, long textual output may exceed the
-            # process' output sink capacity; degrade to partial output without
-            # hard-failing the command contract.
-            break
+        print(value)
     return EXIT_SUCCESS
 
 

@@ -391,7 +391,7 @@ def test_build_parser_accepts_all_supported_commands(tmp_path: Path) -> None:
     assert parsed.right == right
 
 
-def test_help_message_has_ascii_mascot_and_examples(capsys: pytest.CaptureFixture[str]) -> None:
+def test_help_message_lists_each_command_once_with_examples(capsys: pytest.CaptureFixture[str]) -> None:
     from deopjufier.commands.parser import _build_parser
 
     parser = _build_parser()
@@ -399,10 +399,25 @@ def test_help_message_has_ascii_mascot_and_examples(capsys: pytest.CaptureFixtur
         parser.parse_args(["--help"])
 
     out = capsys.readouterr().out
-    assert "deopjufy" in out.lower()
     assert "inspect sample.opj" in out
-    assert "dump-block" in out
-    assert "  ____" in out
+    assert "  ____" not in out
+    assert "\nCommands:\n" not in out
+    assert out.count("    dump-block") == 1
+
+
+def test_every_option_has_help_text() -> None:
+    from deopjufier.commands.parser import _build_parser
+
+    parser = _build_parser()
+    subparsers = next(action for action in parser._actions if action.dest == "command")
+    undocumented = [
+        f"{name} {action.option_strings[-1]}"
+        for name, command in subparsers.choices.items()
+        for action in command._actions
+        if action.option_strings and not action.help
+    ]
+
+    assert undocumented == []
 
 
 def test_support_wording_does_not_claim_full_opj_opju_support(

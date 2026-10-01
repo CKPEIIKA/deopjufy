@@ -9,7 +9,7 @@ from pathlib import Path
 
 from deopjufier import __version__
 
-from .metadata import _HELP_MASCOT, _format_help_epilog
+from .metadata import _format_help_epilog
 from .render import _json_flag_argument_parser
 
 
@@ -38,7 +38,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         prog="deopjufy",
-        description=f"{_HELP_MASCOT}\nExtract useful content from OriginLab OPJ/OPJU files.",
+        description="Extract useful content from OriginLab OPJ/OPJU files.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=_format_help_epilog(),
     )
@@ -77,8 +77,9 @@ def _build_parser() -> argparse.ArgumentParser:
         "--format",
         default="json",
         choices=["json", "jsonl", "csv", "tsv", "xlsx", "bmp", "gif", "jpeg", "jpg", "png", "svg"],
+        help="materialized format (default: json); see the item's retrieval_formats",
     )
-    get_p.add_argument("-o", "--output", type=Path, default=None)
+    get_p.add_argument("-o", "--output", type=Path, default=None, help="output file (required for non-JSON formats)")
     get_p.add_argument("--force", action="store_true", help="overwrite the selected output file")
     _json_flag_argument_parser(get_p)
     _add_verbosity_options(get_p)
@@ -86,17 +87,32 @@ def _build_parser() -> argparse.ArgumentParser:
     extract_p = commands.add_parser("extract", help="extract recognized content")
     extract_p.add_argument("file", type=Path)
     extract_p.add_argument("-o", "--out", dest="outdir", type=Path, required=True, help="output directory")
-    extract_p.add_argument("--format", default="csv", choices=["csv", "tsv", "json", "xlsx"])
-    extract_p.add_argument("--manifest", type=Path, default=None)
-    extract_p.add_argument("--raw-dir", type=Path, default=None)
-    extract_p.add_argument("--raw-min-bytes", type=int, default=1024)
-    extract_p.add_argument("--text-dir", type=Path, default=None)
-    extract_p.add_argument("--text-min-bytes", type=int, default=1024)
-    extract_p.add_argument("--text-min-length", type=int, default=4)
-    extract_p.add_argument("--no-images", action="store_true")
-    extract_p.add_argument("--no-strings", action="store_true")
-    extract_p.add_argument("--no-tables", action="store_true")
-    extract_p.add_argument("--no-objects", action="store_true")
+    extract_p.add_argument(
+        "--format",
+        default="csv",
+        choices=["csv", "tsv", "json", "xlsx"],
+        help="tabular output format (default: csv; xlsx needs openpyxl)",
+    )
+    extract_p.add_argument("--manifest", type=Path, default=None, help="manifest path (default: OUTDIR/manifest.json)")
+    extract_p.add_argument(
+        "--raw-dir", type=Path, default=None, help="directory for unknown-region dumps (--extended/--map only)"
+    )
+    extract_p.add_argument(
+        "--raw-min-bytes", type=int, default=1024, help="smallest unknown region to dump (default: 1024)"
+    )
+    extract_p.add_argument(
+        "--text-dir", type=Path, default=None, help="directory for carved text regions (--extended/--map only)"
+    )
+    extract_p.add_argument(
+        "--text-min-bytes", type=int, default=1024, help="smallest text region to carve (default: 1024)"
+    )
+    extract_p.add_argument(
+        "--text-min-length", type=int, default=4, help="shortest printable run inside a text region (default: 4)"
+    )
+    extract_p.add_argument("--no-images", action="store_true", help="skip embedded image carving")
+    extract_p.add_argument("--no-strings", action="store_true", help="skip the strings export (--extended/--map)")
+    extract_p.add_argument("--no-tables", action="store_true", help="skip the numeric table scan (--extended/--map)")
+    extract_p.add_argument("--no-objects", action="store_true", help="skip Origin object (book, note, graph) export")
     extract_p.set_defaults(human=True, extended=False, map=False)
     extract_profile = extract_p.add_mutually_exclusive_group()
     extract_profile.add_argument(
@@ -121,17 +137,25 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="limit object discovery and collection to parser-backed candidates",
     )
-    extract_p.add_argument("--strings-min-length", type=int, default=4)
-    extract_p.add_argument("--table-min-rows", type=int, default=1)
-    extract_p.add_argument("--table-min-columns", type=int, default=2)
-    extract_p.add_argument("--fail-on-partial", action="store_true")
+    extract_p.add_argument(
+        "--strings-min-length", type=int, default=4, help="shortest string in the strings export (default: 4)"
+    )
+    extract_p.add_argument(
+        "--table-min-rows", type=int, default=1, help="fewest rows for a scanned numeric table (default: 1)"
+    )
+    extract_p.add_argument(
+        "--table-min-columns", type=int, default=2, help="fewest columns for a scanned numeric table (default: 2)"
+    )
+    extract_p.add_argument("--fail-on-partial", action="store_true", help="exit 4 when the extraction is partial")
     extract_p.add_argument("--force", action="store_true", help="overwrite extracted files")
     _add_verbosity_options(extract_p)
 
     strings_p = commands.add_parser("strings", help="print visible text strings")
     strings_p.add_argument("file", type=Path)
-    strings_p.add_argument("--encoding", default="ascii", choices=["ascii", "utf16", "latin1", "utf-8"])
-    strings_p.add_argument("--min-length", type=int, default=4)
+    strings_p.add_argument(
+        "--encoding", default="ascii", choices=["ascii", "utf16", "latin1", "utf-8"], help="text encoding to scan for"
+    )
+    strings_p.add_argument("--min-length", type=int, default=4, help="shortest string to print (default: 4)")
     strings_p.add_argument(
         "--decoded",
         action="store_true",
@@ -148,16 +172,16 @@ def _build_parser() -> argparse.ArgumentParser:
 
     table_p = commands.add_parser("table-scan", help="heuristically scan for numeric tables")
     table_p.add_argument("file", type=Path)
-    table_p.add_argument("--min-rows", type=int, default=5)
-    table_p.add_argument("--min-columns", type=int, default=2)
-    table_p.add_argument("--format", default="csv", choices=["csv", "tsv", "json"])
+    table_p.add_argument("--min-rows", type=int, default=5, help="fewest rows for a reported table (default: 5)")
+    table_p.add_argument("--min-columns", type=int, default=2, help="fewest columns per row (default: 2)")
+    table_p.add_argument("--format", default="csv", choices=["csv", "tsv", "json"], help="output format (default: csv)")
     _json_flag_argument_parser(table_p)
     _add_verbosity_options(table_p)
 
     dump_p = commands.add_parser("dump-block", help="dump raw byte block by offset and length")
     dump_p.add_argument("file", type=Path)
-    dump_p.add_argument("--offset", type=int, required=True)
-    dump_p.add_argument("--length", type=int, required=True)
+    dump_p.add_argument("--offset", type=int, required=True, help="zero-based start offset")
+    dump_p.add_argument("--length", type=int, required=True, help="number of bytes to copy to stdout")
     _add_verbosity_options(dump_p)
 
     compare_p = commands.add_parser("compare", help="compare two manifest-backed extraction outputs")

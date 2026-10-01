@@ -259,16 +259,6 @@ def _format_hints(
     return hints
 
 
-_HELP_MASCOT = """\
-  ____              _
- |  _ \\  ___   ___ | |__
- | | | |/ _ \\ / _ \\| '_ \\
- | |_| | (_) | (_) | |_) |
- |____/ \\___/ \\___/|_.__/
-      deopjufy
-"""
-
-
 def _format_help_epilog() -> str:
     return """\
 deopjufy is a small Unix-style Origin project extractor.
@@ -287,17 +277,6 @@ Examples:
   deopjufy table-scan sample.bin --format json
   deopjufy walk sample.opju --json
   deopjufy dump-block sample.opju --offset 0 --length 4096
-  deopjufy compare path/to/left result/path
+  deopjufy compare out-a/ out-b/
 
-Commands:
-  inspect      Print detection report
-  list         List discoverable artifacts
-  get          Materialize one catalog item by ID
-  extract      Recover content and write manifest
-  strings      Extract visible text strings
-  images       Extract embedded image blocks
-  table-scan   Scan for numeric tables
-  walk         Walk parser-known OPJ/OPJU source ranges
-  dump-block   Dump a byte range from file offset
-  compare      Compare two manifest-backed outputs
 """

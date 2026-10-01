@@ -5,6 +5,10 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Every CLI option now has help text (17 `extract` options and several
+  `get`/`strings`/`table-scan`/`dump-block` options had none). Top-level help
+  drops the ASCII mascot (it spelled "Doob") and the hand-written command list
+  that duplicated argparse's. Regression: `test_every_option_has_help_text`.
 - Removed the `extract` flags `--human-only` and `--human-artifacts-only`
   (breaking). Both behaved exactly like the default `--human` profile while
   the manual described different behavior. The profile group is now

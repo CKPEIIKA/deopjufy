@@ -5,6 +5,43 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Human output: `inspect` merges type, magic and confidence into one line, adds an
+  Origin version line, digit-grouped sizes, a Contents block (objects split into
+  parser-backed and heuristic, kinds by count), and readable format details
+  instead of Python reprs; `list` gets the same header with an item summary;
+  `compare` prints a side/status/kind/name/path table instead of dict reprs;
+  `get` uses the shared key-value layout with a content summary line.
+- `--verbose` is only accepted by `extract`, the one command that reports steps.
+- Removed six detection tests that were defined identically in three modules
+  each (only the last star import was collected).
+- `strings --json` streams `{offset, text}` rows (null offset where no byte
+  offset exists). The chunked ASCII scanner dropped characters of a string that
+  crossed a 1 MiB chunk boundary when the part before the boundary was shorter
+  than `--min-length`; it now always carries the trailing printable run.
+  Regression: `tests/core/misc/test_strings_spans.py`.
+- `get --catalog FILE|-` resolves an ID in a catalog the caller already holds
+  (validated against the input SHA-256; IDs are recomputed, so edited entries
+  do not resolve). The viewer passes its cached catalog on stdin, and column
+  descriptor decoding is memoized per command, so a first item open no longer
+  rebuilds the catalog and decodes every column twice.
+- Viewer: OPJ worksheets, matrices, Excel books, and notes were hidden as
+  recovery evidence because their parser-backed discovery type
+  (`opj_boundary`) is shared with OPJU region records; public `test.opj` showed
+  an empty project. They are visible again.
+- File-derived caches are scoped to one CLI command (`deopjufier/io/parse_cache.py`)
+  instead of process-global `lru_cache`s and module dicts; library use outside a
+  command does not memoize. A cache-hit hack that re-ran `parse_opju_records`
+  only to keep test monkeypatches observable is gone.
+- OPJ name lookup candidates were a `set`, so the chosen project path, and with
+  it item IDs, depended on `PYTHONHASHSEED` (seen on a real 36 MB project:
+  different paths for 2 objects across runs, so a `list` ID could fail in a
+  later `get`). Candidates are now ordered most specific first. Every
+  reference file gives identical `list` and `extract --map` output across hash
+  seeds. Regression: `test_candidate_order_does_not_depend_on_hash_seed`.
+- Object discovery skips token runs shorter than four bytes in the regex
+  (no shorter run can form a name), cutting regex matches 53-fold on
+  `zenodo-18450855-eucd2p2.opju` with byte-identical output on all 21
+  reference files.
 - An internal `TypeError` is no longer reported as `deopjufy: usage: ...` with
   exit 2; only `ValueError` (invalid argument values) maps to a usage error.
   Regression: `test_internal_type_error_is_not_reported_as_usage`.

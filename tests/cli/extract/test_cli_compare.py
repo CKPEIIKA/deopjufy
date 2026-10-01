@@ -334,3 +334,23 @@ def test_compare_command_reports_unmatched_files_by_side(tmp_path, capsys: pytes
     statuses = {entry["status"] for entry in payload["mismatches"]["files"]}
     assert "missing_in_right" in statuses
     assert "missing_in_left" in statuses
+
+
+def test_compare_quiet_reports_only_through_exit_status(tmp_path, capsys: pytest.CaptureFixture[str]) -> None:
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    left.mkdir()
+    right.mkdir()
+    item = {"kind": "note", "name": "Note1", "status": "extracted", "confidence": 0.8, "path": "notes/Note1.txt"}
+    (left / "notes").mkdir()
+    (left / "notes" / "Note1.txt").write_text("hello\n", encoding="utf-8")
+    _write_manifest(left / "manifest.json", status="ok", items=[item])
+    _write_manifest(right / "manifest.json", status="ok", items=[])
+
+    same = main(["compare", str(left), str(left), "--quiet"])
+    different = main(["compare", str(left), str(right), "--quiet"])
+
+    captured = capsys.readouterr()
+    assert (same, different) == (0, 1)
+    assert captured.out == ""
+    assert captured.err == ""

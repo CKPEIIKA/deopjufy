@@ -79,7 +79,9 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=["json", "jsonl", "csv", "tsv", "xlsx", "bmp", "gif", "jpeg", "jpg", "png", "svg"],
         help="materialized format (default: json); see the item's retrieval_formats",
     )
-    get_p.add_argument("-o", "--output", type=Path, default=None, help="output file (required for non-JSON formats)")
+    get_p.add_argument(
+        "-o", "--output", type=Path, default=None, help="output file (default: stdout for non-JSON formats)"
+    )
     get_p.add_argument("--force", action="store_true", help="overwrite the selected output file")
     _json_flag_argument_parser(get_p)
     _add_verbosity_options(get_p)
@@ -193,6 +195,7 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="also compare extracted payload bytes",
     )
+    compare_p.add_argument("--quiet", action="store_true", help="print nothing; report only through exit status")
 
     walk_p = commands.add_parser("walk", help="walk parsed OPJ/OPJU stream structure")
     walk_p.add_argument("file", type=Path)

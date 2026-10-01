@@ -189,6 +189,8 @@ def cmd_dump_block(args):
 
 def cmd_compare(args):
     result = compare_manifests(args.left, args.right, compare_bytes=args.compare_bytes)
+    if args.quiet:
+        return EXIT_SUCCESS if result["match"] else EXIT_GENERAL
     if getattr(args, "json", False):
         print(json.dumps(result, indent=2, sort_keys=True))
     else:

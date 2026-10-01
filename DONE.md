@@ -5,6 +5,9 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- `get --format csv` (or any non-JSON format) without `--output` now writes the
+  artifact bytes to stdout instead of failing; `--json` with a non-JSON format
+  still needs `--output`. `compare --quiet` reports only through exit status.
 - `strings` no longer stops silently on a stdout write error; it used to catch
   every `OSError` and exit 0 with truncated output (for example on a full
   disk). Regression: `test_strings_write_failure_is_reported`.

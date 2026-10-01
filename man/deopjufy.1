@@ -132,8 +132,13 @@ The catalog item's
 field is authoritative.
 .TP
 .BI \-o " OUTPUT"
-Write the primary artifact to this file. Without this option, JSON retrieval is
-written to standard output.
+Write the primary artifact to this file. Without this option the artifact is
+written to standard output: the retrieval envelope for
+.BR json ,
+the raw artifact bytes for every other format.
+.B \-\-json
+with a non-JSON format requires
+.BR \-o .
 .TP
 .B \-\-json
 Emit the complete schema-version-1 retrieval envelope.
@@ -289,6 +294,10 @@ Emit machine-readable differences.
 .TP
 .B \-\-compare\-bytes
 Also compare extracted artifact bytes.
+.TP
+.B \-\-quiet
+Print nothing; report the result only through the exit status (0 match, 1
+difference).
 .SH COMMON OPTIONS
 .TP
 .B \-h, \-\-help

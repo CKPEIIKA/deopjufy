@@ -515,8 +515,9 @@ def cmd_get(args: argparse.Namespace) -> int:
     output = cast(Path | None, args.output)
     force = cast(bool, args.force)
     quiet = cast(bool, args.quiet)
-    if output_format != "json" and output is None:
-        payload = _failure_payload(file_path, item_id, "non-JSON formats require --output")
+    stream_to_stdout = output_format != "json" and output is None
+    if stream_to_stdout and as_json:
+        payload = _failure_payload(file_path, item_id, "--json with a non-JSON format requires --output")
         _render(payload, as_json=as_json, error=True)
         return EXIT_USAGE
 
@@ -559,6 +560,13 @@ def cmd_get(args: argparse.Namespace) -> int:
             manifest = _materialize_catalog_item(session, item, out_dir, extractor_format)
             artifacts = _artifact_payloads(manifest, out_dir)
             primary = _primary_artifact(artifacts, _semantic_kind(item))
+            if stream_to_stdout:
+                # Same materialization as --output, then the bytes become the single stdout stream.
+                staged = out_dir / f"stdout.{output_format}"
+                _copy_primary_output(primary, out_dir, staged, output_format, force=True)
+                sys.stdout.buffer.write(staged.read_bytes())
+                sys.stdout.flush()
+                return EXIT_SUCCESS if manifest.status == "ok" else EXIT_UNSUPPORTED
             if output is not None:
                 _copy_primary_output(primary, out_dir, output, output_format, force=force)
             payload: dict[str, object] = {

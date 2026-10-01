@@ -186,7 +186,7 @@ def test_get_rejects_an_id_from_other_input_bytes_with_structured_json(tmp_path:
     assert payload["error"] == "catalog item does not exist for these input bytes"
 
 
-def test_get_non_json_format_requires_explicit_output(tmp_path: Path, capsys) -> None:
+def test_get_json_report_for_non_json_format_requires_output(tmp_path: Path, capsys) -> None:
     sample = tmp_path / "usage.opju"
     _small_opju(sample)
 
@@ -195,7 +195,25 @@ def test_get_non_json_format_requires_explicit_output(tmp_path: Path, capsys) ->
 
     assert code == 2
     assert payload["status"] == "error"
-    assert payload["error"] == "non-JSON formats require --output"
+    assert payload["error"] == "--json with a non-JSON format requires --output"
+
+
+def test_get_non_json_format_without_output_writes_stdout(tmp_path: Path, capsysbinary) -> None:
+    sample = tmp_path / "descriptor.opju"
+    output = tmp_path / "sheet.csv"
+    _descriptor_opju(sample)
+    main(["list", str(sample), "--json"])
+    listing = json.loads(capsysbinary.readouterr().out)
+    worksheet = next(item for item in listing["items"] if item["discovery_type"] == "opju_column_descriptor_table")
+
+    file_code = main(["get", str(sample), worksheet["id"], "--format", "csv", "--output", str(output), "--quiet"])
+    capsysbinary.readouterr()
+    stdout_code = main(["get", str(sample), worksheet["id"], "--format", "csv"])
+    captured = capsysbinary.readouterr()
+
+    assert file_code == stdout_code == 0
+    assert captured.out == output.read_bytes()
+    assert captured.err == b""
 
 
 def test_get_rejects_format_not_declared_by_catalog_item(tmp_path: Path, capsys) -> None:

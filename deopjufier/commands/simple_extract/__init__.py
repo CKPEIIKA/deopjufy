@@ -55,7 +55,7 @@ def cmd_extract(args):
     if detection.detected_type not in SUPPORTED_TYPES:
         raise UnsupportedFileError("input is not a recognized Origin file (expected .opj or .opju)")
 
-    outdir = _default_output_dir(args.file, args.outdir)
+    outdir: Path = args.outdir
     outdir.mkdir(parents=True, exist_ok=True)
 
     manifest = make_manifest(

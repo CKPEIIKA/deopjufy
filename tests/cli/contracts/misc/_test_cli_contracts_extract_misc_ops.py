@@ -354,7 +354,7 @@ def test_build_parser_accepts_all_supported_commands(tmp_path: Path) -> None:
     assert parsed.command == "strings"
     assert parsed.file == sample
 
-    parsed = parser.parse_args(["images", str(sample)])
+    parsed = parser.parse_args(["images", str(sample), "-o", str(tmp_path / "images")])
     assert parsed.command == "images"
     assert parsed.file == sample
 

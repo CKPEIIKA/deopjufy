@@ -695,6 +695,8 @@ def test_extract_without_file_data_inputs_does_not_load_full_bytes(
         [
             "extract",
             str(sample),
+            "-o",
+            str(tmp_path / "out"),
             "--no-objects",
             "--no-strings",
             "--no-tables",

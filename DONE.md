@@ -3,6 +3,13 @@
 Outcomes are recorded newest first. Detailed historical fixture reconnaissance is
 intentionally excluded from the publication tree.
 
+## 2026-10-01
+
+- `extract` and `images` now require `-o/--out`. Previously they wrote silently
+  into a directory derived from the input path, outside any selected output
+  directory. A missing `-o` is now a usage error (exit 2) and writes nothing.
+  Regression: `test_multi_file_commands_require_explicit_output_dir`.
+
 ## 2026-09-12
 
 - Cleared the static audit backlog: named the twelve format/UI constants flagged

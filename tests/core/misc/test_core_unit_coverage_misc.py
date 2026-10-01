@@ -664,17 +664,6 @@ def test_extract_raw_blocks_respects_parser_confirmed_object_ranges(tmp_path: Pa
     assert manifest.items[1].range_end == 120
 
 
-def test_cli_main_uses_default_output_dir_for_extract(tmp_path: Path) -> None:
-    sample = tmp_path / "missing.opju"
-    sample.write_bytes(b"x")
-    code = main(["extract", str(sample)])
-
-    assert code == 0
-
-    manifest_path = sample.with_suffix("") / "manifest.json"
-    assert manifest_path.exists()
-
-
 def test_cli_main_unknown_command_returns_usage() -> None:
     assert main(["bad-command"]) == 2
 

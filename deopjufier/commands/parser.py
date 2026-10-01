@@ -129,7 +129,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     extract_p = commands.add_parser("extract", help="extract recognized content")
     extract_p.add_argument("file", type=Path)
-    extract_p.add_argument("-o", "--out", dest="outdir", type=Path, default=None)
+    extract_p.add_argument("-o", "--out", dest="outdir", type=Path, required=True, help="output directory")
     extract_p.add_argument("--format", default="csv", choices=["csv", "tsv", "json", "xlsx"])
     extract_p.add_argument("--manifest", type=Path, default=None)
     extract_p.add_argument("--raw-dir", type=Path, default=None)
@@ -209,7 +209,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     images_p = commands.add_parser("images", help="extract embedded images")
     images_p.add_argument("file", type=Path)
-    images_p.add_argument("-o", "--out", dest="outdir", type=Path, default=None)
+    images_p.add_argument("-o", "--out", dest="outdir", type=Path, required=True, help="output directory")
     _json_flag_argument_parser(images_p)
     images_p.add_argument("--force", action="store_true", help="overwrite extracted files")
     _add_verbosity_options(images_p)

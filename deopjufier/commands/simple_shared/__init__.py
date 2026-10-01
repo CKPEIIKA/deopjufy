@@ -23,7 +23,6 @@ from deopjufier.commands.support import (
     _add_parser_warning,
     _build_session,
     _coerce_counts_by_artifact,
-    _default_output_dir,
     _ensure_file,
     _is_recon_heuristic_item,
     _limit_extract_objects,

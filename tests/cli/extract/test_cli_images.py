@@ -94,19 +94,3 @@ def test_images_command_prints_relative_paths_when_not_quiet(
     assert code == 0
     assert len(lines) == 1
     assert not Path(lines[0]).is_absolute()
-
-
-def test_images_defaults_to_input_stem_output_directory(tmp_path: Path) -> None:
-    sample = tmp_path / "image_default.opju"
-    sample.write_bytes(_VALID_PNG_1X1 + b"suffix")
-
-    code = main(
-        [
-            "images",
-            str(sample),
-        ]
-    )
-
-    assert code == 0
-    assert (sample.with_suffix("")).exists()
-    assert any(p.suffix == ".png" for p in (sample.with_suffix("")).iterdir())

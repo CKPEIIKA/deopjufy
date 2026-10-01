@@ -34,7 +34,8 @@ deopjufy \- inspect and extract content from Origin OPJ and OPJU projects
 .PP
 .B deopjufy images
 .I FILE
-.RB [ \-o " OUTDIR" ]
+.B \-o
+.I OUTDIR
 .PP
 .B deopjufy table-scan
 .I FILE
@@ -135,7 +136,7 @@ raw regions, and an exact reconstructable byte map. Availability depends on
 input evidence.
 .TP
 .BI \-o " OUTDIR"
-Select the extraction directory.
+Select the extraction directory. Required; nothing is written elsewhere.
 .TP
 .BI \-\-format " FORMAT"
 Write tabular artifacts as
@@ -216,7 +217,7 @@ OPJU-only.
 Carve validated embedded image signatures into an output directory.
 .TP
 .BI \-o " OUTDIR"
-Select the image directory.
+Select the image directory. Required.
 .TP
 .B \-\-json
 Emit a machine-readable extraction report.

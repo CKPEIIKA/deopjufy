@@ -50,6 +50,22 @@ def test_usage_errors_are_emitted_to_stderr_only(argv: list[str], capsys: pytest
     assert "usage:" in captured.err.lower()
 
 
+@pytest.mark.parametrize("command", ["extract", "images"])
+def test_multi_file_commands_require_explicit_output_dir(
+    command: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    sample = tmp_path / "sample.opj"
+    sample.write_bytes(b"CPYA 4.2673 552#\n")
+
+    code = main([command, str(sample)])
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out == ""
+    assert "-o/--out" in captured.err
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["sample.opj"]
+
+
 def test_inspect_supported_input_uses_stdout_for_payload(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     sample = tmp_path / "sample.opju"
     sample.write_text("sample", encoding="utf-8")

@@ -13,27 +13,6 @@ from deopjufier.session import ExtractionSession
 from tests.test_core_unit_coverage_utils import _resolve_repo_fixture
 
 
-def test_extract_defaults_to_input_stem_output_directory(tmp_path: Path) -> None:
-    sample = tmp_path / "implicit.opju"
-    sample.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x00IEND\xae\x42\x60\x82" + b"suffix")
-
-    code = main(
-        [
-            "extract",
-            str(sample),
-            "--no-images",
-            "--no-strings",
-            "--no-tables",
-            "--no-objects",
-        ]
-    )
-
-    outdir = sample.with_suffix("")
-    manifest = outdir / "manifest.json"
-    assert code == 0
-    assert manifest.exists()
-
-
 def test_extract_raw_dir_with_large_min_size_emits_no_raw_blocks(tmp_path: Path) -> None:
     sample = tmp_path / "rawsample.opju"
     sample.write_bytes(b"\x00" * 500)

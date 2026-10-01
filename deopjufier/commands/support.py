@@ -194,12 +194,6 @@ def _ensure_file(path: Path) -> None:
         raise FileNotFoundError(f"Input file not found: {path}")
 
 
-def _default_output_dir(file_path: Path, explicit: Path | None) -> Path:
-    if explicit is not None:
-        return explicit
-    return file_path.with_suffix("")
-
-
 def _build_session(path: Path) -> ExtractionSession:
     _ensure_file(path)
     return ExtractionSession.from_path(path)

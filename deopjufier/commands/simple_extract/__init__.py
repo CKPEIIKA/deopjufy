@@ -753,6 +753,14 @@ def cmd_extract(args):
     manifest_path = args.manifest or (outdir / "manifest.json")
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest.write(manifest_path)
+    if not args.quiet:
+        extracted = sum(1 for item in manifest.items if item.status == "extracted")
+        print(
+            f"deopjufy: extract {manifest.status}: {extracted} extracted, "
+            f"{len(manifest.items) - extracted} not extracted, {len(manifest.warnings)} warnings; "
+            f"manifest {manifest_path}",
+            file=sys.stderr,
+        )
 
     if truncation is not None and truncation.definitive:
         return EXIT_CORRUPTED

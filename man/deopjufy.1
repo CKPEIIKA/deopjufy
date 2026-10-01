@@ -148,6 +148,10 @@ Permit replacement of an existing output file.
 .SS extract
 Recover recognized content into a new directory and write
 .IR manifest.json .
+On completion one summary line (status, item counts, warning count, manifest
+path) is written to standard error unless
+.B \-\-quiet
+is given; standard output stays empty.
 Possible outputs include tables, matrices, notes, functions, report records,
 images, attachments, graph metadata or stored previews, semantic provenance,
 raw regions, and an exact reconstructable byte map. Availability depends on

@@ -5,6 +5,9 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- `extract` writes one summary line to stderr (status, extracted and
+  not-extracted counts, warnings, manifest path) unless `--quiet`; it used to
+  finish silently. Regression: `test_extract_prints_one_summary_line_on_stderr`.
 - `get --format csv` (or any non-JSON format) without `--output` now writes the
   artifact bytes to stdout instead of failing; `--json` with a non-JSON format
   still needs `--output`. `compare --quiet` reports only through exit status.

@@ -142,7 +142,8 @@ def test_extract_command_writes_files_and_stays_quiet_on_stdout(
 
     assert code == 0
     assert captured.out == ""
-    assert captured.err == ""
+    assert captured.err.startswith("deopjufy: extract ")
+    assert captured.err.count("\n") == 1
     assert output.exists()
     assert (output / "manifest.json").exists()
 
@@ -393,3 +394,25 @@ def test_strings_write_failure_is_reported(
 
     assert code == 1
     assert "No space left on device" in capsys.readouterr().err
+
+
+def test_extract_prints_one_summary_line_on_stderr(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    sample = (
+        Path(__file__).resolve().parents[2] / "fixtures/synthetic/synthetic-opju-preview-report-with-valid-image.opju"
+    )
+    outdir = tmp_path / "out"
+
+    code = main(["extract", str(sample), "-o", str(outdir)])
+    captured = capsys.readouterr()
+    manifest = json.loads((outdir / "manifest.json").read_text(encoding="utf-8"))
+
+    extracted = sum(1 for item in manifest["items"] if item["status"] == "extracted")
+    assert code == 0
+    assert captured.out == ""
+    assert captured.err == (
+        f"deopjufy: extract {manifest['status']}: {extracted} extracted, "
+        f"{len(manifest['items']) - extracted} not extracted, {len(manifest['warnings'])} warnings; "
+        f"manifest {outdir / 'manifest.json'}\n"
+    )
+    assert main(["extract", str(sample), "-o", str(tmp_path / "quiet"), "--quiet"]) == 0
+    assert capsys.readouterr().err == ""

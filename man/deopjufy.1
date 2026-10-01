@@ -102,7 +102,14 @@ bound to the exact input digest.
 Emit the versioned catalog JSON.
 .TP
 .B \-\-exhaustive
-Disable the normal OPJU heuristic-kind cap.
+Disable the heuristic per-kind cap of 24 items (always applied to OPJU, and to
+large OPJ files). When a kind reaches the cap,
+.B list
+and
+.B inspect
+report the
+.B heuristic-items-capped
+warning.
 .TP
 .B \-\-include\-raw\-gaps
 Include uncovered source ranges as

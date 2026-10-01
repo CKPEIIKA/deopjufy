@@ -132,6 +132,31 @@ def _add_parser_warning(
     warnings_struct.append({"code": code, "message": message})
 
 
+def _record_heuristic_cap(
+    items: Iterable[Mapping[str, object]],
+    limit: int | None,
+    warnings: list[str],
+    warnings_struct: list[dict[str, str]],
+) -> None:
+    """Warn when a heuristic object kind reached the per-kind listing cap."""
+    if limit is None:
+        return
+    counts = Counter(
+        str(item.get("object_kind") or item.get("kind"))
+        for item in items
+        if item.get("heuristic") is True and item.get("discovery_type") != "carved"
+    )
+    capped = sorted(kind for kind, count in counts.items() if count >= limit)
+    if capped:
+        _add_parser_warning(
+            warnings,
+            warnings_struct,
+            "heuristic-items-capped",
+            f"Heuristic {', '.join(capped)} items reached the per-kind cap of {limit}; "
+            "run 'list --exhaustive' for all.",
+        )
+
+
 def _record_truncation(
     session: ExtractionSession,
     warnings: list[str],

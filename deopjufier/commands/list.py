@@ -112,6 +112,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         _add_parser_warning,
         _build_session,
         _has_origin_family_mismatch,
+        _record_heuristic_cap,
         _record_truncation,
         _signature_hits_summary_from_blocks,
     )
@@ -267,6 +268,7 @@ def cmd_list(args: argparse.Namespace) -> int:
                 signature_message,
             )
 
+        _record_heuristic_cap(items, list_heuristic_limit, warnings, parser_warnings)
         truncation = _record_truncation(session, warnings, parser_warnings) if parser_status != "error" else None
         status = _command_state(
             is_supported=True,

@@ -416,3 +416,41 @@ def test_extract_prints_one_summary_line_on_stderr(tmp_path: Path, capsys: pytes
     )
     assert main(["extract", str(sample), "-o", str(tmp_path / "quiet"), "--quiet"]) == 0
     assert capsys.readouterr().err == ""
+
+
+def test_list_table_is_compact_and_shows_evidence(capsys: pytest.CaptureFixture[str]) -> None:
+    sample = (
+        Path(__file__).resolve().parents[2] / "fixtures/synthetic/synthetic-opju-preview-report-with-valid-image.opju"
+    )
+
+    main(["list", str(sample)])
+    lines = capsys.readouterr().out.splitlines()
+    table = lines[lines.index("Items") + 1 :]
+    header, rule, rows = table[0], table[1], [line for line in table[2:] if line and not line.startswith("Warn")]
+
+    assert header.split() == ["Offset", "Length", "Kind", "Evidence", "Name", "Object"]
+    assert len(rule) == len(header)
+    assert all(line == line.rstrip() for line in [header, *rows])
+    assert all(row.split()[3] in {"parser", "heuristic"} for row in rows)
+    widest_row = max(len(row) for row in rows)
+    assert len(header) <= widest_row
+
+
+@pytest.mark.parametrize("command", ["list", "inspect"])
+def test_capped_heuristic_listing_is_disclosed(
+    command: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from deopjufier.opju.common import OPJU_END_TRAILER
+
+    sample = tmp_path / "many.opju"
+    tokens = b"".join(f"\x00Book{index}_A\x00".encode() for index in range(40))
+    sample.write_bytes(b"CPYUA 4.3445 200\n" + tokens + OPJU_END_TRAILER)
+
+    main([command, str(sample), "--json"])
+    capped = json.loads(capsys.readouterr().out)
+    main(["list", str(sample), "--json", "--exhaustive"])
+    exhaustive = json.loads(capsys.readouterr().out)
+
+    assert "heuristic-items-capped" in {warning["code"] for warning in capped["parser_warnings"]}
+    assert "heuristic-items-capped" not in {warning["code"] for warning in exhaustive["parser_warnings"]}
+    assert len(exhaustive["items"]) == 41

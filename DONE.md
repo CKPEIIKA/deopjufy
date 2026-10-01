@@ -5,6 +5,14 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- `list` human output: the table printer padded capped columns to their cap
+  (about 170 columns of mostly blanks), never right-aligned numbers, and left
+  trailing spaces; the always-empty Status/Path columns are replaced by an
+  Evidence column (parser/heuristic), which marks token hits like `cbZ3`.
+  `list` and `inspect` warn `heuristic-items-capped` when a heuristic kind
+  reaches the silent per-kind cap of 24. Regressions:
+  `test_list_table_is_compact_and_shows_evidence`,
+  `test_capped_heuristic_listing_is_disclosed`.
 - `extract` writes one summary line to stderr (status, extracted and
   not-extracted counts, warnings, manifest path) unless `--quiet`; it used to
   finish silently. Regression: `test_extract_prints_one_summary_line_on_stderr`.

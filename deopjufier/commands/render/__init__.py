@@ -50,34 +50,25 @@ def _print_table_rows(
     normalized: list[list[str]] = [[str(header) for header in headers]] + [
         [_trimmed(value) for value in row] for row in rows
     ]
-    column_count = len(headers)
-
-    if max_widths is None:
-        column_widths = [0] * column_count
-    else:
-        column_widths = [max_widths.get(index, 0) for index in range(column_count)]
-
-    for col in range(column_count):
-        candidate_width = max(len(row[col]) for row in normalized)
-        if max_widths is not None and max_widths.get(col, 0) > 0:
-            candidate_width = min(candidate_width, max_widths[col])
-        if column_widths[col] > 0:
-            candidate_width = max(candidate_width, column_widths[col])
-        column_widths[col] = candidate_width
+    caps = max_widths or {}
+    # Widths fit the content; max_widths only caps a column, it never pads one.
+    column_widths = [
+        min(max(len(row[col]) for row in normalized), caps.get(col) or sys.maxsize) for col in range(len(headers))
+    ]
 
     delimiter = "  "
     header_line = delimiter.join(
         _pad(header, width, "left") for header, width in zip(headers, column_widths, strict=False)
-    )
+    ).rstrip()
     print(header_line)
     print("-" * len(header_line))
     for row in normalized[1:]:
         cells = [_trimmed(cell, width) for cell, width in zip(row, column_widths, strict=False)]
         print(
             delimiter.join(
-                _pad(cell, width, "right" if header in {"offset", "length"} else "left")
+                _pad(cell, width, "right" if header.lower() in {"offset", "length"} else "left")
                 for cell, width, header in zip(cells, column_widths, headers, strict=False)
-            )
+            ).rstrip()
         )
 
 
@@ -174,23 +165,21 @@ def _print_list_summary(payload: Mapping[str, object], *, as_json: bool) -> None
         return
 
     print("\nItems")
-    rows: list[tuple[object, ...]] = []
-    for item in items:
-        rows.append(
-            (
-                item.get("offset", ""),
-                item.get("kind", ""),
-                item.get("name", ""),
-                item.get("length", ""),
-                item.get("status", ""),
-                item.get("path", ""),
-                item.get("source_object_path", ""),
-            )
+    rows: list[tuple[object, ...]] = [
+        (
+            item.get("offset", ""),
+            item.get("length", ""),
+            item.get("kind", ""),
+            "heuristic" if item.get("heuristic") else "parser",
+            item.get("name", ""),
+            item.get("source_object_path", ""),
         )
+        for item in items
+    ]
     _print_table_rows(
-        ["Offset", "Kind", "Name", "Length", "Status", "Path", "Object"],
+        ["Offset", "Length", "Kind", "Evidence", "Name", "Object"],
         rows,
-        max_widths={2: 48, 5: 36, 6: 36},
+        max_widths={4: 40, 5: 40},
     )
 
     warnings = payload.get("warnings")

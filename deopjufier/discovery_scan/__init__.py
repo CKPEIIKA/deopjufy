@@ -47,6 +47,11 @@ KNOWN_SUFFIXES = (
 )
 
 _TOK_PATTERN = re.compile(rb"[A-Za-z0-9_.@-]+")
+# Plausible names are 4-64 characters and embedded names are token suffixes, so
+# shorter runs can never yield an object. Whole-buffer scans skip them in the
+# regex; the chunked scanner keeps _TOK_PATTERN to carry partial runs across
+# chunk boundaries.
+_NAME_TOKEN_PATTERN = re.compile(rb"[A-Za-z0-9_.@-]{4,}")
 _BRACKET_REF_PATTERN = re.compile(rb"\[([A-Za-z][A-Za-z0-9_]+)\]([A-Za-z][A-Za-z0-9_]*)")
 _OPJ_DISCOVERY_STREAM_THRESHOLD_BYTES = 128 * 1024
 _OPJ_DISCOVERY_STREAM_CHUNK_SIZE = 1 << 20
@@ -737,7 +742,7 @@ def _token_offsets_from_buffer(
     if heuristic_kind_limit is not None and kind_hits is None:
         kind_hits = {}
 
-    for match in _TOK_PATTERN.finditer(data):
+    for match in _NAME_TOKEN_PATTERN.finditer(data):
         token = match.group().decode("ascii", errors="ignore")
         _append_token_object_offsets(
             token,
@@ -783,7 +788,7 @@ def _token_offsets_from_stream(
 
 def _token_offsets(data: bytes) -> list[OriginObject]:
     objects: list[OriginObject] = []
-    for match in _TOK_PATTERN.finditer(data):
+    for match in _NAME_TOKEN_PATTERN.finditer(data):
         token = match.group().decode("ascii", errors="ignore")
         _append_token_object_offsets(token, 0, match, out=objects)
     return objects

@@ -410,6 +410,7 @@ def test_every_option_has_help_text() -> None:
 
     parser = _build_parser()
     subparsers = next(action for action in parser._actions if action.dest == "command")
+    assert isinstance(subparsers.choices, dict)
     undocumented = [
         f"{name} {action.option_strings[-1]}"
         for name, command in subparsers.choices.items()

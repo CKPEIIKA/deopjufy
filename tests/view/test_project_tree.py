@@ -104,7 +104,7 @@ def test_sibling_sheets_build_one_naturally_ordered_workbook_tab_set() -> None:
     assert [leaf.item_id for leaf in siblings] == ["sheet-2-2", "sheet-2-10"]
 
 
-def test_parser_backed_opj_tables_and_notes_are_visible_by_default() -> None:
+def test_parser_backed_content_and_project_pages_are_visible_by_default() -> None:
     def item(item_id: str, object_kind: str) -> dict[str, object]:
         return {
             "id": item_id,
@@ -122,6 +122,7 @@ def test_parser_backed_opj_tables_and_notes_are_visible_by_default() -> None:
             item("MBook1", "matrix"),
             item("Book1", "excel"),
             item("Note1", "note"),
+            item("Graph3", "project_page"),
             item("Folder1", "project_folder"),
             item("Header", "meta"),
         ]
@@ -129,4 +130,24 @@ def test_parser_backed_opj_tables_and_notes_are_visible_by_default() -> None:
 
     visible = {leaf.item_id for leaf in catalog_leaves(payload)}
 
-    assert visible == {"Book2", "MBook1", "Book1", "Note1"}
+    assert visible == {"Book2", "MBook1", "Book1", "Note1", "Graph3"}
+
+
+def test_internal_opju_groups_get_readable_labels_but_keep_paths() -> None:
+    payload = {
+        "items": [
+            {
+                "id": "graph-3",
+                "kind": "origin_object",
+                "object_kind": "project_page",
+                "name": "Graph3",
+                "source_object_path": "page_directory/Graph3",
+                "discovery_type": "opj_boundary",
+                "heuristic": False,
+            }
+        ]
+    }
+
+    tree = build_project_tree(catalog_leaves(payload))
+
+    assert [(branch.label, branch.path) for branch in tree.branches] == [("Pages", ("page_directory",))]

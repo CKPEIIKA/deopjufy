@@ -3,7 +3,15 @@ from __future__ import annotations
 import base64
 from pathlib import Path
 
-from deopjufy_view.presentation import SHORTCUT_ROWS, about_text, export_summary, property_rows, recovered_image
+from deopjufy_view.presentation import (
+    SHORTCUT_ROWS,
+    about_text,
+    export_summary,
+    property_rows,
+    recovered_image,
+    status_detail,
+    unreadable_item_summary,
+)
 
 
 def test_recovered_image_accepts_graph_preview_path_and_preserves_format() -> None:
@@ -73,3 +81,33 @@ def test_export_summary_separates_extracted_from_omitted_items() -> None:
         "Exported 2 item(s) to /tmp/out; 1 not extracted (see manifest.json)"
     )
     assert export_summary({"items": [{"status": "extracted"}]}, Path("out")) == "Exported 1 item(s) to out"
+
+
+def test_unreadable_item_summary_explains_missing_content() -> None:
+    payload = {
+        "status": "partial",
+        "item": {"name": "pfit2l", "object_kind": "opju_report", "kind": "origin_storage_report"},
+        "artifacts": [{"error": "catalog_item_has_no_materializer"}, {"error": None}],
+    }
+
+    summary = unreadable_item_summary(payload)
+    assert summary is not None
+    title, detail = summary
+
+    assert title == "No readable content for pfit2l"
+    assert detail.splitlines() == [
+        "Kind: opju_report  ·  Status: partial",
+        "Reason: catalog_item_has_no_materializer",
+        "View ▸ Properties lists the recovered fields; Export ▸ JSON saves the full response.",
+    ]
+    assert unreadable_item_summary({"content": "text", "item": {}}) is None
+
+
+def test_status_detail_describes_tables_images_and_text() -> None:
+    times = "\N{MULTIPLICATION SIGN}"
+    assert status_detail({"status": "ok"}, table_shape=(32, 3)) == f"32 rows {times} 3 columns"
+    assert status_detail({"status": "ok"}, table_shape=(1, 1)) == f"1 row {times} 1 column"
+    image_detail = status_detail({"status": "ok"}, image_shape=("png", 200, 150))
+    assert image_detail == f"PNG · 200 {times} 150 px · +/- zoom, 0 fit"
+    assert status_detail({"status": "ok", "content": "a\nb\n"}) == "2 lines"
+    assert status_detail({"status": "partial"}) == "partial"

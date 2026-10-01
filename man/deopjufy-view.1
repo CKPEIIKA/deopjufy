@@ -42,8 +42,10 @@ components. The viewer does not invent type buckets that are absent from parser
 evidence. Native icons distinguish projects, workbooks, worksheets, graphs,
 notes, functions, media, and recovery evidence.
 .PP
-Recovery-only, heuristic, raw, parser-boundary, and unknown leaves are hidden by
-default. Use
+Recovery-only, heuristic, raw, and unknown leaves, and OPJU region records, are
+hidden by default. Parser-backed worksheets, matrices, Excel books, notes, and
+OPJU project pages stay visible. Internal OPJU groups are shown as Pages, Folders,
+Reports, and Previews. Use
 .B View -> Show unknown/recovery evidence
 to expose them. Expand, collapse, and single-child-group unwrapping commands are
 available from the View menu.
@@ -54,16 +56,25 @@ sheet controls. Tables use a virtual grid, so scrolling does not start new CLI
 processes. Recovered long names, units, comments, formulas, types, and X/Y roles
 appear as frozen metadata rows when available.
 .PP
-The grid provides numeric alignment, clipped cell boundaries, row labels,
-keyboard navigation, selection, copying, and rendered-text column sizing.
+The grid provides numeric alignment, alternating row shading, clipped cell
+boundaries, row labels, keyboard navigation, selection, copying, and
+rendered-text column sizing. The status bar shows the table dimensions.
 .SS Images and graph previews
 Recovered images and parser-linked stored graph previews use a fit-to-window
-image view. The viewer displays a plot only when the named catalog page has an
+image view that enlarges small stored previews up to twice their size;
+.B +
+and
+.B \-
+zoom and
+.B 0
+returns to fit. The viewer displays a plot only when the named catalog page has an
 exact stored-preview link. It does not synthesize a plot from a partial graph
 definition.
 .SS Notes and structured metadata
-Notes use read-only text views. Graph metadata and other structured retrieval
-payloads use formatted text. Properties are displayed as labeled fields rather
+Notes use padded, word-wrapped read-only text views. Graph metadata and other
+structured retrieval payloads use formatted text. An item whose retrieval has
+no displayable content shows its kind, status, and the recorded reason instead
+of the raw response. Properties are displayed as labeled fields rather
 than a raw JSON dump. Parser warnings are available from
 .BR "View -> Diagnostics" .
 .SH EXPORT

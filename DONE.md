@@ -5,6 +5,15 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- Viewer polish (checked with Xvfb screenshots on public `test.opj` and
+  `zenodo-4708192-fig5.opju`): OPJU graph pages with stored previews were
+  hidden, so that project opened empty; they now appear under a "Pages" group
+  with a drawn chart icon (the stock icon was the broken-image glyph). Stored
+  previews fit the view and enlarge up to 2x with a thin frame; items without
+  readable content show kind, status, and reason instead of a raw JSON dump;
+  notes are padded, word-wrapped, and no longer rendered in GTK's disabled
+  grey; grids shade alternate rows; the status bar reads "32 rows x 3 columns",
+  "PNG 200 x 152 px", or "N lines".
 - Human output: `inspect` merges type, magic and confidence into one line, adds an
   Origin version line, digit-grouped sizes, a Contents block (objects split into
   parser-backed and heuristic, kinds by count), and readable format details

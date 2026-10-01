@@ -22,7 +22,15 @@ from deopjufy_view.model import (
     table_region_text,
     tabular_view,
 )
-from deopjufy_view.presentation import SHORTCUT_ROWS, about_text, export_summary, property_rows, recovered_image
+from deopjufy_view.presentation import (
+    SHORTCUT_ROWS,
+    about_text,
+    export_summary,
+    property_rows,
+    recovered_image,
+    status_detail,
+    unreadable_item_summary,
+)
 from deopjufy_view.project_tree import (
     ProjectBranch,
     ProjectLeaf,
@@ -33,6 +41,11 @@ from deopjufy_view.project_tree import (
 )
 
 _MIN_WORKBOOK_SHEETS = 2
+_MAX_PREVIEW_FIT_SCALE = 2.0
+_TEXT_MARGIN_DIP = 12
+_CHART_ICON_RGB = (240, 160, 48)
+# Share of the text colour mixed into the background for alternate grid rows.
+_STRIPE_BLEND = 0.05
 _TARGET_COMPONENT_COUNT = 2
 
 
@@ -44,6 +57,7 @@ class TabState:
     payload: dict[str, Any]
     table: TabularView | None = None
     grid: Any | None = None
+    image_shape: tuple[str, int, int] | None = None
 
 
 @dataclass
@@ -73,9 +87,25 @@ def _wx_modules() -> tuple[Any, Any]:
 
 def _grid_table_type(wx_grid: Any) -> type:
     class JsonGridTable(wx_grid.GridTableBase):
-        def __init__(self, data: TabularView) -> None:
+        def __init__(self, data: TabularView, stripe: Any | None = None) -> None:
             super().__init__()
             self.data = data
+            self.stripe = stripe
+
+        def GetAttr(self, row: int, col: int, kind: Any) -> Any:
+            # Stripe alternate data rows; merge with provider attributes (metadata rows,
+            # numeric alignment) rather than replacing them.
+            attr = super().GetAttr(row, col, kind)
+            data_row = row - len(self.data.metadata_rows)
+            if self.stripe is None or data_row < 0 or data_row % 2 == 0:
+                return attr
+            if attr is None:
+                self.stripe.IncRef()
+                return self.stripe
+            merged = attr.Clone()
+            attr.DecRef()
+            merged.SetBackgroundColour(self.stripe.GetBackgroundColour())
+            return merged
 
         def GetNumberRows(self) -> int:
             return self.data.grid_row_count
@@ -106,7 +136,6 @@ def _image_preview_type(wx: Any) -> type:
             self.zoom: float | None = None
             self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
             self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-            self.SetToolTip("Plot preview: +/- zoom, 0 fit")
             self.Bind(wx.EVT_PAINT, self._on_paint)
             self.Bind(wx.EVT_SIZE, self._on_size)
             self.Bind(wx.EVT_KEY_DOWN, self._on_key)
@@ -118,7 +147,10 @@ def _image_preview_type(wx: Any) -> type:
             width, height = self.GetClientSize()
             if width <= 0 or height <= 0 or self.image.GetWidth() <= 0 or self.image.GetHeight() <= 0:
                 return 1.0
-            return min(1.0, (width - 24) / self.image.GetWidth(), (height - 24) / self.image.GetHeight())
+            # Stored previews are small thumbnails; enlarge them up to 2x to fill the view.
+            return min(
+                _MAX_PREVIEW_FIT_SCALE, (width - 48) / self.image.GetWidth(), (height - 48) / self.image.GetHeight()
+            )
 
         def _on_paint(self, _event: object) -> None:
             dc = wx.AutoBufferedPaintDC(self)
@@ -129,7 +161,11 @@ def _image_preview_type(wx: Any) -> type:
             height = max(1, round(self.image.GetHeight() * scale))
             bitmap = wx.Bitmap(self.image.Scale(width, height, wx.IMAGE_QUALITY_HIGH))
             client_width, client_height = self.GetClientSize()
-            dc.DrawBitmap(bitmap, max(0, (client_width - width) // 2), max(0, (client_height - height) // 2), True)
+            left, top = max(0, (client_width - width) // 2), max(0, (client_height - height) // 2)
+            dc.SetPen(wx.Pen(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNSHADOW)))
+            dc.SetBrush(wx.TRANSPARENT_BRUSH)
+            dc.DrawRectangle(left - 1, top - 1, width + 2, height + 2)
+            dc.DrawBitmap(bitmap, left, top, True)
 
         def _on_size(self, event: Any) -> None:
             self.Refresh()
@@ -258,7 +294,7 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             self._build_toolbar()
             self._build_content()
             self.status = self.CreateStatusBar(2)
-            self.status.SetStatusWidths([-1, 250])
+            self.status.SetStatusWidths([-1, self.FromDIP(340)])
             self._bind_events()
             self._show_welcome()
             self._update_export_enabled()
@@ -440,9 +476,31 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             }
             self.tree_icons: dict[str, int] = {}
             for key, art_id in art.items():
-                bitmap = wx.ArtProvider.GetBitmap(art_id, wx.ART_OTHER, (16, 16))
+                bitmap = (
+                    self._chart_bitmap(16)
+                    if key == "graph"
+                    else wx.ArtProvider.GetBitmap(art_id, wx.ART_OTHER, (16, 16))
+                )
                 self.tree_icons[key] = image_list.Add(bitmap)
             self.tree.AssignImageList(image_list)
+
+        def _chart_bitmap(self, size: int) -> Any:
+            # The stock art set has no chart glyph (ART_MISSING_IMAGE reads as a broken image).
+            bitmap = wx.Bitmap.FromRGBA(size, size, 0, 0, 0, 0)
+            dc = wx.MemoryDC(bitmap)
+            context = wx.GraphicsContext.Create(dc)
+            axis = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+            # Amber stays visible on light, dark, and selected (highlighted) rows alike.
+            line = wx.Colour(*_CHART_ICON_RGB)
+            context.SetPen(wx.Pen(axis, 1))
+            context.StrokeLine(2, 1, 2, size - 2)
+            context.StrokeLine(2, size - 2, size - 1, size - 2)
+            context.SetPen(wx.Pen(line, 2))
+            points = [(4, size - 5), (7, size - 9), (10, size - 7), (14, 3)]
+            context.StrokeLines([wx.Point2D(x, y) for x, y in points])
+            del context
+            dc.SelectObject(wx.NullBitmap)
+            return bitmap
 
         def _bind_events(self) -> None:
             self.Bind(wx.EVT_MENU, self._on_open, id=wx.ID_OPEN)
@@ -1035,14 +1093,20 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             if table is not None:
                 grid = self._make_grid(panel, table)
                 sizer.Add(grid, 1, wx.EXPAND)
-            elif image_payload is not None:
+            image_shape = None
+            if table is None and image_payload is not None:
                 image_view = self._make_image_view(panel, image_payload.data)
                 if image_view is not None:
                     sizer.Add(image_view, 1, wx.EXPAND)
+                    image_shape = (
+                        image_payload.output_format,
+                        image_view.image.GetWidth(),
+                        image_view.image.GetHeight(),
+                    )
                 else:
-                    sizer.Add(self._make_text_view(panel, payload), 1, wx.EXPAND)
-            else:
-                sizer.Add(self._make_text_view(panel, payload), 1, wx.EXPAND)
+                    sizer.Add(self._make_content_view(panel, payload), 1, wx.EXPAND)
+            elif table is None:
+                sizer.Add(self._make_content_view(panel, payload), 1, wx.EXPAND)
             item = payload.get("item")
             label = (
                 str(item.get("name") or item.get("source_object_path") or "Item") if isinstance(item, dict) else "Item"
@@ -1058,6 +1122,7 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
                 payload=payload,
                 table=table,
                 grid=grid,
+                image_shape=image_shape,
             )
             self.tabs[target] = state
             self._update_export_enabled()
@@ -1065,7 +1130,9 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
 
         def _make_grid(self, parent: Any, table: TabularView) -> Any:
             grid = wx_grid.Grid(parent)
-            grid.SetTable(grid_table(table), True)
+            stripe = wx_grid.GridCellAttr()
+            stripe.SetBackgroundColour(self._stripe_colour())
+            grid.SetTable(grid_table(table, stripe), True)
             grid.EnableEditing(False)
             grid.SetSelectionMode(wx_grid.Grid.SelectCells)
             grid.SetMargins(0, 0)
@@ -1092,6 +1159,12 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             grid.Bind(wx.EVT_KEY_DOWN, self._on_grid_key)
             return grid
 
+        def _stripe_colour(self) -> Any:
+            background = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+            text = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+            channels = zip(background.Get(includeAlpha=False), text.Get(includeAlpha=False), strict=True)
+            return wx.Colour(*(round(back + (fore - back) * _STRIPE_BLEND) for back, fore in channels))
+
         def _make_image_view(self, parent: Any, payload: bytes) -> Any | None:
             preview = image_preview(parent, payload)
             if not preview.IsOk():
@@ -1099,12 +1172,47 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
                 return None
             return preview
 
+        def _make_content_view(self, parent: Any, payload: dict[str, Any]) -> Any:
+            summary = unreadable_item_summary(payload)
+            if summary is not None:
+                return self._make_unreadable_view(parent, *summary)
+            return self._make_text_view(parent, payload)
+
+        def _make_unreadable_view(self, parent: Any, title: str, detail: str) -> Any:
+            panel = wx.Panel(parent)
+            panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+            sizer = wx.BoxSizer(wx.VERTICAL)
+            title_control = wx.StaticText(panel, label=title)
+            title_font = title_control.GetFont()
+            title_font.MakeLarger()
+            title_font.MakeBold()
+            title_control.SetFont(title_font)
+            detail_control = wx.StaticText(panel, label=detail, style=wx.ALIGN_CENTER)
+            detail_control.Wrap(self.FromDIP(560))
+            sizer.AddStretchSpacer()
+            sizer.Add(title_control, 0, wx.ALIGN_CENTER | wx.BOTTOM, self.FromDIP(10))
+            sizer.Add(detail_control, 0, wx.ALIGN_CENTER)
+            sizer.AddStretchSpacer()
+            panel.SetSizer(sizer)
+            return panel
+
         def _make_text_view(self, parent: Any, payload: dict[str, Any]) -> Any:
-            return wx.TextCtrl(
-                parent,
+            # A padded host keeps prose off the edges; explicit colours avoid GTK's
+            # greyed look for read-only text controls.
+            host = wx.Panel(parent)
+            background = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+            host.SetBackgroundColour(background)
+            text = wx.TextCtrl(
+                host,
                 value=payload_text(payload),
-                style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL,
+                style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP | wx.BORDER_NONE,
             )
+            text.SetBackgroundColour(background)
+            text.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+            sizer = wx.BoxSizer(wx.VERTICAL)
+            sizer.Add(text, 1, wx.EXPAND | wx.ALL, self.FromDIP(_TEXT_MARGIN_DIP))
+            host.SetSizer(sizer)
+            return host
 
         def _column_width(self, grid: Any, table: TabularView, column: int) -> int:
             values = [table.headers[column] if column < len(table.headers) else ""]
@@ -1677,10 +1785,11 @@ def _frame_type(wx: Any, wx_grid: Any) -> type:
             name = str(item.get("name") or state.target[1]) if isinstance(item, dict) else state.target[1]
             document = state.payload.get("document")
             detected = str(document.get("detected_type", "")).upper() if isinstance(document, dict) else ""
-            if state.table is not None:
-                detail = f"{len(state.table.rows)} x {state.table.column_count}"
-            else:
-                detail = str(state.payload.get("status", ""))
+            detail = status_detail(
+                state.payload,
+                table_shape=(len(state.table.rows), state.table.column_count) if state.table is not None else None,
+                image_shape=state.image_shape,
+            )
             self._set_status(f"{state.target[0].name} · {detected} · {name}", detail)
 
         def _set_status(self, message: str, detail: str = "") -> None:

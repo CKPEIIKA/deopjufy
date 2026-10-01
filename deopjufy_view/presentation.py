@@ -182,3 +182,50 @@ def export_summary(manifest: dict[str, Any], target: Path) -> str:
     if omitted:
         summary += f"; {omitted} not extracted (see manifest.json)"
     return summary
+
+
+def _item_label(item: dict[str, Any]) -> str:
+    return str(item.get("name") or item.get("source_object_path") or item.get("id") or "this item")
+
+
+def unreadable_item_summary(payload: dict[str, Any]) -> tuple[str, str] | None:
+    """Return ``(title, detail)`` for a retrieval without displayable content, else None."""
+    if payload.get("content") is not None:
+        return None
+    item_raw = payload.get("item")
+    item = item_raw if isinstance(item_raw, dict) else {}
+    artifacts_raw = payload.get("artifacts")
+    artifacts = artifacts_raw if isinstance(artifacts_raw, list) else []
+    reasons = sorted({str(entry["error"]) for entry in artifacts if isinstance(entry, dict) and entry.get("error")})
+    kind = item.get("object_kind") or item.get("kind") or "unknown"
+    lines = [f"Kind: {kind}  ·  Status: {payload.get('status', 'unknown')}"]
+    if reasons:
+        lines.append(f"Reason: {', '.join(reasons)}")
+    lines.append("View ▸ Properties lists the recovered fields; Export ▸ JSON saves the full response.")
+    return f"No readable content for {_item_label(item)}", "\n".join(lines)
+
+
+_TIMES = "\N{MULTIPLICATION SIGN}"
+
+
+def _plural(count: int, noun: str) -> str:
+    return f"{count:,} {noun}" if count == 1 else f"{count:,} {noun}s"
+
+
+def status_detail(
+    payload: dict[str, Any],
+    *,
+    table_shape: tuple[int, int] | None = None,
+    image_shape: tuple[str, int, int] | None = None,
+) -> str:
+    """Describe the open tab's content for the right-hand status bar field."""
+    if table_shape is not None:
+        rows, columns = table_shape
+        return f"{_plural(rows, 'row')} {_TIMES} {_plural(columns, 'column')}"
+    if image_shape is not None:
+        image_format, width, height = image_shape
+        return f"{image_format.upper()} · {width} {_TIMES} {height} px · +/- zoom, 0 fit"
+    content = payload.get("content")
+    if isinstance(content, str):
+        return _plural(len(content.splitlines()), "line")
+    return str(payload.get("status", ""))

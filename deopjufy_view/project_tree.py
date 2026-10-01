@@ -12,9 +12,17 @@ _MEDIA_KINDS = frozenset({"bmp", "gif", "graph", "image", "jpeg", "layer", "png"
 _TEXT_KINDS = frozenset({"function", "note", "opju_report", "origin_storage_report"})
 _RECOVERY_ONLY_KINDS = frozenset({"meta", "opju_note_payload", "opju_raw_payload"})
 _RECOVERY_ONLY_DISCOVERY_TYPES = frozenset({"opj_boundary", "unknown_gap"})
-# OPJ parser-backed objects also carry discovery_type "opj_boundary"; these kinds are
+# Parser-backed OPJ objects and OPJU project pages (graph and book windows with
+# stored previews) also carry discovery_type "opj_boundary"; these kinds are
 # project content, not region evidence, and stay visible.
-_BOUNDARY_CONTENT_KINDS = frozenset({"excel", "matrix", "note", "worksheet"})
+_BOUNDARY_CONTENT_KINDS = frozenset({"excel", "matrix", "note", "project_page", "worksheet"})
+# Display names for path groups that the CLI names after OPJU storage records.
+_GROUP_DISPLAY_LABELS = {
+    "origin_storage_reports": "Reports",
+    "page_directory": "Pages",
+    "previews": "Previews",
+    "project_folders": "Folders",
+}
 
 
 @dataclass(frozen=True)
@@ -122,7 +130,7 @@ def catalog_leaves(
 
 
 def _freeze_branch(branch: _MutableBranch, unwrap_single_child_groups: bool) -> ProjectBranch:
-    label = branch.label
+    label = _GROUP_DISPLAY_LABELS.get(branch.label, branch.label)
     path = branch.path
     current = branch
     while unwrap_single_child_groups and not current.leaves and len(current.branches) == 1:

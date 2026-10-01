@@ -5,6 +5,10 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- `deopjufy ... | head` no longer prints `Exception ignored ... BrokenPipeError`
+  and exits 120: the entry point flushes stdout itself and treats a closed
+  reader as success. `python -m deopjufier` uses the same entry point.
+  Regression: `test_closed_stdout_pipe_exits_quietly`.
 - `dump-block` rejects a range that does not fit in the file as a usage error
   (exit 2) instead of exit 6 for a large offset and a `MemoryError` traceback
   for a large length; `io.dump_range` never reads past the file size.

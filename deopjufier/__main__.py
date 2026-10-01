@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from deopjufier.cli import main
+from deopjufier.cli import cli_entrypoint
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    cli_entrypoint()

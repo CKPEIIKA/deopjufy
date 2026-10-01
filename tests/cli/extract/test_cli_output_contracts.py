@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -355,3 +357,21 @@ def test_extract_refuses_existing_manifest_path_without_force(
     assert "--force" in capsys.readouterr().err
     assert manifest_path.read_text(encoding="utf-8") == "keep"
     assert not (tmp_path / "out").exists()
+
+
+def test_closed_stdout_pipe_exits_quietly() -> None:
+    sample = Path(__file__).resolve().parents[2] / "fixtures/synthetic/synthetic-opj-multi-family.opj"
+    process = subprocess.Popen(
+        [sys.executable, "-m", "deopjufier", "strings", str(sample), "--min-length", "1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert process.stdout is not None and process.stderr is not None
+    # Close the read end before the child writes, as `| head -0` would.
+    process.stdout.close()
+    stderr = process.stderr.read()
+    process.stderr.close()
+
+    assert process.wait(timeout=60) == 0
+    assert b"BrokenPipeError" not in stderr
+    assert b"Exception ignored" not in stderr

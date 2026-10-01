@@ -454,3 +454,15 @@ def test_capped_heuristic_listing_is_disclosed(
     assert "heuristic-items-capped" in {warning["code"] for warning in capped["parser_warnings"]}
     assert "heuristic-items-capped" not in {warning["code"] for warning in exhaustive["parser_warnings"]}
     assert len(exhaustive["items"]) == 41
+
+
+def test_internal_type_error_is_not_reported_as_usage(monkeypatch: pytest.MonkeyPatch) -> None:
+    from deopjufier.commands import dispatch
+
+    def _broken(_args: object) -> int:
+        raise TypeError("internal bug")
+
+    monkeypatch.setattr(dispatch, "_map_command_to_handler", lambda _command: _broken)
+
+    with pytest.raises(TypeError, match="internal bug"):
+        main(["inspect", "whatever.opj"])

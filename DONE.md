@@ -5,6 +5,9 @@ intentionally excluded from the publication tree.
 
 ## 2026-10-01
 
+- An internal `TypeError` is no longer reported as `deopjufy: usage: ...` with
+  exit 2; only `ValueError` (invalid argument values) maps to a usage error.
+  Regression: `test_internal_type_error_is_not_reported_as_usage`.
 - Viewer: runs the CLI as `python -m deopjufier` with its own interpreter instead
   of whatever `deopjufy` is first on PATH; accepts the JSON payload and the
   export written alongside exit 6 (truncated input) instead of reporting a

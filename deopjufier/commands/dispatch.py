@@ -171,7 +171,8 @@ def main(argv: list[str] | None = None) -> int:
         return _handle_cli_command_error(args, args.command, exc, f"error: {exc}")
     except UnsupportedFileError as exc:
         return _handle_cli_command_error(args, args.command, exc, f"error: {exc}")
-    except (TypeError, ValueError) as exc:
+    except ValueError as exc:
+        # Commands raise ValueError for invalid argument values; TypeError is a bug and must surface.
         print(f"deopjufy: usage: {exc}", file=sys.stderr)
         return EXIT_USAGE
     except BrokenPipeError:

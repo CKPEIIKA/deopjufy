@@ -1,3 +1,6 @@
+import argparse
+from typing import cast
+
 from tests.cli.contracts.misc._test_cli_contracts_extract_misc_common import *  # noqa: F403
 from tests.test_core_unit_coverage_utils import _resolve_tests_fixture
 
@@ -410,10 +413,10 @@ def test_every_option_has_help_text() -> None:
 
     parser = _build_parser()
     subparsers = next(action for action in parser._actions if action.dest == "command")
-    assert isinstance(subparsers.choices, dict)
+    commands = cast("dict[str, argparse.ArgumentParser]", subparsers.choices)
     undocumented = [
         f"{name} {action.option_strings[-1]}"
-        for name, command in subparsers.choices.items()
+        for name, command in commands.items()
         for action in command._actions
         if action.option_strings and not action.help
     ]
